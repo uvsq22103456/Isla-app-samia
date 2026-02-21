@@ -7,6 +7,8 @@
     <title>Samia — Deen & Arabe 🌸</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -37,24 +39,9 @@
         }
         .amiri { font-family: 'Amiri', serif; }
         .playfair { font-family: 'Playfair Display', serif; }
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 0 2px 12px rgba(196,122,122,0.06);
-        }
-        .card-soft {
-            background: var(--blush);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-        }
-        .rose-btn {
-            background: linear-gradient(135deg, #E8A4A4, #C47A7A);
-            color: white;
-            border-radius: 16px;
-            font-weight: 700;
-            box-shadow: 0 4px 16px rgba(196,122,122,0.3);
-        }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 2px 12px rgba(196,122,122,0.06); }
+        .card-soft { background: var(--blush); border: 1px solid var(--border); border-radius: 20px; }
+        .rose-btn { background: linear-gradient(135deg, #E8A4A4, #C47A7A); color: white; border-radius: 16px; font-weight: 700; box-shadow: 0 4px 16px rgba(196,122,122,0.3); }
         .pb-nav { padding-bottom: 7rem; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         input, textarea { font-size: 16px !important; }
@@ -63,35 +50,15 @@
         .active-nav .nav-icon { color: #C47A7A; }
         .active-nav .nav-label { color: #C47A7A; }
 
-        /* Toast */
         .toast-anim { animation: toastIn 0.3s ease; }
         @keyframes toastIn { from { opacity:0; transform: translate(-50%,-10px); } to { opacity:1; transform: translate(-50%,0); } }
-
-        /* Fade */
         @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         .fade-up { animation: fadeUp 0.4s ease both; }
 
-        /* Rating buttons */
         .rating-btn { transition: all 0.15s ease; border: 1.5px solid var(--border); }
         #rate-easy.sel { background: #DCFCE7; border-color: #86EFAC; }
         #rate-medium.sel { background: #FEF9C3; border-color: #FDE047; }
         #rate-hard.sel { background: #FEE2E2; border-color: #FCA5A5; }
-
-        /* Letter grid button */
-        .letter-btn {
-            background: white;
-            border: 1.5px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 8px;
-            text-align: center;
-            transition: all 0.15s;
-            cursor: pointer;
-        }
-        .letter-btn:active { transform: scale(0.95); }
-        .letter-btn.active-letter {
-            background: linear-gradient(135deg, #F9EEE8, #F0D8D8);
-            border-color: #E8A4A4;
-        }
     </style>
 
     <script>
@@ -100,7 +67,7 @@
         let sessions = [];
         let scores = {};
         let personalDuas = [];
-        const LS = 'samia-deen-v1';
+        const LS = 'samia-deen-v4';
 
         function loadAll() {
             try {
@@ -121,42 +88,36 @@
             } catch(e) {}
         }
 
-       // ============ AUDIO MOTEUR ============
-        window.currentUtt = null; // Cette ligne empêche l'iPhone de bloquer le son
+        // ============ NOUVEAU MOTEUR AUDIO (100% COMPATIBLE IPHONE) ============
+        let currentAudio = null;
 
-        function speakArabic(text) {
-            if (!('speechSynthesis' in window)) { 
-                showToast("Audio non disponible"); 
-                return; 
+        window.playArabicAudio = (text, isQuran = false, surahNum = null, ayahNum = null) => {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
             }
-            
-            // Coupe le son précédent s'il y en a un
-            window.speechSynthesis.cancel();
-            
-            // On attache le son à la fenêtre globale (window) pour que l'iPhone ne le supprime pas
-            window.currentUtt = new SpeechSynthesisUtterance(text);
-            window.currentUtt.lang = 'ar-SA'; 
-            window.currentUtt.rate = 0.75;    
-            
-            const voices = window.speechSynthesis.getVoices();
-            const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-            if (arabicVoice) {
-                window.currentUtt.voice = arabicVoice;
-            }
-            
-            window.speechSynthesis.speak(window.currentUtt);
-        }
-        window.speakArabic = speakArabic;
-        
-        // Force l'iPhone à préparer les voix dès l'ouverture de l'appli
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
-            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
-        }
 
-        // ============ SURAHS (Toutes tes sourates originales) ============
+            let url = "";
+
+            if (isQuran && surahNum && ayahNum) {
+                // Vrai audio de Nasser Al-Qatami (voix très douce et apaisante) 🌸
+                const sNum = String(surahNum).padStart(3, '0');
+                const aNum = String(ayahNum).padStart(3, '0');
+                url = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${sNum}${aNum}.mp3`;
+            } else {
+                // Audio Google en MP3 pour les lettres et prénoms (contourne le blocage iPhone)
+                url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ar&client=tw-ob`;
+            }
+
+            currentAudio = new Audio(url);
+            currentAudio.play().catch(e => {
+                showToast("Vérifie ton mode silencieux ou ta connexion 🔊");
+            });
+        };
+
+        // ============ SURAHS (Avec numéros pour l'audio) ============
         const SURAHS = [
-            { id:'fatiha', name:'Al-Fatiha', nameAr:'الفاتحة', level:1, emoji:'🌟', tip:"La plus récitée dans la prière. Chaque lettre doit être claire.",
+            { id:'fatiha', num: 1, name:'Al-Fatiha', nameAr:'الفاتحة', level:1, emoji:'🌟', tip:"La plus récitée. Chaque lettre doit être claire.",
               verses:[
                 {n:1,ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',tr:"Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux"},
                 {n:2,ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',tr:"Louange à Allah, Seigneur des mondes"},
@@ -166,14 +127,14 @@
                 {n:6,ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',tr:"Guide-nous dans le droit chemin"},
                 {n:7,ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',tr:"Le chemin de ceux que Tu as comblés de bienfaits, non pas de ceux qui ont encouru Ta colère, ni des égarés"},
               ]},
-            { id:'ikhlas', name:'Al-Ikhlas', nameAr:'الإخلاص', level:1, emoji:'💎', tip:"Vaut 1/3 du Coran. Chaque mot compte.",
+            { id:'ikhlas', num: 112, name:'Al-Ikhlas', nameAr:'الإخلاص', level:1, emoji:'💎', tip:"Vaut 1/3 du Coran. Chaque mot compte.",
               verses:[
                 {n:1,ar:'قُلْ هُوَ اللَّهُ أَحَدٌ',tr:"Dis : «Il est Allah, l'Unique»"},
                 {n:2,ar:'اللَّهُ الصَّمَدُ',tr:"Allah, le Seul à être imploré pour ce que nous désirons"},
                 {n:3,ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ',tr:"Il n'a pas engendré, n'a pas été engendré non plus"},
                 {n:4,ar:'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',tr:"Et nul n'est égal à Lui"},
               ]},
-            { id:'falaq', name:'Al-Falaq', nameAr:'الفلق', level:1, emoji:'🌅', tip:"Sourate de protection. À lire avec clarté.",
+            { id:'falaq', num: 113, name:'Al-Falaq', nameAr:'الفلق', level:1, emoji:'🌅', tip:"Sourate de protection.",
               verses:[
                 {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',tr:"Dis : «Je cherche protection auprès du Seigneur de l'Aube naissante»"},
                 {n:2,ar:'مِن شَرِّ مَا خَلَقَ',tr:"contre le mal de ce qu'Il a créé"},
@@ -181,7 +142,7 @@
                 {n:4,ar:'وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ',tr:"et contre le mal de celles qui soufflent sur les nœuds"},
                 {n:5,ar:'وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',tr:"et contre le mal de l'envieux quand il envie"},
               ]},
-            { id:'nas', name:'An-Nas', nameAr:'الناس', level:1, emoji:'🛡️', tip:"À réciter le soir pour la protection.",
+            { id:'nas', num: 114, name:'An-Nas', nameAr:'الناس', level:1, emoji:'🛡️', tip:"À réciter le soir pour la protection.",
               verses:[
                 {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',tr:"Dis : «Je cherche protection auprès du Seigneur des hommes»"},
                 {n:2,ar:'مَلِكِ النَّاسِ',tr:"du Roi des hommes"},
@@ -190,19 +151,19 @@
                 {n:5,ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ',tr:"qui souffle le mal dans les poitrines des hommes"},
                 {n:6,ar:'مِنَ الْجِنَّةِ وَالنَّاسِ',tr:"qu'il soit djinn ou être humain"},
               ]},
-            { id:'asr', name:'Al-Asr', nameAr:'العصر', level:1, emoji:'⏳', tip:"Imam Ash-Shafi'i : si le Coran n'avait que cette sourate, elle suffirait.",
+            { id:'asr', num: 103, name:'Al-Asr', nameAr:'العصر', level:1, emoji:'⏳', tip:"Si le Coran n'avait que cette sourate, elle suffirait.",
               verses:[
                 {n:1,ar:'وَالْعَصْرِ',tr:"Par le Temps !"},
                 {n:2,ar:'إِنَّ الْإِنسَانَ لَفِي خُسْرٍ',tr:"Certes, l'être humain est en perdition"},
                 {n:3,ar:'إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ',tr:"sauf ceux qui croient et accomplissent les bonnes œuvres, s'enjoignent mutuellement la vérité et l'endurance"},
               ]},
-            { id:'kawthar', name:'Al-Kawthar', nameAr:'الكوثر', level:1, emoji:'🌊', tip:"La plus courte sourate. Travaille l'emphase.",
+            { id:'kawthar', num: 108, name:'Al-Kawthar', nameAr:'الكوثر', level:1, emoji:'🌊', tip:"La plus courte sourate. Travaille l'emphase.",
               verses:[
                 {n:1,ar:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ',tr:"Nous t'avons certes donné l'abondance"},
                 {n:2,ar:'فَصَلِّ لِرَبِّكَ وَانْحَرْ',tr:"Accomplis donc la prière pour ton Seigneur et sacrifie"},
                 {n:3,ar:'إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ',tr:"C'est bien ton ennemi qui sera sans postérité"},
               ]},
-            { id:'feel', name:'Al-Fil', nameAr:'الفيل', level:2, emoji:'🐘', tip:"Attention aux lettres prolongées et aux gunnah.",
+            { id:'feel', num: 105, name:'Al-Fil', nameAr:'الفيل', level:2, emoji:'🐘', tip:"Attention aux lettres prolongées et aux gunnah.",
               verses:[
                 {n:1,ar:'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ',tr:"N'as-tu pas vu comment ton Seigneur a agi envers les gens de l'éléphant?"},
                 {n:2,ar:'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ',tr:"N'a-t-Il pas rendu vains leurs stratagèmes?"},
@@ -210,7 +171,7 @@
                 {n:4,ar:'تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ',tr:"qui lancèrent sur eux des pierres d'argile"},
                 {n:5,ar:'فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ',tr:"et Il les rendit pareils à une paille mâchée"},
               ]},
-            { id:'zilzal', name:'Az-Zalzala', nameAr:'الزلزلة', level:2, emoji:'⚡', tip:"Entraîne-toi à lire sans t'arrêter.",
+            { id:'zilzal', num: 99, name:'Az-Zalzala', nameAr:'الزلزلة', level:2, emoji:'⚡', tip:"Entraîne-toi à lire sans t'arrêter.",
               verses:[
                 {n:1,ar:'إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا',tr:"Quand la terre tremblera de son violent tremblement"},
                 {n:2,ar:'وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا',tr:"et que la terre sortira ses fardeaux"},
@@ -219,20 +180,19 @@
                 {n:5,ar:'بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا',tr:"parce que ton Seigneur lui en aura donné l'ordre"},
                 {n:6,ar:'يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ',tr:"Ce jour-là, les gens sortiront en groupes dispersés pour qu'on leur montre leurs œuvres"},
                 {n:7,ar:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',tr:"Quiconque aura fait le poids d'un atome de bien le verra"},
-               {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:"et quiconque aura fait le poids d'un atome de mal le verra"},
+                {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:"et quiconque aura fait le poids d'un atome de mal le verra"},
               ]},
-
-            { id:'kursi', name:'Ayat al-Kursi', nameAr:'آية الكرسي', level:2, emoji:'👑', tip:"Le plus grand verset du Coran. Parfait pour la protection et la fin des prières.",
+            { id:'kursi', num: 2, name:'Ayat al-Kursi', nameAr:'آية الكرسي', level:2, emoji:'👑', tip:"Le plus grand verset du Coran.",
               verses:[
                 {n:255,ar:'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',tr:"Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même. Ni somnolence ni sommeil ne Le saisissent. A Lui appartient tout ce qui est dans les cieux et sur la terre. Qui peut intercéder auprès de Lui sans Sa permission ? Il connaît leur passé et leur futur. Et, de Sa science, ils n'embrassent que ce qu'Il veut. Son Trône déborde les cieux et la terre, dont la garde ne Lui coûte aucune peine. Et Il est le Très Haut, le Très Grand."}
               ]},
-            { id:'mulk', name:'Al-Mulk', nameAr:'الملك', level:3, emoji:'🌌', tip:"La Royauté. Protège du châtiment de la tombe si tu la lis la nuit.",
+            { id:'mulk', num: 67, name:'Al-Mulk', nameAr:'الملك', level:3, emoji:'🌌', tip:"Protège du châtiment de la tombe si lue la nuit.",
               verses:[
                 {n:1,ar:'تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',tr:"Béni soit celui dans la main de qui est la royauté, et Il est Omnipotent."},
-                {n:2,ar:'الَّذِي خَلَقَ الْمَوْتَ وَالْحَيَاةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا ۚ وَهُوَ الْعَزِيزُ الْغَفُورُ',tr:"Celui qui a créé la mort et la vie afin de vous éprouver (et de savoir) qui de vous est le meilleur en œuvre, et c'est Lui le Puissant, le Pardonneur."},
+                {n:2,ar:'الَّذِي خَلَقَ الْمَوْتَ وَالْحَيَاةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا ۚ وَهُوَ الْعَزِيزُ الْغَفُورُ',tr:"Celui qui a créé la mort et la vie afin de vous éprouver (et de savoir) qui de vous est le meilleur en œuvre."},
                 {n:3,ar:'الَّذِي خَلَقَ سَبْعَ سَمَاوَاتٍ طِبَاقًا ۖ مَّا تَرَىٰ فِي خَلْقِ الرَّحْمَٰنِ مِن تَفَاوُتٍ ۖ فَارْجِعِ الْبَصَرَ هَلْ تَرَىٰ مِن فُطُورٍ',tr:"Celui qui a créé sept cieux superposés sans que tu voies de disproportion en la création du Tout Miséricordieux. Ramène sur elle le regard. Y vois-tu une brèche ?"},
                 {n:4,ar:'ثُمَّ ارْجِعِ الْبَصَرَ كَرَّتَيْنِ يَنقَلِبْ إِلَيْكَ الْبَصَرُ خَاسِئًا وَهُوَ حَسِيرٌ',tr:"Puis, retourne ton regard à deux fois : le regard te reviendra humilié et frustré."},
-                {n:5,ar:'وَلَقَدْ زَيَّنَّا السَّمَاءَ الدُّنْيَا بِمَصَابِيحَ وَجَعَلْنَاهَا رُجُومًا لِّلشَّيَاطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ السَّعِيرِ',tr:"Nous avons effectivement embelli le ciel le plus proche avec des lampes (des étoiles) dont Nous avons fait des projectiles pour lapider les diables et Nous leur avons préparé le châtiment de la Fournaise."},
+                {n:5,ar:'وَلَقَدْ زَيَّنَّا السَّمَاءَ الدُّنْيَا بِمَصَابِيحَ وَجَعَلْنَاهَا رُجُومًا لِّلشَّيَاطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ السَّعِيرِ',tr:"Nous avons effectivement embelli le ciel le plus proche avec des lampes (des étoiles) dont Nous avons fait des projectiles pour lapider les diables."},
                 {n:6,ar:'وَلِلَّذِينَ كَفَرُوا بِرَبِّهِمْ عَذَابُ جَهَنَّمَ ۖ وَبِئْسَ الْمَصِيرُ',tr:"Ceux qui ont mécru en leur Seigneur auront le châtiment de l'Enfer. Et quelle mauvaise destination !"},
                 {n:7,ar:'إِذَا أُلْقُوا فِيهَا سَمِعُوا لَهَا شَهِيقًا وَهِيَ تَفُورُ',tr:"Quand ils y seront jetés, ils lui entendront un gémissement, tandis qu'il bouillonne."},
                 {n:8,ar:'تَكَادُ تَمَيَّزُ مِنَ الْغَيْظِ ۖ كُلَّمَا أُلْقِيَ فِيهَا فَوْجٌ سَأَلَهُمْ خَزَنَتُهَا أَلَمْ يَأْتِكُمْ نَذِيرٌ',tr:"Peu s'en faut que, de rage, il n'éclate. Toutes les fois qu'un groupe y est jeté, ses gardiens leur demandent : « Quoi ! ne vous est-il pas venu d'avertisseur ? »"},
@@ -258,8 +218,8 @@
                 {n:28,ar:'قُلْ أَرَأَيْتُمْ إِنْ أَهْلَكَنِيَ اللَّهُ وَمَن مَّعِيَ أَوْ رَحِمَنَا فَمَن يُجِيرُ الْكَافِرِينَ مِنْ عَذَابٍ أَلِيمٍ',tr:"Dis : Que vous en semble ? Qu'Allah me fasse périr ainsi que ceux qui sont avec moi ou qu'Il nous fasse miséricorde, qui protégera alors les mécréants d'un châtiment douloureux ?"},
                 {n:29,ar:'قُلْ هُوَ الرَّحْمَٰنُ آمَنَّا بِهِ وَعَلَيْهِ تَوَكَّلْنَا ۖ فَسَتَعْلَمُونَ مَنْ هُوَ فِي ضَلَالٍ مُّبِينٍ',tr:"Dis : C'est Lui, le Tout Miséricordieux. Nous croyons en Lui et c'est en Lui que nous plaçons notre confiance. Vous saurez bientôt qui est dans un égarement évident."},
                 {n:30,ar:'قُلْ أَرَأَيْتُمْ إِنْ أَصْبَحَ مَاؤُكُمْ غَوْرًا فَمَن يَأْتِيكُم بِمَاءٍ مَّعِينٍ',tr:"Dis : Que vous en semble ? Si votre eau était absorbée au plus profond de la terre, qui donc vous apporterait une eau de source ?"}
-              ]}, 
-            { id:'rahman', name:'Ar-Rahman', nameAr:'الرحمن', level:3, emoji:'🌸', tip:"La mariée du Coran. Prends le rythme de son magnifique refrain. (78 versets)",
+              ]},
+            { id:'rahman', num: 55, name:'Ar-Rahman', nameAr:'الرحمن', level:3, emoji:'🌸', tip:"La mariée du Coran. Le refrain est magnifique. (78 versets)",
               verses:[
                 {n:1,ar:'الرَّحْمَٰنُ',tr:"Le Tout Miséricordieux."},
                 {n:2,ar:'عَلَّمَ الْقُرْآنَ',tr:"Il a enseigné le Coran."},
@@ -293,9 +253,9 @@
                 {n:30,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
                 {n:31,ar:'سَنَفْرُغُ لَكُمْ أَيُّهَ الثَّقَلَانِ',tr:"Nous allons bientôt entreprendre votre jugement, ô vous les deux charges [hommes et djinns]"},
                 {n:32,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
-                {n:33,ar:'يَا مَعْشَرَ الْجِنِّ وَالْإِنسِ إِنِ اسْتَطَعْتُمْ أَن تَنفُذُوا مِنْ أَقْطَارِ السَّمَاوَاتِ وَالْأَرْضِ فَانفُذُوا ۚ لَا تَنفُذُونَ إِلَّا بِسُلْطَانٍ',tr:"Ô peuple de djinns et d'hommes ! Si vous pouvez sortir du domaine des cieux et de la terre, alors faites-le. Mais vous ne pourrez en sortir qu'à l'aide d'un pouvoir [illimité]."},
+                {n:33,ar:'يَا مَعْشَرَ الْجِنِّ وَالْإِنسِ إِنِ اسْتَطَعْتُمْ أَن تَنفُذُوا مِنْ أَقْطَارِ السَّمَاوَاتِ وَالْأَرْضِ فَانفُذُوا ۚ لَا تَنفُذُونَ إِلَّا بِسُلْطَانٍ',tr:"Ô peuple de djinns et d'hommes ! Si vous pouvez sortir du domaine des cieux et de la terre, alors faites-le."},
                 {n:34,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
-                {n:35,ar:'يُرْسَلُ عَلَيْكُمَا شُوَاظٌ مِّن نَّارٍ وَنُحَاسٌ فَلَا تَنتَصِرَانِ',tr:"Il sera lancé contre vous un jet de feu et de fumée [ou de cuivre fondu], et vous ne serez pas secourus."},
+                {n:35,ar:'يُرْسَلُ عَلَيْكُمَا شُوَاظٌ مِّن نَّارٍ وَنُحَاسٌ فَلَا تَنتَصِرَانِ',tr:"Il sera lancé contre vous un jet de feu et de fumée, et vous ne serez pas secourus."},
                 {n:36,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
                 {n:37,ar:'فَإِذَا انشَقَّتِ السَّمَاءُ فَكَانَتْ وَرْدَةً كَالدِّهَانِ',tr:"Puis quand le ciel se fendra et deviendra alors rouge comme une peau fraîchement tannée."},
                 {n:38,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
@@ -314,7 +274,7 @@
                 {n:51,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
                 {n:52,ar:'فِيهِمَا مِن كُلِّ فَاكِهَةٍ زَوْجَانِ',tr:"Ils contiendront deux espèces de chaque fruit."},
                 {n:53,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
-                {n:54,ar:'مُتَّكِئِينَ عَلَىٰ فُرُشٍ بَطَائِنُهَا مِنْ إِسْتَبْرَقٍ ۚ وَجَنَى الْجَنَّتَيْنِ دَانٍ',tr:"Ils seront accoudés sur des tapis doublés de brocart, et les fruits des deux jardins seront à leur portée (pour être cueillis)."},
+                {n:54,ar:'مُتَّكِئِينَ عَلَىٰ فُرُشٍ بَطَائِنُهَا مِنْ إِسْتَبْرَقٍ ۚ وَجَنَى الْجَنَّتَيْنِ دَانٍ',tr:"Ils seront accoudés sur des tapis doublés de brocart, et les fruits des deux jardins seront à leur portée."},
                 {n:55,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
                 {n:56,ar:'فِيهِنَّ قَاصِرَاتُ الطَّرْفِ لَمْ يَطْمِثْهُنَّ إِنسٌ قَبْلَهُمْ وَلَا جَانٌّ',tr:"Ils y trouveront [les houris] aux regards chastes, qu'avant eux aucun homme ou djinn n'aura déflorées."},
                 {n:57,ar:'فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ',tr:"Lequel donc des bienfaits de votre Seigneur nierez-vous ?"},
@@ -362,7 +322,7 @@
             { name: "Ayyûb ﷺ", subtitle: "L'incarnation de la patience", emoji: "🌱", story: "Riche et en bonne santé, Ayyûb perdit tout : ses biens, ses enfants et sa santé. Seule sa femme resta avec lui.\n\nIl endura pendant des années sans se plaindre avant d'implorer la miséricorde d'Allah. Allah lui rendit le double de ce qu'il avait perdu.\n\n📿 Leçon : Allah ne teste que ceux qu'Il aime." },
             { name: "Yûnus ﷺ", subtitle: "L'homme de la baleine", emoji: "🐋", story: "Découragé par son peuple, il partit en bateau. Jeté à la mer, une baleine l'avala.\n\nDans les ténèbres, il fit la fameuse invocation de la repentance. Allah le sauva et le ramena vers son peuple qui avait finalement cru.\n\n📿 Leçon : Même dans nos pires moments, la dua sincère nous sauve." },
             { name: "Ilyâs ﷺ", subtitle: "Défenseur du Tawhid", emoji: "🌊", story: "Il fut envoyé aux enfants d'Israël pour combattre le culte de l'idole Ba'l.\n\nFace à leur obstination, il maintint le message de l'Unicité coûte que coûte.\n\n📿 Leçon : Combattre les fausses idoles de notre temps (argent, ego) est essentiel." },
-            { name: "Al-Yasa' ﷺ", subtitle: "Le successeur d'Ilyâs", emoji: "🌿", story: "Disciple puis successeur d'Ilyâs dans la prophétie. Il continua discrètement mais fidèlement la mission de son maître.\n\n📿 Leçon : La continuity discrète et la loyauté sont extrêmement précieuses." },
+            { name: "Al-Yasa' ﷺ", subtitle: "Le successeur d'Ilyâs", emoji: "🌿", story: "Disciple puis successeur d'Ilyâs dans la prophétie. Il continua discrètement mais fidèlement la mission de son maître.\n\n📿 Leçon : La continuité discrète et la loyauté sont extrêmement précieuses." },
             { name: "Dâwûd ﷺ", subtitle: "Roi et prophète", emoji: "🎵", story: "Jeune berger, il tua le géant Goliath. Devenu roi, il jeûnait un jour sur deux et priait la nuit.\n\nIl reçut les Psaumes. Sa voix était si belle que la nature participait à ses louanges.\n\n📿 Leçon : On peut allier pouvoir terrestre et profonde humilité spirituelle." },
             { name: "Sulaymân ﷺ", subtitle: "Maître des djinns et des animaux", emoji: "👑", story: "Fils de Dâwûd, il comprenait le langage des animaux et commandait aux djinns. Il bâtit un royaume sans pareil.\n\nIl mourut appuyé sur sa canne sans que les djinns ne s'en aperçoivent, prouvant qu'ils ne connaissent pas l'invisible.\n\n📿 Leçon : Toute gloire terrestre n'est qu'un test de gratitude envers Allah." },
             { name: "Zakariyyâ ﷺ", subtitle: "La prière exaucée dans la vieillesse", emoji: "🌸", story: "Très âgé et marié à une femme stérile, il pria Allah en secret pour avoir un héritier pieux après avoir vu les miracles de Maryam.\n\nAllah l'exauça et lui donna Yahyâ.\n\n📿 Leçon : La miséricorde d'Allah n'a pas de limites biologiques ou physiques." },
@@ -371,7 +331,7 @@
             { name: "Muhammad ﷺ", subtitle: "Le sceau des prophètes", emoji: "🌙", story: "Le dernier des prophètes. Devenu orphelin très jeune, connu pour son honnêteté. À 40 ans, il reçut la révélation du Coran.\n\nEn 23 ans, il transforma une société tribale divisée en la plus grande civilisation de l'histoire, unie par la foi.\n\n📿 Leçon : Le meilleur des exemples pour toute l'humanité jusqu'à la fin des temps." }
         ];
 
-        // ============ 99 NOMS D'ALLAH (AVEC LEURS EXPLICATIONS) ============
+        // ============ 99 NOMS D'ALLAH ============
         const ALLAH_NAMES = [
             {n:"Allâh",a:"الله",t:"Le nom suprême",d:"Le nom propre d'Allah, celui que rien ni personne ne peut porter. Contient tous les attributs divins."},
             {n:"Ar-Rahmân",a:"الرحمن",t:"Le Tout-Miséricordieux",d:"Sa miséricorde englobe toute créature. Il est doux même avec les ingrats."},
@@ -475,7 +435,7 @@
             {n:"As-Sabûr",a:"الصبور",t:"Le Patient",d:"Il ne Se précipite pas dans la punition. Sa patience est un espace pour ton repentir."}
         ];
 
-        // ============ ARABIC LETTERS (Design original Samia 🌸) ============
+        // ============ L'ALPHABET ARABE ============
         const ARABIC_LETTERS = [
             {l:"ا",n:"Alif",s:"â / a",ex:"أَلَم (Alam)"},{l:"ب",n:"Bâ",s:"b",ex:"بَيت (Maison)"},{l:"ت",n:"Tâ",s:"t",ex:"تَوبة (Repentir)"},{l:"ث",n:"Thâ",s:"th",ex:"ثَواب (Récompense)"},{l:"ج",n:"Jîm",s:"dj",ex:"جَنَّة (Paradis)"},{l:"ح",n:"Hâ",s:"h aspiré",ex:"حَمد (Louange)"},{l:"خ",n:"Khâ",s:"kh",ex:"خَير (Bien)"},{l:"د",n:"Dâl",s:"d",ex:"دُعاء (Dua)"},{l:"ذ",n:"Dhâl",s:"dh",ex:"ذِكر (Dhikr)"},{l:"ر",n:"Râ",s:"r roulé",ex:"رَحمة (Miséricorde)"},{l:"ز",n:"Zây",s:"z",ex:"زَكاة (Zakât)"},{l:"س",n:"Sîn",s:"s",ex:"سَلام (Paix)"},{l:"ش",n:"Shîn",s:"ch",ex:"شُكر (Gratitude)"},{l:"ص",n:"Sâd",s:"s emphatique",ex:"صَبر (Patience)"},{l:"ض",n:"Dâd",s:"d emphatique",ex:"ضَوء (Lumière)"},{l:"ط",n:"Tâ emp.",s:"t emphatique",ex:"طَهارة (Pureté)"},{l:"ع",n:"'Ayn",s:"' guttural",ex:"عِلم (Savoir)"},{l:"غ",n:"Ghayn",s:"gh",ex:"غَفُور (Pardonneur)"},{l:"ف",n:"Fâ",s:"f",ex:"فَجر (Fajr)"},{l:"ق",n:"Qâf",s:"q guttural",ex:"قُرآن (Coran)"},{l:"ك",n:"Kâf",s:"k",ex:"كِتاب (Livre)"},{l:"ل",n:"Lâm",s:"l",ex:"لَيل (Nuit)"},{l:"م",n:"Mîm",s:"m",ex:"مَسجد (Mosquée)"},{l:"ن",n:"Nûn",s:"n",ex:"نُور (Lumière)"},{l:"ه",n:"Hâ",s:"h doux",ex:"هِداية (Guidance)"},{l:"و",n:"Wâw",s:"w / û",ex:"وُضوء (Wudu)"},{l:"ي",n:"Yâ",s:"y / î",ex:"يَقين (Certitude)"}
         ];
@@ -550,7 +510,7 @@
 
         // ============ TRAINING ============
         function renderTrainSelector() {
-            const grid = document.querySelector('#surah-selector .grid');
+            const grid = document.getElementById('train-surahs-list');
             if (grid) {
                 grid.innerHTML = SURAHS.map(s => `<button onclick="window.startSession('${s.id}')" class="card p-4 text-left active:scale-95 transition-all w-full"><span class="text-xl block mb-2">${s.emoji}</span><p class="font-bold text-sm" style="color:#3D2B2B">${s.name}</p><p class="text-xs text-stone-400">${s.verses.length}v · ${'⭐'.repeat(s.level)}</p></button>`).join('');
             }
@@ -568,7 +528,6 @@
             if (timerInterval) clearInterval(timerInterval);
             timerInterval = setInterval(()=>{ elapsedTime++; document.getElementById('sess-timer').innerText=`${Math.floor(elapsedTime/60).toString().padStart(2,'0')}:${(elapsedTime%60).toString().padStart(2,'0')}`; },1000);
             
-            // Switch tabs gracefully if called from Home
             document.getElementById('tab-home').classList.add('hidden');
             document.getElementById('nav-home').classList.remove('active-nav');
             document.getElementById('tab-train').classList.remove('hidden');
@@ -591,20 +550,26 @@
             document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
         }
 
+        // LE BOUTON ÉCOUTER DÉCLENCHE LE VRAI MP3 ICI 👇
         window.speakCurrentVerse = () => {
             if (!sessionState) return;
             const surah = SURAHS.find(s=>s.id===sessionState.surahId);
             const verse = surah.verses[sessionState.verseIndex];
-            speakArabic(verse.ar);
+            
+            if (surah.num) {
+                window.playArabicAudio(verse.ar, true, surah.num, verse.n);
+            } else {
+                window.playArabicAudio(verse.ar);
+            }
         };
 
         window.rateVerse = (rating) => {
             if (!sessionState) return;
             sessionState.ratings.push(rating);
-            
-            // Highlight button
             document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
             document.getElementById('rate-'+rating).classList.add('sel');
+            
+            if (currentAudio) { currentAudio.pause(); } // Coupe le son si on passe au suivant
 
             setTimeout(()=>{
                 const surah = SURAHS.find(s=>s.id===sessionState.surahId);
@@ -645,13 +610,14 @@
 
         window.backToSelector = () => {
             if(timerInterval){clearInterval(timerInterval);sessionState=null;}
+            if (currentAudio) { currentAudio.pause(); }
             document.getElementById('session-view').classList.add('hidden');
             document.getElementById('result-view').classList.add('hidden');
             document.getElementById('surah-selector').classList.remove('hidden');
             renderTrainSelector();
         };
 
-        // ============ ARABIC TAB (Design original Samia restauré) ============
+        // ============ ARABIC TAB ============
         function renderArabicTab() {
             const grid = document.getElementById('letters-grid');
             if (grid && grid.children.length === 0) {
@@ -674,7 +640,7 @@
         };
 
         window.speakLetter = () => {
-            speakArabic(ARABIC_LETTERS[activeLetterIdx].l);
+            window.playArabicAudio(ARABIC_LETTERS[activeLetterIdx].l);
         };
 
         // ============ PROPHETS TAB ============
@@ -705,7 +671,7 @@
             document.getElementById('prophets-list-view').classList.remove('hidden');
         };
 
-        // ============ ALLAH NAMES TAB (Design original Samia restauré avec explications complètes) ============
+        // ============ ALLAH NAMES TAB ============
         function renderAllahNames() {
             const container = document.getElementById('allah-names-list');
             if (!container) return;
@@ -732,7 +698,7 @@
             document.getElementById('aname-detail').scrollIntoView({behavior:'smooth', block:'nearest'});
             
             // Écoute automatique du nom en arabe
-            speakArabic(n.a);
+            window.playArabicAudio(n.a);
         };
 
         window.filterAllahNames = (val) => {
@@ -755,7 +721,7 @@
             });
         };
 
-        // ============ DUAS TAB (Design original Samia restauré) ============
+        // ============ DUAS TAB ============
         window.renderDuas = () => {
             document.getElementById('personal-duas-list').innerHTML = personalDuas.length > 0
                 ? personalDuas.slice().reverse().map((d,ri) => {
@@ -790,6 +756,8 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('app').classList.remove('hidden');
             renderHome();
+            renderTrainSelector();
+            lucide.createIcons();
         }
         document.addEventListener("DOMContentLoaded", initApp);
     </script>
@@ -838,14 +806,14 @@
             </div>
         </div>
         <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Choisir une sourate</p>
-        <div class="grid grid-cols-2 gap-3"></div>
+        <div class="grid grid-cols-2 gap-3" id="train-surahs-list"></div>
     </div>
     
     <div id="session-view" class="hidden">
         <header class="pt-10 pb-4">
             <div class="flex justify-between items-center mb-3">
                 <button onclick="window.backToSelector()" class="flex items-center gap-1.5 text-rose-500 font-bold text-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg> Arrêter
+                    <i data-lucide="x" class="w-4 h-4"></i> Arrêter
                 </button>
                 <span id="sess-timer" class="text-stone-400 text-sm font-mono font-bold">00:00</span>
             </div>
@@ -871,8 +839,7 @@
         </div>
 
         <button onclick="window.speakCurrentVerse()" class="w-full card p-3 flex items-center justify-center gap-2 text-stone-500 text-sm font-bold mb-4 active:scale-95 transition-all bg-white border border-stone-200">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-            Écouter la prononciation 🔊
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Écouter la prononciation 🔊
         </button>
 
         <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest text-center mb-3 mt-4">Comment tu as lu ce verset ?</p>
@@ -915,8 +882,7 @@
         <p class="text-sm text-stone-400 mt-1" id="letter-sound">Son : â / a</p>
         <p class="text-xs text-stone-400 mt-1" id="letter-example">أَلَم (Alam)</p>
         <button onclick="window.speakLetter()" class="mt-4 rose-btn px-6 py-2.5 text-sm inline-flex items-center gap-2 active:scale-95 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-            Écouter
+            <i data-lucide="volume-2" class="w-4 h-4"></i> Écouter
         </button>
     </div>
 
@@ -936,13 +902,12 @@
 
 <div id="tab-prophets" class="hidden px-4 pb-nav">
     <div id="prophets-list-view">
-        <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1><p class="text-stone-400 text-sm mt-1">Les 25 prophètes du Coran</p></header>
+        <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1><p class="text-stone-400 text-sm mt-1">Les 25 histoires</p></header>
         <div class="grid grid-cols-2 gap-3" id="prophets-grid"></div>
     </div>
     <div id="prophet-detail" class="hidden pb-4">
         <button onclick="window.backToProphets()" class="flex items-center gap-2 text-rose-500 font-bold text-sm pt-10 mb-5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-            Retour
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
         </button>
         <div class="card p-6 mb-4">
             <p class="text-5xl mb-3" id="prophet-emoji"></p>
@@ -987,30 +952,28 @@
     </div>
 
     <div id="fsection-histoire" class="space-y-4">
-        
         <div class="card p-5 bg-rose-50 border-rose-200">
             <h3 class="font-black text-rose-600 mb-2 flex items-center gap-2"><span class="text-xl">🌸</span> Les Grandes Femmes de l'Islam</h3>
             <p class="text-sm text-stone-600 mb-4">L'Islam n'aurait pas pu exister sans le courage, l'intelligence et la foi inébranlable des femmes. Voici tes vrais modèles.</p>
-            
             <div class="space-y-3">
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Khadija bint Khuwaylid (ra) <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">Khadija bint Khuwaylid (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La première épouse du Prophète ﷺ. Elle était une riche femme d'affaires mecquoise. Quand le Prophète ﷺ a reçu la première révélation, il était terrifié. C'est elle qui l'a rassuré, qui a cru en lui la première, et qui a financé l'Islam naissant. <b>Leçon : L'indépendance, le soutien émotionnel et l'intelligence.</b></div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Aisha bint Abi Bakr (ra) <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">Aisha bint Abi Bakr (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">L'une des plus grandes savantes de l'histoire islamique. Elle a transmis plus de 2000 hadiths. Les plus grands compagnons (hommes) venaient lui demander des avis juridiques (fatwas). Elle maîtrisait la médecine, la poésie et la religion. <b>Leçon : La quête du savoir n'a pas de genre.</b></div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Fatima az-Zahra (ra) <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">Fatima az-Zahra (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La fille bien-aimée du Prophète ﷺ. Elle a subi la pauvreté, la faim et la persécution à La Mecque. Quand les païens ont jeté des ordures sur son père en prière, c'est elle, encore enfant, qui est allée les retirer en pleurant. Elle est la "reine des femmes du Paradis". <b>Leçon : La patience, la noblesse de caractère face à l'épreuve.</b></div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Maryam (Vierge Marie) <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">Maryam (Vierge Marie) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La seule femme citée nommément dans le Coran, et toute une sourate porte son nom. Accusée à tort par sa communauté alors qu'elle venait d'enfanter Issa (Jésus) seule sous un palmier, elle a gardé le silence et a laissé Allah la défendre. <b>Leçon : La dévotion pure et la confiance absolue quand tout le monde est contre toi.</b></div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Asiya bint Muzahim <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">Asiya bint Muzahim <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La femme de Pharaon. Elle vivait dans le plus beau des palais avec l'homme le plus puissant (et tyran) de la terre. Pourtant, elle a secrètement cru en Allah par le message de Mûsâ (Moïse). Elle a préféré la torture et la mort à la mécréance dorée. <b>Leçon : Ne jamais vendre sa foi pour le confort de ce monde.</b></div>
                 </details>
             </div>
@@ -1021,15 +984,15 @@
             <p class="text-sm text-stone-600 mb-4">Connaître ton histoire, c'est savoir d'où tu viens.</p>
             <div class="space-y-3">
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">La période Mecquoise (Foi et Résilience) <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">La période Mecquoise (Foi et Résilience) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">Pendant 13 ans, les musulmans ont été torturés, moqués et boycottés. Pas de combats, pas de lois complexes. Seulement une mission : forger le cœur sur le *Tawhid* (l'Unicité). Le Coran révélé à cette époque parle surtout du Paradis, de l'Enfer et des anciens prophètes pour rassurer.</div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">La période Médinoise (La Société) <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">La période Médinoise (La Société) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">Après l'Hégire (migration) vers Médine en 622, l'Islam devient un État. Les règles de la prière, du jeûne, du commerce et du mariage sont révélées. Les *Ansars* (habitants de Médine) partagent littéralement la moitié de leurs richesses avec les *Muhajirun* (réfugiés de La Mecque). C'est la naissance de l'Oumma (communauté).</div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Les 4 Califes Bien Guidés <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></summary>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between">Les 4 Califes Bien Guidés <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
                     <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">
                         Après la mort du Prophète ﷺ, quatre de ses plus proches amis ont dirigé la communauté :<br><br>
                         1. <b>Abou Bakr As-Siddiq</b> : Le Véridique, qui a maintenu l'unité de l'Islam à la mort du Prophète.<br>
@@ -1098,11 +1061,11 @@
     </div>
 
     <div id="fsection-pratique" class="hidden space-y-3">
-        <details class="card overflow-hidden group" open><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">1</div><div class="flex-1"><p class="font-bold text-stone-800">La Shahada</p><p class="text-xs text-stone-400">L'Attestation de foi</p></div></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">"Ach-hadu an la ilaha illallah, wa ach-hadu anna Muhammadan rasulullah". C'est l'essence de l'Islam. Elle remet de l'ordre dans ton cœur : rien ne mérite d'être craint ni adoré à part Allah.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">2</div><div class="flex-1"><p class="font-bold text-stone-800">La Salât</p><p class="text-xs text-stone-400">Les 5 prières (Fajr, Dohr, Asr, Maghrib, Isha)</p></div></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">Le premier acte jugé. Ne la lâche jamais, même si tu fais des erreurs à côté. La prière t'empêchera de sombrer. C'est l'oxygène de ton âme.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">3</div><div class="flex-1"><p class="font-bold text-stone-800">La Zakât</p><p class="text-xs text-stone-400">L'aumône purificatrice</p></div></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">Obligatoire pour purifier tes biens (2,5% de l'épargne). Elle rappelle que tout ce que tu as vient d'Allah.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">4</div><div class="flex-1"><p class="font-bold text-stone-800">Le Sawm</p><p class="text-xs text-stone-400">Jeûner le Ramadan</p></div></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">L'école de la maîtrise de soi. Tu prouves à ton corps que ton âme est aux commandes.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">5</div><div class="flex-1"><p class="font-bold text-stone-800">Le Hajj</p><p class="text-xs text-stone-400">Le grand pèlerinage</p></div></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">À faire au moins une fois si on en a les moyens physiques et financiers. Tous vêtus de blanc, égaux devant Dieu, comme le Jour du Jugement.</div></details>
+        <details class="card overflow-hidden group" open><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">1</div><div class="flex-1"><p class="font-bold text-stone-800">La Shahada</p><p class="text-xs text-stone-400">L'Attestation de foi</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">"Ach-hadu an la ilaha illallah, wa ach-hadu anna Muhammadan rasulullah". C'est l'essence de l'Islam. Elle remet de l'ordre dans ton cœur : rien ne mérite d'être craint ni adoré à part Allah.</div></details>
+        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">2</div><div class="flex-1"><p class="font-bold text-stone-800">La Salât</p><p class="text-xs text-stone-400">Les 5 prières (Fajr, Dohr, Asr, Maghrib, Isha)</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">Le premier acte jugé. Ne la lâche jamais, même si tu fais des erreurs à côté. La prière t'empêchera de sombrer. C'est l'oxygène de ton âme.</div></details>
+        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">3</div><div class="flex-1"><p class="font-bold text-stone-800">La Zakât</p><p class="text-xs text-stone-400">L'aumône purificatrice</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">Obligatoire pour purifier tes biens (2,5% de l'épargne). Elle rappelle que tout ce que tu as vient d'Allah.</div></details>
+        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">4</div><div class="flex-1"><p class="font-bold text-stone-800">Le Sawm</p><p class="text-xs text-stone-400">Jeûner le Ramadan</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">L'école de la maîtrise de soi. Tu prouves à ton corps que ton âme est aux commandes.</div></details>
+        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">5</div><div class="flex-1"><p class="font-bold text-stone-800">Le Hajj</p><p class="text-xs text-stone-400">Le grand pèlerinage</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">À faire au moins une fois si on en a les moyens physiques et financiers. Tous vêtus de blanc, égaux devant Dieu, comme le Jour du Jugement.</div></details>
     </div>
 
     <div id="fsection-foi" class="hidden space-y-3">
@@ -1117,99 +1080,50 @@
 </div>
 
 <div id="tab-duas" class="hidden px-4 pb-nav">
-    <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Duas 🤲</h1><p class="text-stone-400 text-sm mt-1">Invocations essentielles & tes duas perso</p></header>
-
-    <h2 class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Duas fondamentales</h2>
-    <div class="space-y-3 mb-6">
-        <details class="card overflow-hidden group">
-            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
-                <p class="font-bold text-sm" style="color:#3D2B2B">🐋 Dua de Yûnus</p>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </summary>
-            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
-                <p class="amiri text-2xl text-right text-rose-500 leading-loose">لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ</p>
-                <p class="text-xs text-stone-400 italic">Lâ ilâha illâ anta subhânaka innî kuntu min adh-dhâlimîn</p>
-                <p class="text-sm font-medium text-stone-600">"Il n'y a de dieu que Toi, Gloire à Toi, j'ai été parmi les injustes."</p>
-                <p class="text-xs text-purple-500">Dans les moments de détresse. Réciter 40 fois.</p>
-            </div>
-        </details>
-        <details class="card overflow-hidden group">
-            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
-                <p class="font-bold text-sm" style="color:#3D2B2B">✨ Dua Laylat al-Qadr</p>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </summary>
-            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
-                <p class="amiri text-2xl text-right text-rose-500 leading-loose">اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي</p>
-                <p class="text-xs text-stone-400 italic">Allâhumma innaka 'afuwwun tuhibb al-'afw fa'fu 'annî</p>
-                <p class="text-sm font-medium text-stone-600">"Ô Allah, Tu es l'Indulgent, Tu aimes l'indulgence, sois indulgent envers moi."</p>
-                <p class="text-xs text-purple-500">Recommandée par le Prophète ﷺ à Aisha pour Laylat al-Qadr.</p>
-            </div>
-        </details>
-        <details class="card overflow-hidden group">
-            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
-                <p class="font-bold text-sm" style="color:#3D2B2B">🌊 Dua de l'anxiété</p>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </summary>
-            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
-                <p class="amiri text-2xl text-right text-rose-500 leading-loose">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ</p>
-                <p class="text-xs text-stone-400 italic">Allâhumma innî a'ûdhu bika min al-hamm wal-hazan</p>
-                <p class="text-sm font-medium text-stone-600">"Ô Allah, je cherche refuge en Toi contre l'inquiétude et la tristesse."</p>
-                <p class="text-xs text-purple-500">Quand le cœur est lourd. Réciter 7 fois.</p>
-            </div>
-        </details>
-        <details class="card overflow-hidden group">
-            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
-                <p class="font-bold text-sm" style="color:#3D2B2B">📚 Pour le savoir utile</p>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </summary>
-            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
-                <p class="amiri text-2xl text-right text-rose-500 leading-loose">اللَّهُمَّ انْفَعْنِي بِمَا عَلَّمْتَنِي وَعَلِّمْنِي مَا يَنْفَعُنِي</p>
-                <p class="text-xs text-stone-400 italic">Allâhumma anfa'nî bimâ 'allamtanî wa 'allimnî mâ yanfa'unî</p>
-                <p class="text-sm font-medium text-stone-600">"Ô Allah, fais-moi profiter de ce que Tu m'as enseigné, et enseigne-moi ce qui m'est utile."</p>
-                <p class="text-xs text-purple-500">Avant de lire le Coran ou de s'entraîner à l'arabe.</p>
-            </div>
-        </details>
-    </div>
+    <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Duas 🤲</h1><p class="text-stone-400 text-sm mt-1">L'arme du croyant</p></header>
 
     <div class="card p-5 mb-4">
-        <h2 class="text-xs font-black uppercase tracking-widest text-purple-500 mb-4">Mes duas personnelles 🌸</h2>
-        <input id="dua-title-inp" placeholder="Titre (ex: Pour ma famille...)" class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-2 border" style="background:#FDF8F3;border-color:#F0D8D8;color:#3D2B2B">
-        <textarea id="dua-text-inp" rows="3" placeholder="Ta dua, dans tes mots..." class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-3 resize-none border" style="background:#FDF8F3;border-color:#F0D8D8;color:#3D2B2B"></textarea>
-        <button onclick="window.addDua()" class="rose-btn w-full py-3 text-sm active:scale-95 transition-all">Sauvegarder ma dua 🤲</button>
+        <h2 class="text-xs font-black uppercase tracking-widest text-indigo-500 mb-2">Mes duas personnelles</h2>
+        <input id="dua-title-inp" placeholder="Titre (ex: Pour ma mère...)" class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-2 border bg-[#FDF8F3]">
+        <textarea id="dua-text-inp" rows="3" placeholder="Ta dua, dans tes mots..." class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-3 resize-none border bg-[#FDF8F3]"></textarea>
+        <button onclick="window.addDua()" class="w-full bg-indigo-500 text-white rounded-xl py-3 text-sm font-bold active:scale-95 transition-all">Sauvegarder ma dua</button>
     </div>
     
     <div id="personal-duas-list" class="space-y-3 mb-6"></div>
+
+    <h2 class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Duas fondamentales</h2>
+    <div class="space-y-3">
+        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">🐋 Dua de Yûnus <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ</p><p class="text-sm text-stone-600 mt-2">"Il n'y a de dieu que Toi, Gloire à Toi, j'ai été parmi les injustes."</p></div></details>
+        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">🌅 Dua du matin <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَيْنَا</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, c'est par Toi que nous entrons dans le matin et dans le soir."</p></div></details>
+        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">✨ Dua Laylat al-Qadr <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, Tu es l'Indulgent, Tu aimes l'indulgence, sois indulgent envers moi."</p></div></details>
+        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">🌊 Dua de l'anxiété <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, je cherche refuge en Toi contre l'inquiétude et la tristesse."</p></div></details>
+        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">📚 Pour le savoir utile <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ انْفَعْنِي بِمَا عَلَّمْتَنِي وَعَلِّمْنِي مَا يَنْفَعُنِي</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, fais-moi profiter de ce que Tu m'as enseigné, et enseigne-moi ce qui m'est utile."</p></div></details>
+        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">🤍 Istikhâra (La consultation) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, je Te demande conseil par Ta science et je Te demande la capacité par Ta puissance..." (À réciter après 2 rak'as pour un choix important).</p></div></details>
+    </div>
 </div>
 
 <nav class="fixed bottom-0 left-0 right-0 z-50 border-t overflow-x-auto no-scrollbar" style="background:rgba(253,248,243,0.95);border-color:#F0D8D8;backdrop-filter:blur(20px)">
     <div class="flex justify-between items-center py-2 px-1 min-w-max mx-auto" style="gap:4px">
         <button id="nav-home" onclick="window.showTab('home')" class="active-nav flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Accueil</span>
+            <i data-lucide="home" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Accueil</span>
         </button>
         <button id="nav-train" onclick="window.showTab('train')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Fluidité</span>
+            <i data-lucide="mic" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Fluidité</span>
         </button>
         <button id="nav-arabic" onclick="window.showTab('arabic')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Arabe</span>
+            <i data-lucide="type" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Arabe</span>
         </button>
         <button id="nav-prophets" onclick="window.showTab('prophets')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Prophètes</span>
+            <i data-lucide="stars" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Prophètes</span>
         </button>
         <button id="nav-allah" onclick="window.showTab('allah')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"></path><path d="M12 8v4l3 3"></path></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">99 Noms</span>
+            <i data-lucide="heart" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">99 Noms</span>
         </button>
         <button id="nav-foundations" onclick="window.showTab('foundations')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Héritage</span>
+            <i data-lucide="landmark" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Héritage</span>
         </button>
         <button id="nav-duas" onclick="window.showTab('duas')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path><path d="m9 13 2 2 4-4"></path></svg>
-            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Duas</span>
+            <i data-lucide="hand" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Duas</span>
         </button>
     </div>
 </nav>
