@@ -122,22 +122,35 @@
         }
 
         // ============ AUDIO MOTEUR ============
-        function speakArabic(text) {
-            if (!('speechSynthesis' in window)) { showToast('Audio non disponible sur cet appareil'); return; }
+        window.speakArabic = (text) => {
+            if (!('speechSynthesis' in window)) { 
+                showToast("Audio non disponible"); 
+                return; 
+            }
+            
+            
             window.speechSynthesis.cancel();
+            
             const utt = new SpeechSynthesisUtterance(text);
-            utt.lang = 'ar-SA';
-            utt.rate = 0.75;
-            const trySpeak = () => {
-                const voices = window.speechSynthesis.getVoices();
-                const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
-                if (arabicVoice) utt.voice = arabicVoice;
-                window.speechSynthesis.speak(utt);
-            };
-            if (window.speechSynthesis.getVoices().length > 0) { trySpeak(); }
-            else { window.speechSynthesis.onvoiceschanged = trySpeak; setTimeout(trySpeak, 800); }
+            utt.lang = 'ar-SA'; // Force l'arabe
+            utt.rate = 0.75;    // Vitesse plus lente pour bien entendre
+            
+            // Cherche la voix directement (sans délai, pour ne pas bloquer le bouton)
+            const voices = window.speechSynthesis.getVoices();
+            const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+            if (arabicVoice) {
+                utt.voice = arabicVoice;
+            }
+            
+            // Joue le son immédiatement
+            window.speechSynthesis.speak(utt);
+        };
+        
+        // Astuce pour forcer le téléphone à charger les voix en arrière-plan
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
         }
-        window.speakArabic = speakArabic;
 
         // ============ SURAHS (Toutes tes sourates originales) ============
         const SURAHS = [
@@ -204,7 +217,45 @@
                 {n:5,ar:'بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا',tr:"parce que ton Seigneur lui en aura donné l'ordre"},
                 {n:6,ar:'يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ',tr:"Ce jour-là, les gens sortiront en groupes dispersés pour qu'on leur montre leurs œuvres"},
                 {n:7,ar:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',tr:"Quiconque aura fait le poids d'un atome de bien le verra"},
-                {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:"et quiconque aura fait le poids d'un atome de mal le verra"},
+               {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:"et quiconque aura fait le poids d'un atome de mal le verra"},
+              ]},
+
+            { id:'kursi', name:'Ayat al-Kursi', nameAr:'آية الكرسي', level:2, emoji:'👑', tip:"Le plus grand verset du Coran. Parfait pour la protection et la fin des prières.",
+              verses:[
+                {n:255,ar:'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',tr:"Allah ! Point de divinité à part Lui, le Vivant, Celui qui subsiste par lui-même. Ni somnolence ni sommeil ne Le saisissent. A Lui appartient tout ce qui est dans les cieux et sur la terre. Qui peut intercéder auprès de Lui sans Sa permission ? Il connaît leur passé et leur futur. Et, de Sa science, ils n'embrassent que ce qu'Il veut. Son Trône déborde les cieux et la terre, dont la garde ne Lui coûte aucune peine. Et Il est le Très Haut, le Très Grand."}
+              ]},
+            { id:'mulk', name:'Al-Mulk', nameAr:'الملك', level:3, emoji:'🌌', tip:"La Royauté. Protège du châtiment de la tombe si tu la lis la nuit.",
+              verses:[
+                {n:1,ar:'تَبَارَكَ الَّذِي بِيَدِهِ الْمُلْكُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',tr:"Béni soit celui dans la main de qui est la royauté, et Il est Omnipotent."},
+                {n:2,ar:'الَّذِي خَلَقَ الْمَوْتَ وَالْحَيَاةَ لِيَبْلُوَكُمْ أَيُّكُمْ أَحْسَنُ عَمَلًا ۚ وَهُوَ الْعَزِيزُ الْغَفُورُ',tr:"Celui qui a créé la mort et la vie afin de vous éprouver (et de savoir) qui de vous est le meilleur en œuvre, et c'est Lui le Puissant, le Pardonneur."},
+                {n:3,ar:'الَّذِي خَلَقَ سَبْعَ سَمَاوَاتٍ طِبَاقًا ۖ مَّا تَرَىٰ فِي خَلْقِ الرَّحْمَٰنِ مِن تَفَاوُتٍ ۖ فَارْجِعِ الْبَصَرَ هَلْ تَرَىٰ مِن فُطُورٍ',tr:"Celui qui a créé sept cieux superposés sans que tu voies de disproportion en la création du Tout Miséricordieux. Ramène sur elle le regard. Y vois-tu une brèche ?"},
+                {n:4,ar:'ثُمَّ ارْجِعِ الْبَصَرَ كَرَّتَيْنِ يَنقَلِبْ إِلَيْكَ الْبَصَرُ خَاسِئًا وَهُوَ حَسِيرٌ',tr:"Puis, retourne ton regard à deux fois : le regard te reviendra humilié et frustré."},
+                {n:5,ar:'وَلَقَدْ زَيَّنَّا السَّمَاءَ الدُّنْيَا بِمَصَابِيحَ وَجَعَلْنَاهَا رُجُومًا لِّلشَّيَاطِينِ ۖ وَأَعْتَدْنَا لَهُمْ عَذَابَ السَّعِيرِ',tr:"Nous avons effectivement embelli le ciel le plus proche avec des lampes (des étoiles) dont Nous avons fait des projectiles pour lapider les diables et Nous leur avons préparé le châtiment de la Fournaise."},
+                {n:6,ar:'وَلِلَّذِينَ كَفَرُوا بِرَبِّهِمْ عَذَابُ جَهَنَّمَ ۖ وَبِئْسَ الْمَصِيرُ',tr:"Ceux qui ont mécru en leur Seigneur auront le châtiment de l'Enfer. Et quelle mauvaise destination !"},
+                {n:7,ar:'إِذَا أُلْقُوا فِيهَا سَمِعُوا لَهَا شَهِيقًا وَهِيَ تَفُورُ',tr:"Quand ils y seront jetés, ils lui entendront un gémissement, tandis qu'il bouillonne."},
+                {n:8,ar:'تَكَادُ تَمَيَّزُ مِنَ الْغَيْظِ ۖ كُلَّمَا أُلْقِيَ فِيهَا فَوْجٌ سَأَلَهُمْ خَزَنَتُهَا أَلَمْ يَأْتِكُمْ نَذِيرٌ',tr:"Peu s'en faut que, de rage, il n'éclate. Toutes les fois qu'un groupe y est jeté, ses gardiens leur demandent : « Quoi ! ne vous est-il pas venu d'avertisseur ? »"},
+                {n:9,ar:'قَالُوا بَلَىٰ قَدْ جَاءَنَا نَذِيرٌ فَكَذَّبْنَا وَقُلْنَا مَا نَزَّلَ اللَّهُ مِن شَيْءٍ إِنْ أَنتُمْ إِلَّا فِي ضَلَالٍ كَبِيرٍ',tr:"Ils diront : « Mais si ! un avertisseur nous était venu certes, mais nous avons crié au mensonge et avons dit : Allah n'a rien fait descendre : vous n'êtes que dans un grand égarement »"},
+                {n:10,ar:'وَقَالُوا لَوْ كُنَّا نَسْمَعُ أَوْ نَعْقِلُ مَا كُنَّا فِي أَصْحَابِ السَّعِيرِ',tr:"Et ils diront : « Si nous avions écouté ou raisonné, nous ne serions pas parmi les gens de la Fournaise »."},
+                {n:11,ar:'فَاعْتَرَفُوا بِذَنبِهِمْ فَسُحْقًا لِّأَصْحَابِ السَّعِيرِ',tr:"Ils reconnaîtront leur péché. Que les gens de la Fournaise soient anéantis à jamais."},
+                {n:12,ar:'إِنَّ الَّذِينَ يَخْشَوْنَ رَبَّهُم بِالْغَيْبِ لَهُم مَّغْفِرَةٌ وَأَجْرٌ كَبِيرٌ',tr:"Ceux qui redoutent leur Seigneur bien qu'ils ne L'aient jamais vu auront un pardon et une grande récompense."},
+                {n:13,ar:'وَأَسِرُّوا قَوْلَكُمْ أَوِ اجْهَرُوا بِهِ ۖ إِنَّهُ عَلِيمٌ بِذَاتِ الصُّدُورِ',tr:"Que vous cachiez votre parole ou la divulguiez Il connaît bien le contenu des poitrines."},
+                {n:14,ar:'أَلَا يَعْلَمُ مَنْ خَلَقَ وَهُوَ اللَّطِيفُ الْخَبِيرُ',tr:"Ne connaît-Il pas ce qu'Il a créé alors que c'est Lui le Compatissant, le Parfaitement Connaisseur ?"},
+                {n:15,ar:'هُوَ الَّذِي جَعَلَ لَكُمُ الْأَرْضَ ذَلُولًا فَامْشُوا فِي مَنَاكِبِهَا وَكُلُوا مِن رِّزْقِهِ ۖ وَإِلَيْهِ النُّشُورُ',tr:"C'est Lui qui vous a soumis la terre : parcourez donc ses grandes étendues. Mangez de ce qu'Il vous fournit. Vers Lui est la Résurrection."},
+                {n:16,ar:'أَأَمِنتُم مَّن فِي السَّمَاءِ أَن يَخْسِفَ بِكُمُ الْأَرْضَ فَإِذَا هِيَ تَمُورُ',tr:"Êtes-vous à l'abri que Celui qui est au ciel vous enfouisse en la terre ? Et voici qu'elle tremble !"},
+                {n:17,ar:'أَمْ أَمِنتُم مَّن فِي السَّمَاءِ أَن يُرْسِلَ عَلَيْكُمْ حَاصِبًا ۖ فَسَتَعْلَمُونَ كَيْفَ نَذِيرِ',tr:"Ou êtes-vous à l'abri que Celui qui est au ciel envoie contre vous un ouragan de pierres ? Vous saurez ainsi quel fut Mon avertissement."},
+                {n:18,ar:'وَلَقَدْ كَذَّبَ الَّذِينَ مِن قَبْلِهِمْ فَكَيْفَ كَانَ نَكِيرِ',tr:"En effet, ceux d'avant eux avaient crié au mensonge. Quelle fut alors Ma réprobation !"},
+                {n:19,ar:'أَوَلَمْ يَرَوْا إِلَى الطَّيْرِ فَوْقَهُمْ صَافَّاتٍ وَيَقْبِضْنَ ۚ مَا يُمْسِكُهُنَّ إِلَّا الرَّحْمَٰنُ ۚ إِنَّهُ بِكُلِّ شَيْءٍ بَصِيرٌ',tr:"N'ont-ils pas vu les oiseaux au-dessus d'eux, déployant et repliant leurs ailes ? Seul le Tout Miséricordieux les maintient. Il est sur toute chose Clairvoyant."},
+                {n:20,ar:'أَمَّنْ هَٰذَا الَّذِي هُوَ جُندٌ لَّكُمْ يَنصُرُكُم مِّن دُونِ الرَّحْمَٰنِ ۚ إِنِ الْكَافِرُونَ إِلَّا فِي غُرُورٍ',tr:"Quel est celui qui constituerait pour vous une armée (capable) de vous secourir, en dehors du Tout Miséricordieux ? En vérité les mécréants sont dans l'égarement complet."},
+                {n:21,ar:'أَمَّنْ هَٰذَا الَّذِي يَرْزُقُكُمْ إِنْ أَمْسَكَ رِزْقَهُ ۚ بَل لَّجُّوا فِي عُتُوٍّ وَنُفُورٍ',tr:"Ou quel est celui qui vous nourrira s'Il retient Sa subsistance ? Mais ils s'entêtent dans leur insolence et leur fuite."},
+                {n:22,ar:'أَفَمَن يَمْشِي مُكِبًّا عَلَىٰ وَجْهِهِ أَهْدَىٰ أَمَّن يَمْشِي سَوِيًّا عَلَىٰ صِرَاطٍ مُّسْتَقِيمٍ',tr:"Qui est donc mieux guidé ? Celui qui marche trébuchant sur son visage ou celui qui marche redressé sur un chemin droit ?"},
+                {n:23,ar:'قُلْ هُوَ الَّذِي أَنشَأَكُمْ وَجَعَلَ لَكُمُ السَّمْعَ وَالْأَبْصَارَ وَالْأَفْئِدَةَ ۖ قَلِيلًا مَّا تَشْكُرُونَ',tr:"Dis : C'est Lui qui vous a créés et vous a donné l'ouïe, les yeux et les cœurs. Mais vous êtes rarement reconnaissants !"},
+                {n:24,ar:'قُلْ هُوَ الَّذِي ذَرَأَكُمْ فِي الْأَرْضِ وَإِلَيْهِ تُحْشَرُونَ',tr:"Dis : C'est Lui qui vous a répandus sur la terre, et c'est vers Lui que vous serez rassemblés."},
+                {n:25,ar:'وَيَقُولُونَ مَتَىٰ هَٰذَا الْوَعْدُ إِن كُنتُمْ صَادِقِينَ',tr:"Et ils disent : À quand cette promesse si vous êtes véridiques ?"},
+                {n:26,ar:'قُلْ إِنَّمَا الْعِلْمُ عِندَ اللَّهِ وَإِنَّمَا أَنَا نَذِيرٌ مُّبِينٌ',tr:"Dis : La connaissance n'est qu'auprès d'Allah, et je ne suis qu'un avertisseur explicite."},
+                {n:27,ar:'فَلَمَّا رَأَوْهُ زُلْفَةً سِيئَتْ وُجُوهُ الَّذِينَ كَفَرُوا وَقِيلَ هَٰذَا الَّذِي كُنتُم بِهِ تَدَّعُونَ',tr:"Puis, quand ils verront le châtiment de près, les visages de ceux qui ont mécru seront affligés. Et il leur sera dit : Voilà ce que vous réclamiez !"},
+                {n:28,ar:'قُلْ أَرَأَيْتُمْ إِنْ أَهْلَكَنِيَ اللَّهُ وَمَن مَّعِيَ أَوْ رَحِمَنَا فَمَن يُجِيرُ الْكَافِرِينَ مِنْ عَذَابٍ أَلِيمٍ',tr:"Dis : Que vous en semble ? Qu'Allah me fasse périr ainsi que ceux qui sont avec moi ou qu'Il nous fasse miséricorde, qui protégera alors les mécréants d'un châtiment douloureux ?"},
+                {n:29,ar:'قُلْ هُوَ الرَّحْمَٰنُ آمَنَّا بِهِ وَعَلَيْهِ تَوَكَّلْنَا ۖ فَسَتَعْلَمُونَ مَنْ هُوَ فِي ضَلَالٍ مُّبِينٍ',tr:"Dis : C'est Lui, le Tout Miséricordieux. Nous croyons en Lui et c'est en Lui que nous plaçons notre confiance. Vous saurez bientôt qui est dans un égarement évident."},
+                {n:30,ar:'قُلْ أَرَأَيْتُمْ إِنْ أَصْبَحَ مَاؤُكُمْ غَوْرًا فَمَن يَأْتِيكُم بِمَاءٍ مَّعِينٍ',tr:"Dis : Que vous en semble ? Si votre eau était absorbée au plus profond de la terre, qui donc vous apporterait une eau de source ?"}
               ]}
         ];
 
