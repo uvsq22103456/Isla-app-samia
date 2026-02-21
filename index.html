@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Samia — Deen & Arabe 🌸</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <style>
@@ -117,7 +120,7 @@
     </style>
 
     <script>
-        // ============ DATA — localStorage, 100% local, instantané ============
+        // ============ DATA — localStorage ============
         let userData = {};
         let sessions = [];
         let scores = {};
@@ -156,72 +159,72 @@
             } catch(e) {}
         }
 
-        // ============ SURAHS DATA ============
+        // CORRECTION : Les apostrophes (guillemets) ont été fixées ici
         const SURAHS = [
-            { id:'fatiha', name:'Al-Fatiha', nameAr:'الفاتحة', level:1, emoji:'🌟', tip:'La plus récitée dans la prière. Chaque lettre doit être claire.',
+            { id:'fatiha', name:'Al-Fatiha', nameAr:'الفاتحة', level:1, emoji:'🌟', tip:`La plus récitée dans la prière. Chaque lettre doit être claire.`,
               verses:[
-                {n:1,ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',tr:'Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux'},
-                {n:2,ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',tr:'Louange à Allah, Seigneur des mondes'},
-                {n:3,ar:'الرَّحْمَٰنِ الرَّحِيمِ',tr:'Le Tout Miséricordieux, le Très Miséricordieux'},
-                {n:4,ar:'مَالِكِ يَوْمِ الدِّينِ',tr:'Maître du Jour de la rétribution'},
-                {n:5,ar:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',tr:'C'est Toi que nous adorons, et c'est Toi dont nous implorons le secours'},
-                {n:6,ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',tr:'Guide-nous dans le droit chemin'},
-                {n:7,ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',tr:'Le chemin de ceux que Tu as comblés de bienfaits, non pas de ceux qui ont encouru Ta colère, ni des égarés'},
+                {n:1,ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',tr:`Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux`},
+                {n:2,ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',tr:`Louange à Allah, Seigneur des mondes`},
+                {n:3,ar:'الرَّحْمَٰنِ الرَّحِيمِ',tr:`Le Tout Miséricordieux, le Très Miséricordieux`},
+                {n:4,ar:'مَالِكِ يَوْمِ الدِّينِ',tr:`Maître du Jour de la rétribution`},
+                {n:5,ar:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',tr:`C'est Toi que nous adorons, et c'est Toi dont nous implorons le secours`},
+                {n:6,ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',tr:`Guide-nous dans le droit chemin`},
+                {n:7,ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',tr:`Le chemin de ceux que Tu as comblés de bienfaits, non pas de ceux qui ont encouru Ta colère, ni des égarés`},
               ]},
-            { id:'ikhlas', name:'Al-Ikhlas', nameAr:'الإخلاص', level:1, emoji:'💎', tip:'Vaut 1/3 du Coran. Chaque mot compte.',
+            { id:'ikhlas', name:'Al-Ikhlas', nameAr:'الإخلاص', level:1, emoji:'💎', tip:`Vaut 1/3 du Coran. Chaque mot compte.`,
               verses:[
-                {n:1,ar:'قُلْ هُوَ اللَّهُ أَحَدٌ',tr:'Dis : «Il est Allah, l'Unique»'},
-                {n:2,ar:'اللَّهُ الصَّمَدُ',tr:'Allah, le Seul à être imploré pour ce que nous désirons'},
-                {n:3,ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ',tr:'Il n'a pas engendré, n'a pas été engendré non plus'},
-                {n:4,ar:'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',tr:'Et nul n'est égal à Lui'},
+                {n:1,ar:'قُلْ هُوَ اللَّهُ أَحَدٌ',tr:`Dis : «Il est Allah, l'Unique»`},
+                {n:2,ar:'اللَّهُ الصَّمَدُ',tr:`Allah, le Seul à être imploré pour ce que nous désirons`},
+                {n:3,ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ',tr:`Il n'a pas engendré, n'a pas été engendré non plus`},
+                {n:4,ar:'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',tr:`Et nul n'est égal à Lui`},
               ]},
-            { id:'falaq', name:'Al-Falaq', nameAr:'الفلق', level:1, emoji:'🌅', tip:'Sourate de protection. À lire avec clarté.',
+            { id:'falaq', name:'Al-Falaq', nameAr:'الفلق', level:1, emoji:'🌅', tip:`Sourate de protection. À lire avec clarté.`,
               verses:[
-                {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',tr:'Dis : «Je cherche protection auprès du Seigneur de l'Aube naissante»'},
-                {n:2,ar:'مِن شَرِّ مَا خَلَقَ',tr:'contre le mal de ce qu'Il a créé'},
-                {n:3,ar:'وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ',tr:'et contre le mal de l'obscurité quand elle s'installe'},
-                {n:4,ar:'وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ',tr:'et contre le mal de celles qui soufflent sur les nœuds'},
-                {n:5,ar:'وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',tr:'et contre le mal de l'envieux quand il envie'},
+                {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',tr:`Dis : «Je cherche protection auprès du Seigneur de l'Aube naissante»`},
+                {n:2,ar:'مِن شَرِّ مَا خَلَقَ',tr:`contre le mal de ce qu'Il a créé`},
+                {n:3,ar:'وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ',tr:`et contre le mal de l'obscurité quand elle s'installe`},
+                {n:4,ar:'وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ',tr:`et contre le mal de celles qui soufflent sur les nœuds`},
+                {n:5,ar:'وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',tr:`et contre le mal de l'envieux quand il envie`},
               ]},
-            { id:'nas', name:'An-Nas', nameAr:'الناس', level:1, emoji:'🛡️', tip:'À réciter le soir pour la protection.',
+            { id:'nas', name:'An-Nas', nameAr:'الناس', level:1, emoji:'🛡️', tip:`À réciter le soir pour la protection.`,
               verses:[
-                {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',tr:'Dis : «Je cherche protection auprès du Seigneur des hommes»'},
-                {n:2,ar:'مَلِكِ النَّاسِ',tr:'du Roi des hommes'},
-                {n:3,ar:'إِلَٰهِ النَّاسِ',tr:'de Dieu des hommes'},
-                {n:4,ar:'مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ',tr:'contre le mal du mauvais conseiller furtif'},
-                {n:5,ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ',tr:'qui souffle le mal dans les poitrines des hommes'},
-                {n:6,ar:'مِنَ الْجِنَّةِ وَالنَّاسِ',tr:'qu'il soit djinn ou être humain'},
+                {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',tr:`Dis : «Je cherche protection auprès du Seigneur des hommes»`},
+                {n:2,ar:'مَلِكِ النَّاسِ',tr:`du Roi des hommes`},
+                {n:3,ar:'إِلَٰهِ النَّاسِ',tr:`de Dieu des hommes`},
+                {n:4,ar:'مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ',tr:`contre le mal du mauvais conseiller furtif`},
+                {n:5,ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ',tr:`qui souffle le mal dans les poitrines des hommes`},
+                {n:6,ar:'مِنَ الْجِنَّةِ وَالنَّاسِ',tr:`qu'il soit djinn ou être humain`},
               ]},
-            { id:'asr', name:'Al-Asr', nameAr:'العصر', level:1, emoji:'⏳', tip:'Imam Ash-Shafi'i : si le Coran n'avait que cette sourate, elle suffirait.',
+            { id:'asr', name:'Al-Asr', nameAr:'العصر', level:1, emoji:'⏳', tip:`Imam Ash-Shafi'i : si le Coran n'avait que cette sourate, elle suffirait.`,
               verses:[
-                {n:1,ar:'وَالْعَصْرِ',tr:'Par le Temps !'},
-                {n:2,ar:'إِنَّ الْإِنسَانَ لَفِي خُسْرٍ',tr:'Certes, l'être humain est en perdition'},
-                {n:3,ar:'إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ',tr:'sauf ceux qui croient et accomplissent les bonnes œuvres, s'enjoignent mutuellement la vérité et l'endurance'},
+                {n:1,ar:'وَالْعَصْرِ',tr:`Par le Temps !`},
+                {n:2,ar:'إِنَّ الْإِنسَانَ لَفِي خُسْرٍ',tr:`Certes, l'être humain est en perdition`},
+                {n:3,ar:'إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ',tr:`sauf ceux qui croient et accomplissent les bonnes œuvres, s'enjoignent mutuellement la vérité et l'endurance`},
               ]},
-            { id:'kawthar', name:'Al-Kawthar', nameAr:'الكوثر', level:1, emoji:'🌊', tip:'La plus courte sourate. Travaille l'emphase.',
+            { id:'kawthar', name:'Al-Kawthar', nameAr:'الكوثر', level:1, emoji:'🌊', tip:`La plus courte sourate. Travaille l'emphase.`,
               verses:[
-                {n:1,ar:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ',tr:'Nous t'avons certes donné l'abondance'},
-                {n:2,ar:'فَصَلِّ لِرَبِّكَ وَانْحَرْ',tr:'Accomplis donc la prière pour ton Seigneur et sacrifie'},
-                {n:3,ar:'إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ',tr:'C'est bien ton ennemi qui sera sans postérité'},
+                {n:1,ar:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ',tr:`Nous t'avons certes donné l'abondance`},
+                {n:2,ar:'فَصَلِّ لِرَبِّكَ وَانْحَرْ',tr:`Accomplis donc la prière pour ton Seigneur et sacrifie`},
+                {n:3,ar:'إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ',tr:`C'est bien ton ennemi qui sera sans postérité`},
               ]},
-            { id:'feel', name:'Al-Fil', nameAr:'الفيل', level:2, emoji:'🐘', tip:'Attention aux lettres prolongées et aux gunnah.',
+            { id:'feel', name:'Al-Fil', nameAr:'الفيل', level:2, emoji:'🐘', tip:`Attention aux lettres prolongées et aux gunnah.`,
               verses:[
-                {n:1,ar:'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ',tr:'N'as-tu pas vu comment ton Seigneur a agi envers les gens de l'éléphant?'},
-                {n:2,ar:'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ',tr:'N'a-t-Il pas rendu vains leurs stratagèmes?'},
-                {n:3,ar:'وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ',tr:'Il envoya contre eux des oiseaux par volées'},
-                {n:4,ar:'تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ',tr:'qui lancèrent sur eux des pierres d'argile'},
-                {n:5,ar:'فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ',tr:'et Il les rendit pareils à une paille mâchée'},
+                {n:1,ar:'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ',tr:`N'as-tu pas vu comment ton Seigneur a agi envers les gens de l'éléphant?`},
+                {n:2,ar:'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ',tr:`N'a-t-Il pas rendu vains leurs stratagèmes?`},
+                {n:3,ar:'وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ',tr:`Il envoya contre eux des oiseaux par volées`},
+                {n:4,ar:'تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ',tr:`qui lancèrent sur eux des pierres d'argile`},
+                {n:5,ar:'فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ',tr:`et Il les rendit pareils à une paille mâchée`},
               ]},
-            { id:'zilzal', name:'Az-Zalzala', nameAr:'الزلزلة', level:2, emoji:'⚡', tip:'Entraîne-toi à lire sans t'arrêter.',
+            { id:'zilzal', name:'Az-Zalzala', nameAr:'الزلزلة', level:2, emoji:'⚡', tip:`Entraîne-toi à lire sans t'arrêter.`,
               verses:[
-                {n:1,ar:'إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا',tr:'Quand la terre tremblera de son violent tremblement'},
-                {n:2,ar:'وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا',tr:'et que la terre sortira ses fardeaux'},
-                {n:3,ar:'وَقَالَ الْإِنسَانُ مَا لَهَا',tr:'et que l'être humain dira : «Qu'a-t-elle?»'},
-                {n:4,ar:'يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا',tr:'Ce jour-là, elle racontera ses nouvelles'},
-                {n:5,ar:'بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا',tr:'parce que ton Seigneur lui en aura donné l'ordre'},
-                {n:6,ar:'يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ',tr:'Ce jour-là, les gens sortiront en groupes dispersés pour qu'on leur montre leurs œuvres'},
-                {n:7,ar:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',tr:'Quiconque aura fait le poids d'un atome de bien le verra'},
-                {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:'et quiconque aura fait le poids d'un atome de mal le verra'},
+                {n:1,ar:'إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا',tr:`Quand la terre tremblera de son violent tremblement`},
+                {n:2,ar:'وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا',tr:`et que la terre sortira ses fardeaux`},
+                {n:3,ar:'وَقَالَ الْإِنسَانُ مَا لَهَا',tr:`et que l'être humain dira : «Qu'a-t-elle?»`},
+                {n:4,ar:'يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا',tr:`Ce jour-là, elle racontera ses nouvelles`},
+                {n:5,ar:'بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا',tr:`parce que ton Seigneur lui en aura donné l'ordre`},
+                {n:6,ar:'يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ',tr:`Ce jour-là, les gens sortiront en groupes dispersés pour qu'on leur montre leurs œuvres`},
+                {n:7,ar:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',tr:`Quiconque aura fait le poids d'un atome de bien le verra`},
+                {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:`et quiconque aura fait le poids d'un atome de mal le verra`},
               ]},
         ];
 
@@ -345,7 +348,6 @@
             const utt = new SpeechSynthesisUtterance(text);
             utt.lang = 'ar-SA';
             utt.rate = 0.75;
-            // Try to find Arabic voice, retry after delay if voices not loaded yet
             const trySpeak = () => {
                 const voices = window.speechSynthesis.getVoices();
                 const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
@@ -507,7 +509,6 @@
 
         // ============ ARABIC TAB ============
         function renderArabicTab() {
-            // Letters grid
             const grid = document.getElementById('letters-grid');
             if (grid && grid.children.length === 0) {
                 grid.innerHTML = ARABIC_LETTERS.map((l,i) => `<button class="letter-btn${i===0?' active-letter':''}" onclick="window.showLetter(${i})">
@@ -630,8 +631,9 @@
                 window.speechSynthesis.getVoices();
                 window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
             }
-            loadAll(); // localStorage = instantané, 0ms
-            document.getElementById('loading').classList.add('hidden');
+            loadAll(); 
+            // CORRECTION : Retire l'écran de chargement correctement
+            document.getElementById('loading').style.display = 'none';
             document.getElementById('app').classList.remove('hidden');
             renderHome();
         }
@@ -640,21 +642,19 @@
     </script>
 </head>
 <body class="pb-nav">
-<!-- Failsafe : si le module JS ne se charge pas, l'app s'ouvre quand même après 1s -->
 <script>
     setTimeout(function() {
         var loading = document.getElementById('loading');
         var app = document.getElementById('app');
-        if (loading && !loading.classList.contains('hidden')) {
-            loading.classList.add('hidden');
+        if (loading && loading.style.display !== 'none') {
+            loading.style.display = 'none';
             if (app) app.classList.remove('hidden');
             if (window.renderHome) window.renderHome();
         }
     }, 1500);
 </script>
 
-<!-- LOADING -->
-<div id="loading" class="fixed inset-0 z-[500] flex flex-col items-center justify-center gap-5" style="background:#FDF8F3;display:flex">
+<div id="loading" class="fixed inset-0 z-[500] flex flex-col items-center justify-center gap-5" style="background:#FDF8F3;">
     <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl" style="background:linear-gradient(135deg,#E8A4A4,#C47A7A);box-shadow:0 8px 24px rgba(196,122,122,0.3)">🌸</div>
     <div>
         <p class="playfair text-2xl font-bold text-center" style="color:#3D2B2B">Salam Samia 🌙</p>
@@ -667,10 +667,8 @@
     </div>
 </div>
 
-<!-- APP -->
 <div id="app" class="hidden">
 
-<!-- ===================== HOME TAB ===================== -->
 <div id="tab-home" class="px-4 pb-nav">
     <header class="pt-12 pb-5 flex justify-between items-start">
         <div>
@@ -681,7 +679,6 @@
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background:linear-gradient(135deg,#E8A4A4,#C47A7A);box-shadow:0 4px 16px rgba(196,122,122,0.3)">📖</div>
     </header>
 
-    <!-- Petites stats -->
     <div class="grid grid-cols-3 gap-3 mb-5">
         <div class="card p-4 text-center">
             <p class="text-xl font-black text-rose-500" id="streak-val">0</p>
@@ -697,14 +694,11 @@
         </div>
     </div>
 
-    <!-- Surahs -->
     <h2 class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Sourates — clique pour t'entraîner</h2>
     <div class="grid grid-cols-2 gap-3" id="home-surahs"></div>
 </div>
 
-<!-- ===================== TRAIN TAB ===================== -->
 <div id="tab-train" class="hidden px-4 pb-nav">
-    <!-- Selector -->
     <div id="surah-selector">
         <header class="pt-12 pb-5">
             <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Entraîner 🎯</h1>
@@ -730,7 +724,6 @@
         </div>
     </div>
 
-    <!-- Session View -->
     <div id="session-view" class="hidden">
         <header class="pt-10 pb-4">
             <div class="flex justify-between items-center mb-3">
@@ -753,12 +746,10 @@
             </div>
         </header>
 
-        <!-- Tip -->
         <div class="rounded-2xl px-4 py-3 mb-4" style="background:#EDE7F6;border:1px solid #D1C4E9">
             <p class="text-xs text-purple-600 leading-relaxed" id="sess-tip"></p>
         </div>
 
-        <!-- Verse -->
         <div class="card p-6 mb-4 fade-up">
             <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest mb-4" id="sess-verse-num">Verset 1</p>
             <p class="amiri text-3xl text-right leading-loose mb-5" style="color:#3D2B2B;line-height:2.6rem" id="sess-verse-ar"></p>
@@ -767,13 +758,11 @@
             </div>
         </div>
 
-        <!-- Listen -->
         <button onclick="window.speakCurrentVerse()" class="w-full card p-3 flex items-center justify-center gap-2 text-stone-400 text-sm font-semibold mb-4 active:scale-95 transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
             Écouter la prononciation arabe 🔊
         </button>
 
-        <!-- Rating -->
         <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest text-center mb-3">Comment tu as lu ce verset ?</p>
         <div class="grid grid-cols-3 gap-3 mb-6">
             <button id="rate-easy" onclick="window.rateVerse('easy')" class="rating-btn card p-4 text-center active:scale-95 transition-all">
@@ -788,7 +777,6 @@
         </div>
     </div>
 
-    <!-- Result -->
     <div id="result-view" class="hidden fade-up">
         <header class="pt-10 pb-5">
             <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Session terminée 🎉</h1>
@@ -811,14 +799,12 @@
     </div>
 </div>
 
-<!-- ===================== ARABIC TAB ===================== -->
 <div id="tab-arabic" class="hidden px-4 pb-nav">
     <header class="pt-12 pb-5">
         <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Arabe 🔤</h1>
         <p class="text-stone-400 text-sm mt-1">Lettres et voyelles</p>
     </header>
 
-    <!-- Letter detail card -->
     <div class="card p-6 mb-4 text-center">
         <p class="amiri text-7xl text-rose-500 mb-3" id="letter-display">ا</p>
         <p class="playfair text-xl font-bold" style="color:#3D2B2B" id="letter-name">Alif</p>
@@ -830,11 +816,9 @@
         </button>
     </div>
 
-    <!-- Letters grid -->
     <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Les 28 lettres</p>
     <div class="grid grid-cols-4 gap-2 mb-6" id="letters-grid"></div>
 
-    <!-- Vowels -->
     <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Les voyelles (Harakat)</p>
     <div class="grid grid-cols-2 gap-3">
         <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بَ</p><p class="font-bold text-sm mt-1">Fatha</p><p class="text-xs text-stone-400">son "a" court</p></div>
@@ -846,7 +830,6 @@
     </div>
 </div>
 
-<!-- ===================== PROPHETS TAB ===================== -->
 <div id="tab-prophets" class="hidden px-4 pb-nav">
     <div id="prophets-list-view">
         <header class="pt-12 pb-5">
@@ -871,17 +854,14 @@
     </div>
 </div>
 
-<!-- ===================== ALLAH NAMES TAB ===================== -->
 <div id="tab-allah" class="hidden px-4 pb-nav">
     <header class="pt-12 pb-5">
         <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Noms d'Allah 🌿</h1>
         <p class="text-stone-400 text-sm mt-1">Les 99 beaux noms · <span id="allah-count">0</span> noms</p>
     </header>
 
-    <!-- Search -->
     <input oninput="window.filterAllahNames(this.value)" placeholder="🔍 Chercher un nom..." class="w-full rounded-2xl px-4 py-3 text-sm mb-4 outline-none border" style="background:white;border-color:#F0D8D8;color:#3D2B2B">
 
-    <!-- Detail card -->
     <div id="aname-detail" class="hidden card p-5 mb-4" style="background:#FDF8F3;border-color:#E8C4C4">
         <p class="amiri text-4xl text-rose-500 text-center mb-2" id="aname-ar">الرحمن</p>
         <p class="playfair text-xl font-bold text-center" style="color:#3D2B2B" id="aname-n">Ar-Rahmân</p>
@@ -893,14 +873,12 @@
     <div class="space-y-2" id="allah-names-list"></div>
 </div>
 
-<!-- ===================== FOUNDATIONS TAB ===================== -->
 <div id="tab-foundations" class="hidden px-4 pb-nav">
     <header class="pt-12 pb-5">
         <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Fondements 🕋</h1>
         <p class="text-stone-400 text-sm mt-1">Les bases de l'Islam</p>
     </header>
 
-    <!-- Pilliers de l'Islam -->
     <h2 class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Les 5 Piliers de l'Islam</h2>
     <div class="space-y-3 mb-6">
         <details class="card overflow-hidden group" open>
@@ -975,7 +953,6 @@
         </details>
     </div>
 
-    <!-- Pilliers de la Foi -->
     <h2 class="text-xs font-black uppercase tracking-widest text-purple-500 mb-3">Les 6 Piliers de la Foi (Iman)</h2>
     <div class="space-y-2">
         <div class="card p-4 flex items-center gap-3">
@@ -1005,14 +982,12 @@
     </div>
 </div>
 
-<!-- ===================== DUAS TAB ===================== -->
 <div id="tab-duas" class="hidden px-4 pb-nav">
     <header class="pt-12 pb-5">
         <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Duas 🤲</h1>
         <p class="text-stone-400 text-sm mt-1">Invocations essentielles & tes duas perso</p>
     </header>
 
-    <!-- Duas importantes -->
     <h2 class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Duas fondamentales</h2>
     <div class="space-y-3 mb-6">
         <details class="card overflow-hidden group">
@@ -1065,7 +1040,6 @@
         </details>
     </div>
 
-    <!-- Duas personnelles -->
     <div class="card p-5 mb-4">
         <h2 class="text-xs font-black uppercase tracking-widest text-purple-500 mb-4">Mes duas personnelles 🌸</h2>
         <input id="dua-title-inp" placeholder="Titre (ex: Pour ma famille...)" class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-2 border" style="background:#FDF8F3;border-color:#F0D8D8;color:#3D2B2B">
@@ -1077,7 +1051,6 @@
     </div>
 </div>
 
-<!-- ===================== BOTTOM NAV ===================== -->
 <nav class="fixed bottom-0 left-0 right-0 z-50 border-t overflow-x-auto no-scrollbar" style="background:rgba(253,248,243,0.95);border-color:#F0D8D8;backdrop-filter:blur(20px)">
     <div class="flex justify-between items-center py-2 px-1 min-w-max mx-auto" style="gap:4px">
         <button id="nav-home" onclick="window.showTab('home')" class="active-nav flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
@@ -1114,7 +1087,6 @@
 </div>
 
 <script>
-// Fix: populate train surah selector after module loads
 setTimeout(() => {
     const grid = document.querySelector('#surah-selector .grid');
     if (grid && window.SURAHS && grid.children.length <= 1) {
