@@ -121,32 +121,34 @@
             } catch(e) {}
         }
 
-        // ============ AUDIO MOTEUR ============
-        window.speakArabic = (text) => {
+       // ============ AUDIO MOTEUR ============
+        window.currentUtt = null; // Cette ligne empêche l'iPhone de bloquer le son
+
+        function speakArabic(text) {
             if (!('speechSynthesis' in window)) { 
                 showToast("Audio non disponible"); 
                 return; 
             }
             
-            
+            // Coupe le son précédent s'il y en a un
             window.speechSynthesis.cancel();
             
-            const utt = new SpeechSynthesisUtterance(text);
-            utt.lang = 'ar-SA'; // Force l'arabe
-            utt.rate = 0.75;    // Vitesse plus lente pour bien entendre
+            // On attache le son à la fenêtre globale (window) pour que l'iPhone ne le supprime pas
+            window.currentUtt = new SpeechSynthesisUtterance(text);
+            window.currentUtt.lang = 'ar-SA'; 
+            window.currentUtt.rate = 0.75;    
             
-            // Cherche la voix directement (sans délai, pour ne pas bloquer le bouton)
             const voices = window.speechSynthesis.getVoices();
             const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
             if (arabicVoice) {
-                utt.voice = arabicVoice;
+                window.currentUtt.voice = arabicVoice;
             }
             
-            // Joue le son immédiatement
-            window.speechSynthesis.speak(utt);
-        };
+            window.speechSynthesis.speak(window.currentUtt);
+        }
+        window.speakArabic = speakArabic;
         
-        // Astuce pour forcer le téléphone à charger les voix en arrière-plan
+        // Force l'iPhone à préparer les voix dès l'ouverture de l'appli
         if ('speechSynthesis' in window) {
             window.speechSynthesis.getVoices();
             window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
