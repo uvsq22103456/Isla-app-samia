@@ -603,6 +603,19 @@
             sessionState.ratings.pop(); // On enlève la dernière note
             renderVerseInSession();
         };
+        window.speakCurrentVerse = () => {
+            if (!sessionState) return;
+            const surah = SURAHS.find(s => s.id === sessionState.surahId);
+            const verse = surah.verses[sessionState.verseIndex];
+            
+            // Si on a le numéro de la sourate (ex: 55 pour Ar-Rahman), on utilise l'audio haute qualité
+            if (surah.num) {
+                window.playArabicAudio(verse.ar, true, surah.num, verse.n);
+            } else {
+                // Sinon on utilise la synthèse vocale classique
+                window.playArabicAudio(verse.ar);
+            }
+        };
 
         window.rateVerse = (rating) => {
             if (!sessionState) return;
@@ -906,11 +919,6 @@
             <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest text-center flex-1">Évalue ta lecture</p>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <button id="rate-easy" onclick="window.rateVerse('easy')" class="rating-btn card p-4 text-center active:scale-95"><p class="text-2xl mb-1">✅</p><p class="text-xs font-bold text-emerald-600">Fluide</p></button>
-            <button id="rate-medium" onclick="window.rateVerse('medium')" class="rating-btn card p-4 text-center active:scale-95"><p class="text-2xl mb-1">🔸</p><p class="text-xs font-bold text-amber-500">Correct</p></button>
-            <button id="rate-hard" onclick="window.rateVerse('hard')" class="rating-btn card p-4 text-center active:scale-95"><p class="text-2xl mb-1">❗</p><p class="text-xs font-bold text-rose-500">Difficile</p></button>
-        </div>
         <div class="grid grid-cols-3 gap-3 mb-6">
             <button id="rate-easy" onclick="window.rateVerse('easy')" class="rating-btn card p-4 text-center active:scale-95"><p class="text-2xl mb-1">✅</p><p class="text-xs font-bold text-emerald-600">Fluide</p></button>
             <button id="rate-medium" onclick="window.rateVerse('medium')" class="rating-btn card p-4 text-center active:scale-95"><p class="text-2xl mb-1">🔸</p><p class="text-xs font-bold text-amber-500">Correct</p></button>
