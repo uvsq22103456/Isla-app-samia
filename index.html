@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Samia — Deen & Arabe 🌸</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream: #FDF8F3;
+            --blush: #F9EEE8;
+            --rose: #E8A4A4;
+            --rose-dark: #C47A7A;
+            --mauve: #B39DDB;
+            --mauve-light: #EDE7F6;
+            --sand: #D4B896;
+            --text: #3D2B2B;
+            --text-soft: #7A5C5C;
+            --text-muted: #B08080;
+            --card-bg: #FFFFFF;
+            --border: #F0E0D6;
+        }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 20% 0%, rgba(232,164,164,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(179,157,219,0.12) 0%, transparent 60%);
+            color: var(--text);
+            min-height: 100vh;
+            overscroll-behavior-y: contain;
+        }
+        .amiri { font-family: 'Amiri', serif; }
+        .playfair { font-family: 'Playfair Display', serif; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 2px 12px rgba(196,122,122,0.06);
+        }
+        .card-soft {
+            background: var(--blush);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+        }
+        .rose-btn {
+            background: linear-gradient(135deg, #E8A4A4, #C47A7A);
+            color: white;
+            border-radius: 16px;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(196,122,122,0.3);
+        }
+        .mauve-btn {
+            background: linear-gradient(135deg, #C5B3E8, #9C7FD4);
+            color: white;
+            border-radius: 16px;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(156,127,212,0.25);
+        }
+        .pb-nav { padding-bottom: 7rem; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        input, textarea { font-size: 16px !important; }
+        details summary::-webkit-details-marker { display: none; }
+
+        .active-nav .nav-icon { color: #C47A7A; }
+        .active-nav .nav-label { color: #C47A7A; }
+
+        /* Toast */
+        .toast-anim { animation: toastIn 0.3s ease; }
+        @keyframes toastIn { from { opacity:0; transform: translate(-50%,-10px); } to { opacity:1; transform: translate(-50%,0); } }
+
+        /* Fade */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+        .fade-up { animation: fadeUp 0.4s ease both; }
+
+        /* Rating buttons */
+        .rating-btn { transition: all 0.15s ease; border: 1.5px solid var(--border); }
+        #rate-easy.sel { background: #DCFCE7; border-color: #86EFAC; }
+        #rate-medium.sel { background: #FEF9C3; border-color: #FDE047; }
+        #rate-hard.sel { background: #FEE2E2; border-color: #FCA5A5; }
+
+        /* Pill nav */
+        .pill-btn {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .pill-active { background: linear-gradient(135deg, #E8A4A4, #C47A7A); color: white; box-shadow: 0 3px 10px rgba(196,122,122,0.3); }
+        .pill-inactive { background: white; color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* Letter grid button */
+        .letter-btn {
+            background: white;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 8px;
+            text-align: center;
+            transition: all 0.15s;
+            cursor: pointer;
+        }
+        .letter-btn:active { transform: scale(0.95); }
+        .letter-btn.active-letter {
+            background: linear-gradient(135deg, #F9EEE8, #F0D8D8);
+            border-color: #E8A4A4;
+        }
+
+        /* Prophet detail anim */
+        #prophet-detail { animation: fadeUp 0.3s ease; }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBZ96lSFIWzPsHklwk3ZU8kfWudfp8oVQ",
+            authDomain: "samcy-1136c.firebaseapp.com",
+            projectId: "samcy-1136c",
+            storageBucket: "samcy-1136c.firebasestorage.app",
+            messagingSenderId: "337821844780",
+            appId: "1:337821844780:web:fb15b7fba7b1298d5a5889"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const APP_ID = 'samia-deen-app-v1';
+        const USER_ID = 'samia';
+
+        // ============ DATA ============
+        let userData = {};
+        let sessions = [];
+        let scores = {};
+        let personalDuas = [];
+
+        async function loadAll() {
+            try {
+                const mainSnap = await getDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'main'));
+                if (mainSnap.exists()) {
+                    const d = mainSnap.data();
+                    sessions = d.sessions || [];
+                    scores = d.scores || {};
+                    userData = { streak: d.streak||0, lastSession: d.lastSession||null };
+                }
+                const duasSnap = await getDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'duas'));
+                if (duasSnap.exists()) personalDuas = duasSnap.data().list || [];
+            } catch(e) { console.error('load error', e); }
+        }
+
+        async function saveMain() {
+            try {
+                await setDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'main'), {
+                    sessions, scores, streak: userData.streak||0, lastSession: userData.lastSession||null
+                });
+            } catch(e) { console.error('save error', e); }
+        }
+
+        async function saveDuas() {
+            try {
+                await setDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'duas'), { list: personalDuas });
+            } catch(e) { console.error('save duas error', e); }
+        }
+
+        // ============ SURAHS DATA ============
+        const SURAHS = [
+            { id:'fatiha', name:'Al-Fatiha', nameAr:'الفاتحة', level:1, emoji:'🌟', tip:'La plus récitée dans la prière. Chaque lettre doit être claire.',
+              verses:[
+                {n:1,ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',tr:'Au nom d'Allah, le Tout Miséricordieux, le Très Miséricordieux'},
+                {n:2,ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ',tr:'Louange à Allah, Seigneur des mondes'},
+                {n:3,ar:'الرَّحْمَٰنِ الرَّحِيمِ',tr:'Le Tout Miséricordieux, le Très Miséricordieux'},
+                {n:4,ar:'مَالِكِ يَوْمِ الدِّينِ',tr:'Maître du Jour de la rétribution'},
+                {n:5,ar:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ',tr:'C'est Toi que nous adorons, et c'est Toi dont nous implorons le secours'},
+                {n:6,ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ',tr:'Guide-nous dans le droit chemin'},
+                {n:7,ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ',tr:'Le chemin de ceux que Tu as comblés de bienfaits, non pas de ceux qui ont encouru Ta colère, ni des égarés'},
+              ]},
+            { id:'ikhlas', name:'Al-Ikhlas', nameAr:'الإخلاص', level:1, emoji:'💎', tip:'Vaut 1/3 du Coran. Chaque mot compte.',
+              verses:[
+                {n:1,ar:'قُلْ هُوَ اللَّهُ أَحَدٌ',tr:'Dis : «Il est Allah, l'Unique»'},
+                {n:2,ar:'اللَّهُ الصَّمَدُ',tr:'Allah, le Seul à être imploré pour ce que nous désirons'},
+                {n:3,ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ',tr:'Il n'a pas engendré, n'a pas été engendré non plus'},
+                {n:4,ar:'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',tr:'Et nul n'est égal à Lui'},
+              ]},
+            { id:'falaq', name:'Al-Falaq', nameAr:'الفلق', level:1, emoji:'🌅', tip:'Sourate de protection. À lire avec clarté.',
+              verses:[
+                {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ',tr:'Dis : «Je cherche protection auprès du Seigneur de l'Aube naissante»'},
+                {n:2,ar:'مِن شَرِّ مَا خَلَقَ',tr:'contre le mal de ce qu'Il a créé'},
+                {n:3,ar:'وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ',tr:'et contre le mal de l'obscurité quand elle s'installe'},
+                {n:4,ar:'وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ',tr:'et contre le mal de celles qui soufflent sur les nœuds'},
+                {n:5,ar:'وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',tr:'et contre le mal de l'envieux quand il envie'},
+              ]},
+            { id:'nas', name:'An-Nas', nameAr:'الناس', level:1, emoji:'🛡️', tip:'À réciter le soir pour la protection.',
+              verses:[
+                {n:1,ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ',tr:'Dis : «Je cherche protection auprès du Seigneur des hommes»'},
+                {n:2,ar:'مَلِكِ النَّاسِ',tr:'du Roi des hommes'},
+                {n:3,ar:'إِلَٰهِ النَّاسِ',tr:'de Dieu des hommes'},
+                {n:4,ar:'مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ',tr:'contre le mal du mauvais conseiller furtif'},
+                {n:5,ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ',tr:'qui souffle le mal dans les poitrines des hommes'},
+                {n:6,ar:'مِنَ الْجِنَّةِ وَالنَّاسِ',tr:'qu'il soit djinn ou être humain'},
+              ]},
+            { id:'asr', name:'Al-Asr', nameAr:'العصر', level:1, emoji:'⏳', tip:'Imam Ash-Shafi'i : si le Coran n'avait que cette sourate, elle suffirait.',
+              verses:[
+                {n:1,ar:'وَالْعَصْرِ',tr:'Par le Temps !'},
+                {n:2,ar:'إِنَّ الْإِنسَانَ لَفِي خُسْرٍ',tr:'Certes, l'être humain est en perdition'},
+                {n:3,ar:'إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ',tr:'sauf ceux qui croient et accomplissent les bonnes œuvres, s'enjoignent mutuellement la vérité et l'endurance'},
+              ]},
+            { id:'kawthar', name:'Al-Kawthar', nameAr:'الكوثر', level:1, emoji:'🌊', tip:'La plus courte sourate. Travaille l'emphase.',
+              verses:[
+                {n:1,ar:'إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ',tr:'Nous t'avons certes donné l'abondance'},
+                {n:2,ar:'فَصَلِّ لِرَبِّكَ وَانْحَرْ',tr:'Accomplis donc la prière pour ton Seigneur et sacrifie'},
+                {n:3,ar:'إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ',tr:'C'est bien ton ennemi qui sera sans postérité'},
+              ]},
+            { id:'feel', name:'Al-Fil', nameAr:'الفيل', level:2, emoji:'🐘', tip:'Attention aux lettres prolongées et aux gunnah.',
+              verses:[
+                {n:1,ar:'أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ',tr:'N'as-tu pas vu comment ton Seigneur a agi envers les gens de l'éléphant?'},
+                {n:2,ar:'أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ',tr:'N'a-t-Il pas rendu vains leurs stratagèmes?'},
+                {n:3,ar:'وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ',tr:'Il envoya contre eux des oiseaux par volées'},
+                {n:4,ar:'تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ',tr:'qui lancèrent sur eux des pierres d'argile'},
+                {n:5,ar:'فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ',tr:'et Il les rendit pareils à une paille mâchée'},
+              ]},
+            { id:'zilzal', name:'Az-Zalzala', nameAr:'الزلزلة', level:2, emoji:'⚡', tip:'Entraîne-toi à lire sans t'arrêter.',
+              verses:[
+                {n:1,ar:'إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا',tr:'Quand la terre tremblera de son violent tremblement'},
+                {n:2,ar:'وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا',tr:'et que la terre sortira ses fardeaux'},
+                {n:3,ar:'وَقَالَ الْإِنسَانُ مَا لَهَا',tr:'et que l'être humain dira : «Qu'a-t-elle?»'},
+                {n:4,ar:'يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا',tr:'Ce jour-là, elle racontera ses nouvelles'},
+                {n:5,ar:'بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا',tr:'parce que ton Seigneur lui en aura donné l'ordre'},
+                {n:6,ar:'يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ',tr:'Ce jour-là, les gens sortiront en groupes dispersés pour qu'on leur montre leurs œuvres'},
+                {n:7,ar:'فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ',tr:'Quiconque aura fait le poids d'un atome de bien le verra'},
+                {n:8,ar:'وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ',tr:'et quiconque aura fait le poids d'un atome de mal le verra'},
+              ]},
+        ];
+
+        // ============ PROPHETS ============
+        const PROPHETS = [
+            {name:"Adam ﷺ",sub:"Le premier homme et prophète",emoji:"🌿",story:`Adam est le premier être humain et le premier prophète. Allah l'a créé de la terre, lui a insufflé Son souffle et lui a enseigné les noms de toutes choses.\n\nIl vivait au Paradis avec Ève (Hawwa), mais le Shaytân les a trompés. Allah leur a pardonné après leur repentir sincère, et les a envoyés sur terre comme Ses représentants.\n\n📿 Leçon : Allah pardonne toujours à celui qui se repent sincèrement. Le repentir d'Adam est le modèle de l'istighfar.`},
+            {name:"Nûh ﷺ",sub:"950 ans de da'wa, le Déluge",emoji:"🚢",story:`Nûh a prêché son peuple pendant 950 ans — une patience extraordinaire. Son peuple adorait des idoles et refusait obstinément de l'écouter.\n\nIl construisit l'Arche par ordre divin. Le Grand Déluge tout submergea. Même son fils refusa de monter, croyant qu'une montagne le protégerait.\n\n📿 Leçon : La guidance appartient à Allah seul. Même les prophètes ne peuvent pas guider ceux qu'Allah n'a pas guidés.`},
+            {name:"Ibrâhîm ﷺ",sub:"Khalîl Allah — L'ami intime d'Allah",emoji:"🔥",story:`Ibrahim est appelé "père des prophètes". Dès l'enfance sa raison l'a conduit vers l'Unique. Il brisa les idoles de son peuple, fut jeté dans un feu ardent, mais Allah ordonna au feu : "Sois fraîcheur et paix"\n\nL'épreuve suprême : Allah lui ordonna de sacrifier son fils Ismaïl. Tous deux acceptèrent — Allah remplaça Ismaïl par un bélier. Avec Ismaïl, il bâtit la Ka'ba.\n\n📿 Leçon : La soumission totale à Allah est illustrée par Ibrahim dans chaque étape de sa vie.`},
+            {name:"Yûsuf ﷺ",sub:"La plus belle des histoires",emoji:"💫",story:`Yûsuf est fils de Ya'qûb. Ses frères jaloux le jetèrent dans un puits, puis le vendirent comme esclave en Égypte. La femme de son maître l'accusa faussement — il fut emprisonné.\n\nQuand le roi d'Égypte fit un rêve troublant, Yûsuf l'interpréta et fut nommé ministre des finances. Ses frères vinrent chercher du grain sans le reconnaître. Il se révéla à eux. Son père retrouva la vue.\n\n📿 Leçon : Patience, chasteté, confiance en Allah — les pires épreuves deviennent élévation.`},
+            {name:"Mûsâ ﷺ",sub:"Kalîm Allah — À qui Allah a parlé directement",emoji:"⚡",story:`Mûsâ est le prophète le plus mentionné dans le Coran. Il grandit dans le palais de Pharaon lui-même. Sur le mont Sinaï, Allah lui parla directement depuis un buisson ardent.\n\nAvec Hârûn, il affronta Pharaon. Les 9 miracles s'enchaînent. Pharaon s'entête. La mer se fend. Pharaon se noie au moment de dire "Je crois" — trop tard.\n\n📿 Leçon : La mission prophétique est difficile, mais Allah est avec Ses élus.`},
+            {name:"Dâwûd ﷺ",sub:"Roi, prophète, psalmiste",emoji:"🎵",story:`Dâwûd était un jeune berger quand il tua le géant Jalût d'une seule fronde. Allah lui donna le royaume et la sagesse.\n\nIl reçut les Zabûr (Psaumes). Sa voix était si belle que les oiseaux et les montagnes participaient à ses louanges. Allah lui apprit à forger le fer.\n\n📿 Leçon : Combiner la foi, la compétence et la gratitude. Dâwûd était roi mais restait profondément humble devant Allah.`},
+            {name:"Sulaymân ﷺ",sub:"Maître des djinns, des hommes et des animaux",emoji:"👑",story:`Sulaymân comprenait le langage des animaux et commandait les djinns. Il reçut un message de la huppe sur une reine (Bilqîs de Saba) qui adorait le soleil. Il l'invita à l'Islam — elle embrassa la foi.\n\nQuand il mourut appuyé sur son bâton, les djinns continuèrent à travailler sans savoir qu'il était mort.\n\n📿 Leçon : Le pouvoir et la richesse ne valent rien sans la reconnaissance d'Allah.`},
+            {name:"Yûnus ﷺ",sub:"L'homme de la baleine",emoji:"🐋",story:`Yûnus fut envoyé à la ville de Ninive. Découragé par le refus de son peuple, il quitta sa mission sans autorisation divine. Il fut avalé par un grand poisson.\n\nDans les ténèbres il invoqua : "Il n'y a de dieu que Toi, Gloire à Toi, j'ai été parmi les injustes." — la dua Yûnus, l'une des plus puissantes. Allah l'exauça.\n\n📿 Leçon : Même dans les pires moments, la dua sincère dans les ténèbres nous sauve.`},
+            {name:"Maryam ﷻ",sub:"La meilleure des femmes — mère d'Issa",emoji:"🌸",story:`Maryam est la seule femme citée par son nom dans le Coran, et une sourate entière lui est dédiée. Elle consacra sa vie à Allah dans le temple.\n\nZakariyyâ son gardien trouvait toujours une nourriture miraculeuse chez elle. L'ange Jibrîl lui annonça qu'elle aurait un enfant sans père — Issa. Elle l'enfanta seule sous un palmier.\n\n📿 Leçon : La pureté, la dévotion et la confiance absolue en Allah font de Maryam le modèle de la femme croyante.`},
+            {name:"Îsâ ﷺ",sub:"Rûh Allah — né sans père",emoji:"✨",story:`Issa est né miraculeusement de Maryam vierge. Dès le berceau, il parla pour défendre sa mère : "Je suis le serviteur d'Allah ; Il m'a donné le Livre et m'a fait prophète."\n\nIl guérissait les malades, ressuscitait les morts, créait des oiseaux d'argile qui s'envolaient — tout par la permission d'Allah. Il redescendra à la fin des temps.\n\n📿 Leçon : Issa est un serviteur d'Allah, pas Dieu. Sa naissance miraculeuse n'est pas plus étrange que celle d'Adam.`},
+            {name:"Muhammad ﷺ",sub:"Le sceau des prophètes",emoji:"🌙",story:`Muhammad ﷺ est né à La Mecque en 570, l'Année de l'Éléphant. Orphelin tôt, il fut connu sous le nom d'"Al-Amîn" (le fidèle). À 40 ans, dans la grotte de Hirâ, l'ange Jibrîl lui dit "Lis !"\n\nLa mission dura 23 ans. En 630, La Mecque fut conquise sans effusion de sang. Le Prophète ﷺ pardonna à ses pires ennemis.\n\n📿 Leçon : "Il y a dans l'Envoyé d'Allah un excellent modèle pour vous." (33:21) Étudier sa vie, c'est apprendre à vivre.`},
+        ];
+
+        // ============ ALLAH 99 NAMES ============
+        const ALLAH_NAMES = [
+            {n:"Allâh",a:"الله",t:"Le nom suprême",d:"Le nom propre d'Allah, celui que rien ni personne ne peut porter. Contient tous les attributs divins."},
+            {n:"Ar-Rahmân",a:"الرحمن",t:"Le Tout-Miséricordieux",d:"Sa miséricorde englobe toute créature. Il est doux même avec les ingrats."},
+            {n:"Ar-Rahîm",a:"الرحيم",t:"Le Très-Miséricordieux",d:"Sa miséricorde spéciale est pour les croyants au Jour Dernier. Il ne déçoit jamais celui qui revient vers Lui."},
+            {n:"Al-Malik",a:"الملك",t:"Le Roi souverain",d:"Tout le pouvoir Lui appartient. Aucun roi ne peut rivaliser avec Sa Royauté absolue."},
+            {n:"Al-Quddûs",a:"القدوس",t:"Le Saint",d:"Absolument pur de tout défaut. Quand tu te sens impur, reviens vers Lui qui est la Pureté même."},
+            {n:"As-Salâm",a:"السلام",t:"La Paix",d:"Il est la source de toute paix. 'As-salâmu alaykum' rappelle qu'Allah est As-Salâm."},
+            {n:"Al-Mu'min",a:"المؤمن",t:"Le Garant",d:"Il sécurise Ses servants contre toute injustice."},
+            {n:"Al-'Azîz",a:"العزيز",t:"Le Tout-Puissant",d:"Sa puissance est inégalable. En Lui seul trouve-t-on la vraie force."},
+            {n:"Al-Jabbâr",a:"الجبار",t:"Le Réparateur",d:"Il répare les cœurs brisés. Viens à Lui avec tes fractures — Il est le seul à pouvoir les souder."},
+            {n:"Al-Khâliq",a:"الخالق",t:"Le Créateur",d:"Il crée de rien. Chaque fois que tu observes la nature, tu vois Son œuvre."},
+            {n:"Al-Ghaffâr",a:"الغفار",t:"Le Grand Pardonneur",d:"Il pardonne encore et encore, sans limite. Ne désespère jamais de Sa miséricorde."},
+            {n:"Al-Wahhâb",a:"الوهاب",t:"Le Tout-Donateur",d:"Il donne sans qu'on Lui demande, sans condition. Chaque respiration est un cadeau."},
+            {n:"Ar-Razzâq",a:"الرزاق",t:"Le Pourvoyeur",d:"Il assure la subsistance de chaque créature. Fais confiance — Il pourvoira."},
+            {n:"Al-Fattâh",a:"الفتاح",t:"L'Ouvreur des portes",d:"Quand toutes les portes semblent fermées, Il peut en ouvrir une que tu n'imaginais pas."},
+            {n:"Al-'Alîm",a:"العليم",t:"L'Omniscient",d:"Il sait tout — tes pensées secrètes, tes douleurs cachées. Rien n'est trop petit pour Son attention."},
+            {n:"Al-Bâsit",a:"الباسط",t:"Celui qui étend",d:"Il élargit les provisions quand Il veut. Après la contraction vient l'expansion."},
+            {n:"Ar-Râfi'",a:"الرافع",t:"Celui qui élève",d:"Il élève qui Il veut en dignité, en rang, en foi. Seul Lui peut te hisser vraiment."},
+            {n:"As-Samî'",a:"السميع",t:"L'Audient",d:"Il entend chaque dua murmuré dans la nuit. Tu n'as jamais besoin de crier pour être entendu."},
+            {n:"Al-Basîr",a:"البصير",t:"Le Clairvoyant",d:"Il voit tout, y compris ce que tu caches."},
+            {n:"Al-'Adl",a:"العدل",t:"Le Juste",d:"Sa justice est absolue. Tout ce qui arrive a une sagesse, même si tu ne la vois pas."},
+            {n:"Al-Latîf",a:"اللطيف",t:"Le Subtil",d:"Il agit de façon délicate, imperceptible. Il t'a guidé bien des fois sans que tu t'en rendes compte."},
+            {n:"Al-Halîm",a:"الحليم",t:"Le Clément",d:"Il ne se précipite pas dans la punition. Sa clémence est un espace pour le repentir."},
+            {n:"Al-Ghafûr",a:"الغفور",t:"Le Pardonneur",d:"Il pardonne immensément. Parmi Ses noms les plus récurrents dans le Coran — c'est un message pour nous."},
+            {n:"Ash-Shakûr",a:"الشكور",t:"Le Très-Reconnaissant",d:"Il récompense même le petit effort au-delà de ce qu'on mérite."},
+            {n:"Al-Hafîz",a:"الحفيظ",t:"Le Gardien",d:"Il te protège, toi et ceux que tu aimes, même quand tu dors."},
+            {n:"Al-Karîm",a:"الكريم",t:"Le Tout-Généreux",d:"Sa générosité est sans fond. Demande-Lui — Il n'est jamais avare."},
+            {n:"Al-Mujîb",a:"المجيب",t:"Celui qui exauce",d:"Il répond à chaque invocation. Parfois immédiatement, parfois différé — mais Il répond toujours."},
+            {n:"Al-Wadûd",a:"الودود",t:"L'Affectueux",d:"Il est le seul à t'aimer inconditionnellement, parfaitement et pour toujours."},
+            {n:"Al-Haqq",a:"الحق",t:"Le Vrai",d:"Il est la seule réalité absolue. Tout le reste est éphémère."},
+            {n:"Al-Wakîl",a:"الوكيل",t:"Le Gérant",d:"'Hasbunallah wa ni'mal wakîl' — Allah nous suffit ! Confie-Lui tes affaires."},
+            {n:"Al-Waliyy",a:"الولي",t:"Le Protecteur allié",d:"Il est le protecteur des croyants. 'Allah est le protecteur de ceux qui croient.' (2:257)"},
+            {n:"Al-Hamîd",a:"الحميد",t:"Le Digne de Louange",d:"Toute louange Lui revient. 'Al-Hamdu lillah' — la louange appartient à Allah."},
+            {n:"Al-Muhyî",a:"المحيي",t:"Celui qui fait vivre",d:"Il peut vivifier un cœur mort, une foi morte. La renaissance est toujours possible."},
+            {n:"Al-Hayy",a:"الحي",t:"Le Vivant",d:"Il vit d'une vie parfaite et éternelle. Ayat al-Kursî : 'Al-Hayy Al-Qayyûm'"},
+            {n:"Al-Qayyûm",a:"القيوم",t:"Le Subsistant",d:"Il se suffit à Lui-même et tout dépend de Lui. Sans Lui, rien ne subsisterait un seul instant."},
+            {n:"Al-Wâhid",a:"الواحد",t:"L'Unique",d:"Il est Un sans associé, sans semblable. Tout part de là."},
+            {n:"Al-Ahad",a:"الأحد",t:"L'Un",d:"Absolument Un, indivisible, incomparable. La base de tout le tawhid."},
+            {n:"As-Samad",a:"الصمد",t:"Le Soutien universel",d:"Tout le monde a besoin de Lui. Lui n'a besoin de personne."},
+            {n:"Al-Qâdir",a:"القادر",t:"Le Puissant",d:"Il peut tout faire. Aucune demande n'est trop grande pour Lui."},
+            {n:"Al-Awwal",a:"الأول",t:"Le Premier",d:"Il est avant toute chose. Il n'y avait rien avant Lui."},
+            {n:"Al-Âkhir",a:"الآخر",t:"Le Dernier",d:"Il demeure après toute chose. Quand tout disparaît, Il reste."},
+            {n:"Al-Bâtin",a:"الباطن",t:"Le Caché",d:"Son Essence est inaccessible. On Le connaît par Ses noms et attributs."},
+            {n:"Al-Barr",a:"البر",t:"Le Bienfaisant",d:"Il est plein de bonté envers Ses créatures. Même les non-croyants bénéficient de Sa bonté."},
+            {n:"At-Tawwâb",a:"التواب",t:"L'Accueillant au repentir",d:"Il accepte le repentir encore et encore. Chaque retour vers Lui est une nouvelle naissance."},
+            {n:"Al-'Afuww",a:"العفو",t:"L'Indulgent",d:"Il efface les fautes sans même les rappeler. 'Allâhumma innaka 'afuwwun...'"},
+            {n:"Ar-Ra'ûf",a:"الرؤوف",t:"Le Bienveillant",d:"Sa bienveillance est une tendresse douce et attentive. Comme une mère mais en infiniment plus."},
+            {n:"An-Nûr",a:"النور",t:"La Lumière",d:"Il est la Lumière des cieux et de la terre. Demande-Lui la lumière du cœur."},
+            {n:"Al-Hâdî",a:"الهادي",t:"Le Guide",d:"Il guide qui Il veut. Demande-Lui la guidance chaque jour."},
+            {n:"Al-Bâqî",a:"الباقي",t:"Le Permanent",d:"Il dure éternellement. Tout ce que tu aimes passera — Lui seul demeure."},
+            {n:"As-Sabûr",a:"الصبور",t:"Le Patient",d:"Il ne Se précipite pas dans la punition. Sa patience est un espace pour ton repentir."},
+        ];
+
+        // ============ ARABIC LETTERS ============
+        const ARABIC_LETTERS = [
+            {l:"ا",n:"Alif",s:"â / a",ex:"أَلَم (Alam)"},
+            {l:"ب",n:"Bâ",s:"b",ex:"بَيت (Maison)"},
+            {l:"ت",n:"Tâ",s:"t",ex:"تَوبة (Repentir)"},
+            {l:"ث",n:"Thâ",s:"th",ex:"ثَواب (Récompense)"},
+            {l:"ج",n:"Jîm",s:"dj",ex:"جَنَّة (Paradis)"},
+            {l:"ح",n:"Hâ",s:"h aspiré",ex:"حَمد (Louange)"},
+            {l:"خ",n:"Khâ",s:"kh",ex:"خَير (Bien)"},
+            {l:"د",n:"Dâl",s:"d",ex:"دُعاء (Dua)"},
+            {l:"ذ",n:"Dhâl",s:"dh",ex:"ذِكر (Dhikr)"},
+            {l:"ر",n:"Râ",s:"r roulé",ex:"رَحمة (Miséricorde)"},
+            {l:"ز",n:"Zây",s:"z",ex:"زَكاة (Zakât)"},
+            {l:"س",n:"Sîn",s:"s",ex:"سَلام (Paix)"},
+            {l:"ش",n:"Shîn",s:"ch",ex:"شُكر (Gratitude)"},
+            {l:"ص",n:"Sâd",s:"s emphatique",ex:"صَبر (Patience)"},
+            {l:"ض",n:"Dâd",s:"d emphatique",ex:"ضَوء (Lumière)"},
+            {l:"ط",n:"Tâ emp.",s:"t emphatique",ex:"طَهارة (Pureté)"},
+            {l:"ع",n:"'Ayn",s:"' guttural",ex:"عِلم (Savoir)"},
+            {l:"غ",n:"Ghayn",s:"gh",ex:"غَفُور (Pardonneur)"},
+            {l:"ف",n:"Fâ",s:"f",ex:"فَجر (Fajr)"},
+            {l:"ق",n:"Qâf",s:"q guttural",ex:"قُرآن (Coran)"},
+            {l:"ك",n:"Kâf",s:"k",ex:"كِتاب (Livre)"},
+            {l:"ل",n:"Lâm",s:"l",ex:"لَيل (Nuit)"},
+            {l:"م",n:"Mîm",s:"m",ex:"مَسجد (Mosquée)"},
+            {l:"ن",n:"Nûn",s:"n",ex:"نُور (Lumière)"},
+            {l:"ه",n:"Hâ",s:"h doux",ex:"هِداية (Guidance)"},
+            {l:"و",n:"Wâw",s:"w / û",ex:"وُضوء (Wudu)"},
+            {l:"ي",n:"Yâ",s:"y / î",ex:"يَقين (Certitude)"},
+        ];
+
+        window.SURAHS = SURAHS;
+        window.PROPHETS = PROPHETS;
+        window.ALLAH_NAMES = ALLAH_NAMES;
+        window.ARABIC_LETTERS = ARABIC_LETTERS;
+
+        // ============ SESSION STATE ============
+        let sessionState = null;
+        let timerInterval = null;
+        let elapsedTime = 0;
+        let activeLetterIdx = 0;
+        let activeProphetIdx = -1;
+        let allahSearchFilter = '';
+
+        // ============ SPEAK ============
+        function speakArabic(text) {
+            if (!('speechSynthesis' in window)) { showToast('Audio non disponible sur cet appareil'); return; }
+            window.speechSynthesis.cancel();
+            const utt = new SpeechSynthesisUtterance(text);
+            utt.lang = 'ar-SA';
+            utt.rate = 0.75;
+            // Try to find Arabic voice, retry after delay if voices not loaded yet
+            const trySpeak = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+                if (arabicVoice) utt.voice = arabicVoice;
+                window.speechSynthesis.speak(utt);
+            };
+            if (window.speechSynthesis.getVoices().length > 0) { trySpeak(); }
+            else { window.speechSynthesis.onvoiceschanged = trySpeak; setTimeout(trySpeak, 800); }
+        }
+        window.speakArabic = speakArabic;
+
+        // ============ TOAST ============
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.className = 'toast-anim fixed top-6 left-1/2 -translate-x-1/2 bg-white text-rose-600 px-6 py-3 rounded-2xl text-xs font-bold z-[999] shadow-xl border border-rose-200';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+        window.showToast = showToast;
+
+        // ============ NAVIGATION ============
+        const TABS = ['home','train','arabic','prophets','allah','foundations','duas'];
+        window.showTab = (tab) => {
+            TABS.forEach(t => {
+                document.getElementById('tab-'+t)?.classList.add('hidden');
+                document.getElementById('nav-'+t)?.classList.remove('active-nav');
+            });
+            document.getElementById('tab-'+tab)?.classList.remove('hidden');
+            document.getElementById('nav-'+tab)?.classList.add('active-nav');
+            window.scrollTo(0,0);
+            if (tab === 'home') renderHome();
+            if (tab === 'arabic') renderArabicTab();
+            if (tab === 'prophets') renderProphets();
+            if (tab === 'allah') renderAllahNames();
+            if (tab === 'train') { document.getElementById('surah-selector').classList.remove('hidden'); document.getElementById('session-view').classList.add('hidden'); document.getElementById('result-view').classList.add('hidden'); }
+        };
+
+        // ============ HOME ============
+        function renderHome() {
+            const today = new Date().toISOString().split('T')[0];
+            const todaySess = sessions.filter(s => new Date(s.ts).toISOString().split('T')[0] === today);
+            document.getElementById('streak-val').innerText = userData.streak||0;
+            document.getElementById('today-val').innerText = todaySess.length;
+            document.getElementById('total-val').innerText = sessions.length;
+
+            const levelLabels = ['','⭐','⭐⭐','⭐⭐⭐'];
+            const barColors = ['','bg-rose-300','bg-amber-300','bg-purple-300'];
+            document.getElementById('home-surahs').innerHTML = SURAHS.map(s => {
+                const sc = (scores[s.id])||{attempts:0,easy:0};
+                const pct = sc.attempts>0 ? Math.round((sc.easy/sc.attempts)*100) : 0;
+                return `<button onclick="window.startSession('${s.id}')" class="card p-4 text-left active:scale-95 transition-all w-full">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-xl">${s.emoji}</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between"><p class="font-bold text-sm truncate">${s.name}</p><span class="text-xs text-stone-400 ml-1">${s.verses.length}v</span></div>
+                            <p class="text-xs text-stone-400">${levelLabels[s.level]}</p>
+                        </div>
+                    </div>
+                    <div class="w-full bg-rose-50 rounded-full h-1.5"><div class="${barColors[s.level]} h-1.5 rounded-full" style="width:${pct}%"></div></div>
+                    <p class="text-[10px] text-stone-400 mt-1">${sc.attempts>0?`${pct}% fluide · ${sc.attempts} lecture${sc.attempts>1?'s':''}` : 'Pas encore pratiqué'}</p>
+                </button>`;
+            }).join('');
+        }
+
+        // ============ TRAINING ============
+        window.startSession = (surahId) => {
+            const surah = SURAHS.find(s=>s.id===surahId);
+            if (!surah) return;
+            sessionState = {surahId, verseIndex:0, startTime:Date.now(), ratings:[]};
+            elapsedTime = 0;
+            document.getElementById('sess-surah-name').innerText = surah.name;
+            document.getElementById('sess-surah-ar').innerText = surah.nameAr;
+            document.getElementById('sess-tip').innerText = '💡 '+surah.tip;
+            renderVerseInSession();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(()=>{
+                elapsedTime++;
+                const m=Math.floor(elapsedTime/60).toString().padStart(2,'0');
+                const s=(elapsedTime%60).toString().padStart(2,'0');
+                document.getElementById('sess-timer').innerText=`${m}:${s}`;
+            },1000);
+            document.getElementById('surah-selector').classList.add('hidden');
+            document.getElementById('session-view').classList.remove('hidden');
+            window.scrollTo(0,0);
+        };
+
+        function renderVerseInSession() {
+            if (!sessionState) return;
+            const surah = SURAHS.find(s=>s.id===sessionState.surahId);
+            const verse = surah.verses[sessionState.verseIndex];
+            document.getElementById('sess-verse-num').innerText = `Verset ${verse.n}`;
+            document.getElementById('sess-verse-ar').innerText = verse.ar;
+            document.getElementById('sess-verse-tr').innerText = verse.tr;
+            document.getElementById('sess-progress-txt').innerText = `${sessionState.verseIndex+1} / ${surah.verses.length}`;
+            document.getElementById('sess-progress-bar').style.width = `${((sessionState.verseIndex+1)/surah.verses.length)*100}%`;
+            document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
+        }
+
+        window.speakCurrentVerse = () => {
+            if (!sessionState) return;
+            const surah = SURAHS.find(s=>s.id===sessionState.surahId);
+            speakArabic(surah.verses[sessionState.verseIndex].ar);
+        };
+
+        window.rateVerse = (rating) => {
+            if (!sessionState) return;
+            sessionState.ratings.push(rating);
+            document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
+            document.getElementById('rate-'+rating).classList.add('sel');
+            setTimeout(()=>{
+                const surah = SURAHS.find(s=>s.id===sessionState.surahId);
+                if (sessionState.verseIndex < surah.verses.length-1) {
+                    sessionState.verseIndex++;
+                    renderVerseInSession();
+                } else {
+                    finishSession();
+                }
+            },400);
+        };
+
+        async function finishSession() {
+            clearInterval(timerInterval);
+            const surah = SURAHS.find(s=>s.id===sessionState.surahId);
+            const ratings = sessionState.ratings;
+            if (!scores[sessionState.surahId]) scores[sessionState.surahId]={easy:0,medium:0,hard:0,attempts:0};
+            const sc = scores[sessionState.surahId];
+            sc.attempts++;
+            ratings.forEach(r=>{ if(r==='easy')sc.easy++; else if(r==='medium')sc.medium++; else sc.hard++; });
+            sessions.push({ts:Date.now(),surahId:sessionState.surahId,verseCount:surah.verses.length,duration:elapsedTime,ratings});
+            const today=new Date().toISOString().split('T')[0];
+            const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+            if(userData.lastSession===yesterday) userData.streak=(userData.streak||0)+1;
+            else if(userData.lastSession!==today) userData.streak=1;
+            userData.lastSession=today;
+            await saveMain();
+            const easyCount=ratings.filter(r=>r==='easy').length;
+            const hardCount=ratings.filter(r=>r==='hard').length;
+            const pct=ratings.length>0?Math.round((easyCount/ratings.length)*100):0;
+            document.getElementById('result-surah').innerText=surah.name+' · '+surah.nameAr;
+            document.getElementById('result-duration').innerText=`⏱ ${Math.floor(elapsedTime/60)}:${(elapsedTime%60).toString().padStart(2,'0')}`;
+            document.getElementById('result-pct').innerText=pct+'%';
+            document.getElementById('result-easy').innerText=easyCount;
+            document.getElementById('result-hard').innerText=hardCount;
+            let msg = pct>=80?'🌸 Mashallah ! Tu lis vraiment bien !': pct>=50?'💪 Bien ! Continue à pratiquer les parties difficiles.':'📚 Reviens sur les versets difficiles. La régularité fait tout.';
+            document.getElementById('result-msg').innerText=msg;
+            document.getElementById('session-view').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            sessionState=null;
+        }
+
+        window.backToSelector = () => {
+            if(timerInterval){clearInterval(timerInterval);sessionState=null;}
+            document.getElementById('session-view').classList.add('hidden');
+            document.getElementById('result-view').classList.add('hidden');
+            document.getElementById('surah-selector').classList.remove('hidden');
+        };
+
+        // ============ ARABIC TAB ============
+        function renderArabicTab() {
+            // Letters grid
+            const grid = document.getElementById('letters-grid');
+            if (grid && grid.children.length === 0) {
+                grid.innerHTML = ARABIC_LETTERS.map((l,i) => `<button class="letter-btn${i===0?' active-letter':''}" onclick="window.showLetter(${i})">
+                    <p class="amiri text-2xl text-rose-600">${l.l}</p>
+                    <p class="text-[10px] text-stone-500 mt-1 font-semibold">${l.n}</p>
+                </button>`).join('');
+                showLetter(0);
+            }
+        }
+
+        window.showLetter = (i) => {
+            activeLetterIdx = i;
+            const l = ARABIC_LETTERS[i];
+            document.getElementById('letter-display').innerText = l.l;
+            document.getElementById('letter-name').innerText = l.n;
+            document.getElementById('letter-sound').innerText = 'Son : '+l.s;
+            document.getElementById('letter-example').innerText = l.ex;
+            document.querySelectorAll('.letter-btn').forEach((b,j) => b.classList.toggle('active-letter', j===i));
+        };
+
+        window.speakLetter = () => {
+            speakArabic(ARABIC_LETTERS[activeLetterIdx].l);
+        };
+
+        // ============ PROPHETS ============
+        function renderProphets() {
+            const list = document.getElementById('prophets-grid');
+            if (list && list.children.length === 0) {
+                list.innerHTML = PROPHETS.map((p,i) => `<button onclick="window.showProphet(${i})" class="card p-4 text-left active:scale-95 transition-all">
+                    <span class="text-2xl block mb-2">${p.emoji}</span>
+                    <p class="font-bold text-sm">${p.name}</p>
+                    <p class="text-[10px] text-stone-400 mt-0.5">${p.sub}</p>
+                </button>`).join('');
+            }
+        }
+
+        window.showProphet = (i) => {
+            activeProphetIdx = i;
+            const p = PROPHETS[i];
+            document.getElementById('prophet-emoji').innerText = p.emoji;
+            document.getElementById('prophet-name-big').innerText = p.name;
+            document.getElementById('prophet-sub').innerText = p.sub;
+            document.getElementById('prophet-story').innerText = p.story;
+            document.getElementById('prophets-list-view').classList.add('hidden');
+            document.getElementById('prophet-detail').classList.remove('hidden');
+        };
+        window.backToProphets = () => {
+            document.getElementById('prophet-detail').classList.add('hidden');
+            document.getElementById('prophets-list-view').classList.remove('hidden');
+        };
+
+        // ============ ALLAH NAMES ============
+        function renderAllahNames() {
+            const container = document.getElementById('allah-names-list');
+            if (!container) return;
+            const filter = allahSearchFilter.toLowerCase();
+            const filtered = ALLAH_NAMES.filter(n => filter==='' || n.n.toLowerCase().includes(filter) || n.t.toLowerCase().includes(filter));
+            container.innerHTML = filtered.map((n,i) => `<button onclick="window.showAllahName(${ALLAH_NAMES.indexOf(n)})" class="card p-4 text-left w-full active:scale-95 transition-all flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="amiri text-2xl text-rose-500">${n.a}</span>
+                    <div><p class="font-bold text-sm">${n.n}</p><p class="text-xs text-stone-400">${n.t}</p></div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>`).join('');
+            document.getElementById('allah-count').innerText = ALLAH_NAMES.length;
+        }
+
+        window.showAllahName = (i) => {
+            const n = ALLAH_NAMES[i];
+            document.getElementById('aname-ar').innerText = n.a;
+            document.getElementById('aname-n').innerText = n.n;
+            document.getElementById('aname-t').innerText = n.t;
+            document.getElementById('aname-d').innerText = n.d;
+            document.getElementById('aname-detail').classList.remove('hidden');
+            document.getElementById('aname-detail').scrollIntoView({behavior:'smooth', block:'nearest'});
+        };
+
+        window.filterAllahNames = (val) => {
+            allahSearchFilter = val;
+            renderAllahNames();
+        };
+
+        // ============ DUAS ============
+        window.renderDuas = () => {
+            document.getElementById('personal-duas-list').innerHTML = personalDuas.length > 0
+                ? personalDuas.slice().reverse().map((d,ri) => {
+                    const i = personalDuas.length-1-ri;
+                    return `<div class="card p-4">
+                        <div class="flex justify-between mb-1">
+                            <p class="font-bold text-sm text-rose-600">${d.title||'Ma dua'}</p>
+                            <button onclick="window.deleteDua(${i})" class="text-stone-300 text-xs">✕</button>
+                        </div>
+                        <p class="text-sm text-stone-500 leading-relaxed">${d.text}</p>
+                    </div>`;
+                }).join('')
+                : '<p class="text-stone-400 italic text-sm text-center py-6">Tes duas personnelles s\'afficheront ici 🤲</p>';
+        };
+
+        window.addDua = async () => {
+            const title = document.getElementById('dua-title-inp').value.trim();
+            const text = document.getElementById('dua-text-inp').value.trim();
+            if (!text) return;
+            personalDuas.push({title, text, ts:Date.now()});
+            document.getElementById('dua-title-inp').value='';
+            document.getElementById('dua-text-inp').value='';
+            await saveDuas();
+            window.renderDuas();
+            showToast('Dua sauvegardée 🤲');
+        };
+
+        window.deleteDua = async (i) => {
+            personalDuas.splice(i,1);
+            await saveDuas();
+            window.renderDuas();
+        };
+
+        // ============ INIT ============
+        function showApp() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            renderHome();
+        }
+
+        async function initApp() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+            // Timeout de sécurité : 4s max, puis l'app s'ouvre quoi qu'il arrive
+            const safetyTimer = setTimeout(() => showApp(), 4000);
+            try {
+                await Promise.race([
+                    loadAll(),
+                    new Promise(resolve => setTimeout(resolve, 3500))
+                ]);
+            } catch(e) { console.error(e); }
+            clearTimeout(safetyTimer);
+            showApp();
+        }
+
+        window.onload = initApp;
+    </script>
+</head>
+<body class="pb-nav">
+
+<!-- LOADING -->
+<div id="loading" class="fixed inset-0 z-[500] flex flex-col items-center justify-center gap-5" style="background:#FDF8F3">
+    <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl" style="background:linear-gradient(135deg,#E8A4A4,#C47A7A);box-shadow:0 8px 24px rgba(196,122,122,0.3)">🌸</div>
+    <div>
+        <p class="playfair text-2xl font-bold text-center" style="color:#3D2B2B">Salam Samia 🌙</p>
+        <p class="amiri text-xl text-center mt-1" style="color:#C47A7A">بسم الله الرحمن الرحيم</p>
+    </div>
+    <div class="flex gap-1.5 mt-2">
+        <div class="w-2 h-2 rounded-full bg-rose-300 animate-bounce" style="animation-delay:0s"></div>
+        <div class="w-2 h-2 rounded-full bg-rose-400 animate-bounce" style="animation-delay:0.15s"></div>
+        <div class="w-2 h-2 rounded-full bg-rose-500 animate-bounce" style="animation-delay:0.3s"></div>
+    </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<!-- ===================== HOME TAB ===================== -->
+<div id="tab-home" class="px-4 pb-nav">
+    <header class="pt-12 pb-5 flex justify-between items-start">
+        <div>
+            <p class="text-xs uppercase font-bold tracking-widest text-stone-400">Salam 'Alaykum</p>
+            <h1 class="playfair text-3xl font-bold mt-1" style="color:#3D2B2B">Samia 🌸</h1>
+            <p class="text-xs font-medium mt-0.5 text-rose-400">Entraîne ta lecture arabe</p>
+        </div>
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background:linear-gradient(135deg,#E8A4A4,#C47A7A);box-shadow:0 4px 16px rgba(196,122,122,0.3)">📖</div>
+    </header>
+
+    <!-- Petites stats -->
+    <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="card p-4 text-center">
+            <p class="text-xl font-black text-rose-500" id="streak-val">0</p>
+            <p class="text-[9px] text-stone-400 uppercase font-bold tracking-widest mt-1">Série 🔥</p>
+        </div>
+        <div class="card p-4 text-center">
+            <p class="text-xl font-black text-purple-400" id="today-val">0</p>
+            <p class="text-[9px] text-stone-400 uppercase font-bold tracking-widest mt-1">Auj.</p>
+        </div>
+        <div class="card p-4 text-center">
+            <p class="text-xl font-black text-amber-500" id="total-val">0</p>
+            <p class="text-[9px] text-stone-400 uppercase font-bold tracking-widest mt-1">Total</p>
+        </div>
+    </div>
+
+    <!-- Surahs -->
+    <h2 class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Sourates — clique pour t'entraîner</h2>
+    <div class="grid grid-cols-2 gap-3" id="home-surahs"></div>
+</div>
+
+<!-- ===================== TRAIN TAB ===================== -->
+<div id="tab-train" class="hidden px-4 pb-nav">
+    <!-- Selector -->
+    <div id="surah-selector">
+        <header class="pt-12 pb-5">
+            <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Entraîner 🎯</h1>
+            <p class="text-stone-400 text-sm mt-1">Lis à voix haute, note ta fluidité</p>
+        </header>
+        <div class="card-soft p-5 mb-5" style="border-color:#F0D8D8">
+            <p class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Comment ça marche</p>
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-white rounded-2xl p-3 text-center border border-rose-100">
+                    <p class="text-lg mb-1">👁️</p><p class="text-xs font-bold text-emerald-600">Lis le verset</p>
+                </div>
+                <div class="bg-white rounded-2xl p-3 text-center border border-rose-100">
+                    <p class="text-lg mb-1">🔊</p><p class="text-xs font-bold text-purple-500">Écoute si besoin</p>
+                </div>
+                <div class="bg-white rounded-2xl p-3 text-center border border-rose-100">
+                    <p class="text-lg mb-1">⭐</p><p class="text-xs font-bold text-rose-500">Note ta fluidité</p>
+                </div>
+            </div>
+        </div>
+        <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Choisir une sourate</p>
+        <div class="grid grid-cols-2 gap-3">
+            <script>document.write(window.SURAHS?.map((s,i)=>`<button onclick="window.startSession('${s.id}')" class="card p-4 text-left active:scale-95 transition-all"><span class="text-xl block mb-2">${s.emoji}</span><p class="font-bold text-sm">${s.name}</p><p class="text-xs text-stone-400">${s.verses?.length||'?'}v · ${'⭐'.repeat(s.level)}</p></button>`).join('')||'')</script>
+        </div>
+    </div>
+
+    <!-- Session View -->
+    <div id="session-view" class="hidden">
+        <header class="pt-10 pb-4">
+            <div class="flex justify-between items-center mb-3">
+                <button onclick="window.backToSelector()" class="flex items-center gap-1.5 text-rose-500 font-bold text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    Arrêter
+                </button>
+                <span id="sess-timer" class="text-stone-400 text-sm font-mono font-bold">00:00</span>
+            </div>
+            <div class="flex items-baseline gap-3">
+                <h2 class="playfair text-2xl font-bold" style="color:#3D2B2B" id="sess-surah-name">Fatiha</h2>
+                <span class="amiri text-xl text-rose-400" id="sess-surah-ar">الفاتحة</span>
+            </div>
+            <div class="flex items-center justify-between mt-3">
+                <p class="text-[10px] text-stone-400 font-bold" id="sess-progress-txt">1 / 7</p>
+                <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest">progression</p>
+            </div>
+            <div class="w-full bg-rose-100 rounded-full h-1.5 mt-1.5">
+                <div id="sess-progress-bar" class="h-1.5 rounded-full transition-all" style="background:linear-gradient(90deg,#E8A4A4,#C47A7A);width:14%"></div>
+            </div>
+        </header>
+
+        <!-- Tip -->
+        <div class="rounded-2xl px-4 py-3 mb-4" style="background:#EDE7F6;border:1px solid #D1C4E9">
+            <p class="text-xs text-purple-600 leading-relaxed" id="sess-tip"></p>
+        </div>
+
+        <!-- Verse -->
+        <div class="card p-6 mb-4 fade-up">
+            <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest mb-4" id="sess-verse-num">Verset 1</p>
+            <p class="amiri text-3xl text-right leading-loose mb-5" style="color:#3D2B2B;line-height:2.6rem" id="sess-verse-ar"></p>
+            <div class="border-t pt-4" style="border-color:#F0E0D6">
+                <p class="text-sm text-stone-500 italic leading-relaxed" id="sess-verse-tr"></p>
+            </div>
+        </div>
+
+        <!-- Listen -->
+        <button onclick="window.speakCurrentVerse()" class="w-full card p-3 flex items-center justify-center gap-2 text-stone-400 text-sm font-semibold mb-4 active:scale-95 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            Écouter la prononciation arabe 🔊
+        </button>
+
+        <!-- Rating -->
+        <p class="text-[10px] text-stone-400 uppercase font-black tracking-widest text-center mb-3">Comment tu as lu ce verset ?</p>
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <button id="rate-easy" onclick="window.rateVerse('easy')" class="rating-btn card p-4 text-center active:scale-95 transition-all">
+                <p class="text-2xl mb-1">✅</p><p class="text-xs font-bold text-emerald-600">Fluide</p>
+            </button>
+            <button id="rate-medium" onclick="window.rateVerse('medium')" class="rating-btn card p-4 text-center active:scale-95 transition-all">
+                <p class="text-2xl mb-1">🔸</p><p class="text-xs font-bold text-amber-500">Correct</p>
+            </button>
+            <button id="rate-hard" onclick="window.rateVerse('hard')" class="rating-btn card p-4 text-center active:scale-95 transition-all">
+                <p class="text-2xl mb-1">❗</p><p class="text-xs font-bold text-rose-500">Difficile</p>
+            </button>
+        </div>
+    </div>
+
+    <!-- Result -->
+    <div id="result-view" class="hidden fade-up">
+        <header class="pt-10 pb-5">
+            <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Session terminée 🎉</h1>
+        </header>
+        <div class="rounded-2xl p-6 text-center mb-4" style="background:linear-gradient(135deg,#F9EEE8,#F0D8D8);border:1px solid #E8C4C4">
+            <p class="amiri text-xl text-rose-600 mb-1" id="result-surah">Al-Fatiha</p>
+            <p class="text-stone-400 text-xs" id="result-duration">⏱ 1:32</p>
+            <p class="playfair text-6xl font-bold text-rose-500 my-4" id="result-pct">75%</p>
+            <p class="text-xs text-stone-400 uppercase font-black tracking-widest">Fluidité globale</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="card p-4 text-center"><p class="text-2xl font-black text-emerald-500" id="result-easy">0</p><p class="text-[9px] text-stone-400 uppercase font-bold tracking-widest mt-1">Fluides</p></div>
+            <div class="card p-4 text-center"><p class="text-2xl font-black text-rose-400" id="result-hard">0</p><p class="text-[9px] text-stone-400 uppercase font-bold tracking-widest mt-1">À retravailler</p></div>
+        </div>
+        <div class="card p-4 mb-5"><p class="text-sm text-stone-500 leading-relaxed" id="result-msg"></p></div>
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="window.backToSelector()" class="card p-4 text-center text-stone-500 font-semibold text-sm active:scale-95 transition-all">Autre sourate</button>
+            <button onclick="window.backToSelector()" class="rose-btn p-4 text-center text-sm active:scale-95 transition-all">🔁 Rejouer</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== ARABIC TAB ===================== -->
+<div id="tab-arabic" class="hidden px-4 pb-nav">
+    <header class="pt-12 pb-5">
+        <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Arabe 🔤</h1>
+        <p class="text-stone-400 text-sm mt-1">Lettres et voyelles</p>
+    </header>
+
+    <!-- Letter detail card -->
+    <div class="card p-6 mb-4 text-center">
+        <p class="amiri text-7xl text-rose-500 mb-3" id="letter-display">ا</p>
+        <p class="playfair text-xl font-bold" style="color:#3D2B2B" id="letter-name">Alif</p>
+        <p class="text-sm text-stone-400 mt-1" id="letter-sound">Son : â / a</p>
+        <p class="text-xs text-stone-400 mt-1" id="letter-example">أَلَم (Alam)</p>
+        <button onclick="window.speakLetter()" class="mt-4 rose-btn px-6 py-2.5 text-sm inline-flex items-center gap-2 active:scale-95 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            Écouter
+        </button>
+    </div>
+
+    <!-- Letters grid -->
+    <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Les 28 lettres</p>
+    <div class="grid grid-cols-4 gap-2 mb-6" id="letters-grid"></div>
+
+    <!-- Vowels -->
+    <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Les voyelles (Harakat)</p>
+    <div class="grid grid-cols-2 gap-3">
+        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بَ</p><p class="font-bold text-sm mt-1">Fatha</p><p class="text-xs text-stone-400">son "a" court</p></div>
+        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بِ</p><p class="font-bold text-sm mt-1">Kasra</p><p class="text-xs text-stone-400">son "i" court</p></div>
+        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بُ</p><p class="font-bold text-sm mt-1">Damma</p><p class="text-xs text-stone-400">son "ou" court</p></div>
+        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بْ</p><p class="font-bold text-sm mt-1">Sukûn</p><p class="text-xs text-stone-400">pas de voyelle</p></div>
+        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بّ</p><p class="font-bold text-sm mt-1">Shadda</p><p class="text-xs text-stone-400">lettre doublée</p></div>
+        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بً</p><p class="font-bold text-sm mt-1">Tanwîn</p><p class="text-xs text-stone-400">terminaison -an/-in/-un</p></div>
+    </div>
+</div>
+
+<!-- ===================== PROPHETS TAB ===================== -->
+<div id="tab-prophets" class="hidden px-4 pb-nav">
+    <div id="prophets-list-view">
+        <header class="pt-12 pb-5">
+            <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1>
+            <p class="text-stone-400 text-sm mt-1">Leurs histoires, leurs leçons</p>
+        </header>
+        <div class="grid grid-cols-2 gap-3" id="prophets-grid"></div>
+    </div>
+    <div id="prophet-detail" class="hidden pb-4">
+        <button onclick="window.backToProphets()" class="flex items-center gap-2 text-rose-500 font-bold text-sm pt-10 mb-5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            Retour
+        </button>
+        <div class="card p-6 mb-4">
+            <p class="text-5xl mb-3" id="prophet-emoji">🌿</p>
+            <h2 class="playfair text-2xl font-bold" style="color:#3D2B2B" id="prophet-name-big">Adam</h2>
+            <p class="text-rose-400 text-sm font-medium mt-1" id="prophet-sub"></p>
+        </div>
+        <div class="card p-6">
+            <p class="text-stone-600 text-sm leading-relaxed whitespace-pre-wrap" id="prophet-story"></p>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== ALLAH NAMES TAB ===================== -->
+<div id="tab-allah" class="hidden px-4 pb-nav">
+    <header class="pt-12 pb-5">
+        <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Noms d'Allah 🌿</h1>
+        <p class="text-stone-400 text-sm mt-1">Les 99 beaux noms · <span id="allah-count">0</span> noms</p>
+    </header>
+
+    <!-- Search -->
+    <input oninput="window.filterAllahNames(this.value)" placeholder="🔍 Chercher un nom..." class="w-full rounded-2xl px-4 py-3 text-sm mb-4 outline-none border" style="background:white;border-color:#F0D8D8;color:#3D2B2B">
+
+    <!-- Detail card -->
+    <div id="aname-detail" class="hidden card p-5 mb-4" style="background:#FDF8F3;border-color:#E8C4C4">
+        <p class="amiri text-4xl text-rose-500 text-center mb-2" id="aname-ar">الرحمن</p>
+        <p class="playfair text-xl font-bold text-center" style="color:#3D2B2B" id="aname-n">Ar-Rahmân</p>
+        <p class="text-sm text-stone-400 text-center italic mb-3" id="aname-t">Le Tout-Miséricordieux</p>
+        <p class="text-sm text-stone-500 leading-relaxed" id="aname-d"></p>
+        <button onclick="document.getElementById('aname-detail').classList.add('hidden')" class="mt-3 w-full text-center text-stone-400 text-xs font-bold uppercase tracking-widest py-2">Fermer ✕</button>
+    </div>
+
+    <div class="space-y-2" id="allah-names-list"></div>
+</div>
+
+<!-- ===================== FOUNDATIONS TAB ===================== -->
+<div id="tab-foundations" class="hidden px-4 pb-nav">
+    <header class="pt-12 pb-5">
+        <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Fondements 🕋</h1>
+        <p class="text-stone-400 text-sm mt-1">Les bases de l'Islam</p>
+    </header>
+
+    <!-- Pilliers de l'Islam -->
+    <h2 class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Les 5 Piliers de l'Islam</h2>
+    <div class="space-y-3 mb-6">
+        <details class="card overflow-hidden group" open>
+            <summary class="p-5 flex items-center gap-4 cursor-pointer list-none outline-none">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white flex-shrink-0 text-lg" style="background:linear-gradient(135deg,#E8A4A4,#C47A7A)">1</div>
+                <div class="flex-1"><p class="font-bold text-base" style="color:#3D2B2B">La Shahada</p><p class="text-xs text-stone-400">La déclaration de foi</p></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
+                <div class="rounded-2xl p-4 text-center" style="background:#FDF8F3;border:1px solid #E8C4C4">
+                    <p class="amiri text-2xl text-rose-500 leading-loose mb-2">أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللهِ</p>
+                    <p class="text-xs text-stone-400 italic">Ashhadu an lâ ilâha illallâh wa ashhadu anna Muhammadan Rasûlullâh</p>
+                    <p class="text-sm font-medium text-stone-600 mt-2">"J'atteste qu'il n'y a de dieu qu'Allah, et j'atteste que Muhammad est Son Messager."</p>
+                </div>
+                <p class="text-sm text-stone-500 leading-relaxed">La Shahada est la porte d'entrée dans l'Islam. Ce n'est pas une simple phrase — c'est un contrat de vie entre toi et Allah.</p>
+            </div>
+        </details>
+
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex items-center gap-4 cursor-pointer list-none outline-none">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white flex-shrink-0 text-lg" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">2</div>
+                <div class="flex-1"><p class="font-bold text-base" style="color:#3D2B2B">La Salât — Prière</p><p class="text-xs text-stone-400">5 prières par jour</p></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4" style="border-color:#F0E0D6">
+                <p class="text-sm text-stone-500 leading-relaxed mb-3">La prière est le lien direct entre toi et Allah. 5 fois par jour, tu te rappelles de Lui et Il Se rappelle de toi.</p>
+                <div class="grid grid-cols-5 gap-2 text-center">
+                    <div class="bg-rose-50 rounded-xl p-2"><p class="text-lg">🌅</p><p class="text-[10px] font-bold text-stone-500">Fajr</p></div>
+                    <div class="bg-rose-50 rounded-xl p-2"><p class="text-lg">☀️</p><p class="text-[10px] font-bold text-stone-500">Dohr</p></div>
+                    <div class="bg-rose-50 rounded-xl p-2"><p class="text-lg">🌤️</p><p class="text-[10px] font-bold text-stone-500">Asr</p></div>
+                    <div class="bg-rose-50 rounded-xl p-2"><p class="text-lg">🌆</p><p class="text-[10px] font-bold text-stone-500">Maghrib</p></div>
+                    <div class="bg-rose-50 rounded-xl p-2"><p class="text-lg">🌙</p><p class="text-[10px] font-bold text-stone-500">Isha</p></div>
+                </div>
+                <p class="text-xs text-stone-400 mt-3 italic">"Certes, la Salât préserve de la turpitude et du blâmable." — Coran 29:45</p>
+            </div>
+        </details>
+
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex items-center gap-4 cursor-pointer list-none outline-none">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white flex-shrink-0 text-lg" style="background:linear-gradient(135deg,#FBCFE8,#EC4899)">3</div>
+                <div class="flex-1"><p class="font-bold text-base" style="color:#3D2B2B">La Zakât — Aumône</p><p class="text-xs text-stone-400">2,5% des économies</p></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4" style="border-color:#F0E0D6">
+                <p class="text-sm text-stone-500 leading-relaxed">La Zakât purifie ta richesse et aide ceux dans le besoin. Elle rappelle que l'argent appartient à Allah — tu en es un dépositaire temporaire.</p>
+                <p class="text-xs text-stone-400 mt-2 italic">"Prends de leurs biens une aumône pour les purifier et les faire croître." — Coran 9:103</p>
+            </div>
+        </details>
+
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex items-center gap-4 cursor-pointer list-none outline-none">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white flex-shrink-0 text-lg" style="background:linear-gradient(135deg,#FDE68A,#F59E0B)">4</div>
+                <div class="flex-1"><p class="font-bold text-base" style="color:#3D2B2B">Le Sawm — Jeûne</p><p class="text-xs text-stone-400">Ramadan · purification</p></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4" style="border-color:#F0E0D6">
+                <p class="text-sm text-stone-500 leading-relaxed">Le jeûne du Ramadan est une école de volonté, d'empathie et de proximité avec Allah. Pas seulement s'abstenir de manger — maîtriser la langue, les pensées, les regards.</p>
+                <p class="text-xs text-stone-400 mt-2 italic">"Le jeûne est pour Moi et c'est Moi qui en accorde la récompense." — Hadith Qudsi</p>
+            </div>
+        </details>
+
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex items-center gap-4 cursor-pointer list-none outline-none">
+                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white flex-shrink-0 text-lg" style="background:linear-gradient(135deg,#6EE7B7,#059669)">5</div>
+                <div class="flex-1"><p class="font-bold text-base" style="color:#3D2B2B">Le Hajj — Pèlerinage</p><p class="text-xs text-stone-400">Une fois dans sa vie</p></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4" style="border-color:#F0E0D6">
+                <p class="text-sm text-stone-500 leading-relaxed">Le Hajj est le plus grand rassemblement humain sur terre. Tous vêtus de blanc, sans distinction de rang. Un rappel de l'égalité devant Allah et de la mort.</p>
+                <p class="text-xs text-stone-400 mt-2 italic">"Et proclame parmi les hommes l'obligation du Hajj." — Coran 22:27</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- Pilliers de la Foi -->
+    <h2 class="text-xs font-black uppercase tracking-widest text-purple-500 mb-3">Les 6 Piliers de la Foi (Iman)</h2>
+    <div class="space-y-2">
+        <div class="card p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black flex-shrink-0" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">1</div>
+            <div><p class="font-bold text-sm" style="color:#3D2B2B">Croire en Allah</p><p class="text-xs text-stone-400">L'Unique, sans associé, créateur de tout</p></div>
+        </div>
+        <div class="card p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black flex-shrink-0" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">2</div>
+            <div><p class="font-bold text-sm" style="color:#3D2B2B">Croire aux Anges</p><p class="text-xs text-stone-400">Créés de lumière, ils exécutent les ordres d'Allah</p></div>
+        </div>
+        <div class="card p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black flex-shrink-0" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">3</div>
+            <div><p class="font-bold text-sm" style="color:#3D2B2B">Croire aux Livres révélés</p><p class="text-xs text-stone-400">Torah, Psaumes, Évangile, Coran</p></div>
+        </div>
+        <div class="card p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black flex-shrink-0" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">4</div>
+            <div><p class="font-bold text-sm" style="color:#3D2B2B">Croire aux Prophètes</p><p class="text-xs text-stone-400">De Adam à Muhammad ﷺ</p></div>
+        </div>
+        <div class="card p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black flex-shrink-0" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">5</div>
+            <div><p class="font-bold text-sm" style="color:#3D2B2B">Croire au Jour Dernier</p><p class="text-xs text-stone-400">Résurrection, jugement, paradis et enfer</p></div>
+        </div>
+        <div class="card p-4 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-black flex-shrink-0" style="background:linear-gradient(135deg,#C5B3E8,#9C7FD4)">6</div>
+            <div><p class="font-bold text-sm" style="color:#3D2B2B">Croire au Destin (Al-Qadar)</p><p class="text-xs text-stone-400">Allah a décrété toute chose — bonne comme difficile</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== DUAS TAB ===================== -->
+<div id="tab-duas" class="hidden px-4 pb-nav">
+    <header class="pt-12 pb-5">
+        <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Duas 🤲</h1>
+        <p class="text-stone-400 text-sm mt-1">Invocations essentielles & tes duas perso</p>
+    </header>
+
+    <!-- Duas importantes -->
+    <h2 class="text-xs font-black uppercase tracking-widest text-rose-500 mb-3">Duas fondamentales</h2>
+    <div class="space-y-3 mb-6">
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
+                <p class="font-bold text-sm" style="color:#3D2B2B">🐋 Dua de Yûnus</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
+                <p class="amiri text-2xl text-right text-rose-500 leading-loose">لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ</p>
+                <p class="text-xs text-stone-400 italic">Lâ ilâha illâ anta subhânaka innî kuntu min adh-dhâlimîn</p>
+                <p class="text-sm font-medium text-stone-600">"Il n'y a de dieu que Toi, Gloire à Toi, j'ai été parmi les injustes."</p>
+                <p class="text-xs text-purple-500">Dans les moments de détresse. Réciter 40 fois.</p>
+            </div>
+        </details>
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
+                <p class="font-bold text-sm" style="color:#3D2B2B">✨ Dua Laylat al-Qadr</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
+                <p class="amiri text-2xl text-right text-rose-500 leading-loose">اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي</p>
+                <p class="text-xs text-stone-400 italic">Allâhumma innaka 'afuwwun tuhibb al-'afw fa'fu 'annî</p>
+                <p class="text-sm font-medium text-stone-600">"Ô Allah, Tu es l'Indulgent, Tu aimes l'indulgence, sois indulgent envers moi."</p>
+                <p class="text-xs text-purple-500">Recommandée par le Prophète ﷺ à Aisha pour Laylat al-Qadr.</p>
+            </div>
+        </details>
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
+                <p class="font-bold text-sm" style="color:#3D2B2B">🌊 Dua de l'anxiété</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
+                <p class="amiri text-2xl text-right text-rose-500 leading-loose">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ</p>
+                <p class="text-xs text-stone-400 italic">Allâhumma innî a'ûdhu bika min al-hamm wal-hazan</p>
+                <p class="text-sm font-medium text-stone-600">"Ô Allah, je cherche refuge en Toi contre l'inquiétude et la tristesse."</p>
+                <p class="text-xs text-purple-500">Quand le cœur est lourd. Réciter 7 fois.</p>
+            </div>
+        </details>
+        <details class="card overflow-hidden group">
+            <summary class="p-5 flex justify-between items-center cursor-pointer list-none outline-none">
+                <p class="font-bold text-sm" style="color:#3D2B2B">📚 Pour le savoir utile</p>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-300 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </summary>
+            <div class="px-5 pb-5 border-t pt-4 space-y-3" style="border-color:#F0E0D6">
+                <p class="amiri text-2xl text-right text-rose-500 leading-loose">اللَّهُمَّ انْفَعْنِي بِمَا عَلَّمْتَنِي وَعَلِّمْنِي مَا يَنْفَعُنِي</p>
+                <p class="text-xs text-stone-400 italic">Allâhumma anfa'nî bimâ 'allamtanî wa 'allimnî mâ yanfa'unî</p>
+                <p class="text-sm font-medium text-stone-600">"Ô Allah, fais-moi profiter de ce que Tu m'as enseigné, et enseigne-moi ce qui m'est utile."</p>
+                <p class="text-xs text-purple-500">Avant de lire le Coran ou de s'entraîner à l'arabe.</p>
+            </div>
+        </details>
+    </div>
+
+    <!-- Duas personnelles -->
+    <div class="card p-5 mb-4">
+        <h2 class="text-xs font-black uppercase tracking-widest text-purple-500 mb-4">Mes duas personnelles 🌸</h2>
+        <input id="dua-title-inp" placeholder="Titre (ex: Pour ma famille...)" class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-2 border" style="background:#FDF8F3;border-color:#F0D8D8;color:#3D2B2B">
+        <textarea id="dua-text-inp" rows="3" placeholder="Ta dua, dans tes mots..." class="w-full rounded-xl px-4 py-3 text-sm outline-none mb-3 resize-none border" style="background:#FDF8F3;border-color:#F0D8D8;color:#3D2B2B"></textarea>
+        <button onclick="window.addDua()" class="rose-btn w-full py-3 text-sm active:scale-95 transition-all">Sauvegarder ma dua 🤲</button>
+    </div>
+    <div id="personal-duas-list" class="space-y-3">
+        <p class="text-stone-400 italic text-sm text-center py-6">Tes duas personnelles s'afficheront ici 🤲</p>
+    </div>
+</div>
+
+<!-- ===================== BOTTOM NAV ===================== -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 border-t overflow-x-auto no-scrollbar" style="background:rgba(253,248,243,0.95);border-color:#F0D8D8;backdrop-filter:blur(20px)">
+    <div class="flex justify-between items-center py-2 px-1 min-w-max mx-auto" style="gap:4px">
+        <button id="nav-home" onclick="window.showTab('home')" class="active-nav flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Accueil</span>
+        </button>
+        <button id="nav-train" onclick="window.showTab('train')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Fluidité</span>
+        </button>
+        <button id="nav-arabic" onclick="window.showTab('arabic')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Arabe</span>
+        </button>
+        <button id="nav-prophets" onclick="window.showTab('prophets')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Prophètes</span>
+        </button>
+        <button id="nav-allah" onclick="window.showTab('allah')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"></path><path d="M12 8v4l3 3"></path></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">99 Noms</span>
+        </button>
+        <button id="nav-foundations" onclick="window.showTab('foundations')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Bases</span>
+        </button>
+        <button id="nav-duas" onclick="window.showTab('duas')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="nav-icon w-5 h-5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"></path><path d="m9 13 2 2 4-4"></path></svg>
+            <span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Duas</span>
+        </button>
+    </div>
+</nav>
+
+</div>
+
+<script>
+// Fix: populate train surah selector after module loads
+setTimeout(() => {
+    const grid = document.querySelector('#surah-selector .grid');
+    if (grid && window.SURAHS && grid.children.length <= 1) {
+        grid.innerHTML = window.SURAHS.map(s =>
+            `<button onclick="window.startSession('${s.id}')" class="card p-4 text-left active:scale-95 transition-all">
+                <span class="text-xl block mb-2">${s.emoji}</span>
+                <p class="font-bold text-sm" style="color:#3D2B2B">${s.name}</p>
+                <p class="text-xs text-stone-400">${s.verses.length}v · ${'⭐'.repeat(s.level)}</p>
+            </button>`
+        ).join('');
+    }
+}, 1500);
+</script>
+</body>
+</html>
