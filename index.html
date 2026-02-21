@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Samia — Deen & Arabe 🌸</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
     <style>
         :root {
@@ -412,6 +411,7 @@
             }).join('');
         }
 
+        window.renderHome = renderHome;
         // ============ TRAINING ============
         window.startSession = (surahId) => {
             const surah = SURAHS.find(s=>s.id===surahId);
@@ -636,13 +636,25 @@
             renderHome();
         }
 
-        window.onload = initApp;
+        document.addEventListener("DOMContentLoaded", initApp);
     </script>
 </head>
 <body class="pb-nav">
+<!-- Failsafe : si le module JS ne se charge pas, l'app s'ouvre quand même après 1s -->
+<script>
+    setTimeout(function() {
+        var loading = document.getElementById('loading');
+        var app = document.getElementById('app');
+        if (loading && !loading.classList.contains('hidden')) {
+            loading.classList.add('hidden');
+            if (app) app.classList.remove('hidden');
+            if (window.renderHome) window.renderHome();
+        }
+    }, 1500);
+</script>
 
 <!-- LOADING -->
-<div id="loading" class="fixed inset-0 z-[500] flex flex-col items-center justify-center gap-5" style="background:#FDF8F3">
+<div id="loading" class="fixed inset-0 z-[500] flex flex-col items-center justify-center gap-5" style="background:#FDF8F3;display:flex">
     <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl" style="background:linear-gradient(135deg,#E8A4A4,#C47A7A);box-shadow:0 8px 24px rgba(196,122,122,0.3)">🌸</div>
     <div>
         <p class="playfair text-2xl font-bold text-center" style="color:#3D2B2B">Salam Samia 🌙</p>
