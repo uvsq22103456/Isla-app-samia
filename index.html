@@ -88,7 +88,7 @@
             } catch(e) {}
         }
 
-        // ============ NOUVEAU MOTEUR AUDIO (100% COMPATIBLE IPHONE) ============
+        // ============ NOUVEAU MOTEUR AUDIO ============
         let currentAudio = null;
 
         window.playArabicAudio = (text, isQuran = false, surahNum = null, ayahNum = null) => {
@@ -97,25 +97,37 @@
                 currentAudio.currentTime = 0;
             }
 
-            let url = "";
-
             if (isQuran && surahNum && ayahNum) {
-                // Vrai audio de Nasser Al-Qatami (voix très douce et apaisante) 🌸
+                // Vrai audio MP3 de Nasser Al-Qatami pour le Coran 🌸
                 const sNum = String(surahNum).padStart(3, '0');
                 const aNum = String(ayahNum).padStart(3, '0');
-                url = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${sNum}${aNum}.mp3`;
+                const url = `https://everyayah.com/data/Nasser_Alqatami_128kbps/${sNum}${aNum}.mp3`;
+                currentAudio = new Audio(url);
+                currentAudio.play().catch(e => {
+                    showToast("Vérifie ton mode silencieux ou ta connexion 🔊");
+                });
             } else {
-                // Audio Google en MP3 pour les lettres et prénoms (contourne le blocage iPhone)
-                url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=ar&client=tw-ob`;
+                // Voix interne du téléphone pour l'alphabet et les Noms d'Allah
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utt = new SpeechSynthesisUtterance(text);
+                    utt.lang = 'ar-SA'; 
+                    utt.rate = 0.75;
+                    const voices = window.speechSynthesis.getVoices();
+                    const arabicVoice = voices.find(v => v.lang && v.lang.startsWith('ar'));
+                    if (arabicVoice) utt.voice = arabicVoice;
+                    window.speechSynthesis.speak(utt);
+                }
             }
-
-            currentAudio = new Audio(url);
-            currentAudio.play().catch(e => {
-                showToast("Vérifie ton mode silencieux ou ta connexion 🔊");
-            });
         };
 
-        // ============ SURAHS (Avec numéros pour l'audio) ============
+        // Charge les voix en fond pour l'iPhone
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+        }
+
+        // ============ SURAHS ============
         const SURAHS = [
             { id:'fatiha', num: 1, name:'Al-Fatiha', nameAr:'الفاتحة', level:1, emoji:'🌟', tip:"La plus récitée. Chaque lettre doit être claire.",
               verses:[
@@ -490,10 +502,17 @@
 
             const levelLabels = ['','⭐','⭐⭐','⭐⭐⭐'];
             const barColors = ['','bg-rose-300','bg-amber-300','bg-purple-300'];
+            
             document.getElementById('home-surahs').innerHTML = SURAHS.map(s => {
-                const sc = (scores[s.id])||{attempts:0,easy:0};
-                const pct = sc.attempts>0 ? Math.round((sc.easy/sc.attempts)*100) : 0;
-                return `<button onclick="window.startSession('${s.id}')" class="card p-4 text-left active:scale-95 transition-all w-full">
+                const sc = scores[s.id] || {sessions:0, attempts:0, easy:0, medium:0, hard:0};
+                const lectures = sc.sessions || sc.attempts || 0;
+                
+                // CORRECTION DU CALCUL DE PROGRESSION
+                const totalEvaluated = sc.easy + sc.medium + sc.hard;
+                let pct = totalEvaluated > 0 ? Math.round((sc.easy / totalEvaluated) * 100) : 0;
+                if (pct > 100) pct = 100;
+
+                return `<button onclick="window.startSession('${s.id}')" class="card p-4 text-left active:scale-95 transition-all w-full overflow-hidden">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-xl">${s.emoji}</span>
                         <div class="flex-1 min-w-0">
@@ -501,8 +520,10 @@
                             <p class="text-xs text-stone-400">${levelLabels[s.level]}</p>
                         </div>
                     </div>
-                    <div class="w-full bg-rose-50 rounded-full h-1.5"><div class="${barColors[s.level]} h-1.5 rounded-full" style="width:${pct}%"></div></div>
-                    <p class="text-[10px] text-stone-400 mt-1">${sc.attempts>0?`${pct}% fluide · ${sc.attempts} lectures` : 'Pas encore pratiqué'}</p>
+                    <div class="w-full bg-rose-50 rounded-full h-1.5 overflow-hidden">
+                        <div class="${barColors[s.level]} h-1.5 rounded-full" style="width:${pct}%"></div>
+                    </div>
+                    <p class="text-[10px] text-stone-400 mt-1">${lectures > 0 ? `${pct}% fluide · ${lectures} lecture(s)` : 'Pas encore pratiqué'}</p>
                 </button>`;
             }).join('');
         }
@@ -550,7 +571,6 @@
             document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
         }
 
-        // LE BOUTON ÉCOUTER DÉCLENCHE LE VRAI MP3 ICI 👇
         window.speakCurrentVerse = () => {
             if (!sessionState) return;
             const surah = SURAHS.find(s=>s.id===sessionState.surahId);
@@ -566,10 +586,11 @@
         window.rateVerse = (rating) => {
             if (!sessionState) return;
             sessionState.ratings.push(rating);
+            
             document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('sel'));
             document.getElementById('rate-'+rating).classList.add('sel');
             
-            if (currentAudio) { currentAudio.pause(); } // Coupe le son si on passe au suivant
+            if (currentAudio) { currentAudio.pause(); }
 
             setTimeout(()=>{
                 const surah = SURAHS.find(s=>s.id===sessionState.surahId);
@@ -581,20 +602,23 @@
         };
 
         function finishSession() {
-            clearInterval(timerInterval);
+            if (timerInterval) clearInterval(timerInterval);
             const surah = SURAHS.find(s=>s.id===sessionState.surahId);
             const ratings = sessionState.ratings;
-            if (!scores[sessionState.surahId]) scores[sessionState.surahId]={easy:0,medium:0,hard:0,attempts:0};
+            
+            if (!scores[sessionState.surahId]) scores[sessionState.surahId]={easy:0,medium:0,hard:0,sessions:0};
             const sc = scores[sessionState.surahId];
-            sc.attempts++;
+            sc.sessions++;
             ratings.forEach(r=>{ if(r==='easy')sc.easy++; else if(r==='medium')sc.medium++; else sc.hard++; });
-            sessions.push({ts:Date.now(),surahId:sessionState.surahId,verseCount:surah.verses.length,duration:elapsedTime,ratings});
+            
+            sessions.push({ts:Date.now(),surahId:sessionState.surahId,verseCount:ratings.length,duration:elapsedTime,ratings});
             userData.lastSession = new Date().toISOString().split('T')[0];
             saveMain();
             
             const easyCount=ratings.filter(r=>r==='easy').length;
             const hardCount=ratings.filter(r=>r==='hard').length;
-            const pct=ratings.length>0?Math.round((easyCount/ratings.length)*100):0;
+            const pct=ratings.length>0 ? Math.round((easyCount/ratings.length)*100) : 0;
+            
             document.getElementById('result-surah').innerText=surah.name+' · '+surah.nameAr;
             document.getElementById('result-duration').innerText=`⏱ ${Math.floor(elapsedTime/60)}:${(elapsedTime%60).toString().padStart(2,'0')}`;
             document.getElementById('result-pct').innerText=pct+'%';
@@ -606,15 +630,30 @@
             document.getElementById('session-view').classList.add('hidden');
             document.getElementById('result-view').classList.remove('hidden');
             sessionState=null;
+            renderHome();
         }
 
         window.backToSelector = () => {
-            if(timerInterval){clearInterval(timerInterval);sessionState=null;}
-            if (currentAudio) { currentAudio.pause(); }
+            if (timerInterval) clearInterval(timerInterval);
+            if (currentAudio) currentAudio.pause();
+            
+            // SAUVEGARDE EN CAS D'ARRÊT AU MILIEU DE LA SOURATE
+            if (sessionState && sessionState.ratings.length > 0) {
+                if (!scores[sessionState.surahId]) scores[sessionState.surahId]={easy:0,medium:0,hard:0,sessions:0};
+                const sc = scores[sessionState.surahId];
+                sc.sessions++;
+                sessionState.ratings.forEach(r=>{ if(r==='easy')sc.easy++; else if(r==='medium')sc.medium++; else sc.hard++; });
+                sessions.push({ts:Date.now(),surahId:sessionState.surahId,verseCount:sessionState.ratings.length,duration:elapsedTime,ratings:sessionState.ratings});
+                userData.lastSession = new Date().toISOString().split('T')[0];
+                saveMain();
+            }
+
             document.getElementById('session-view').classList.add('hidden');
             document.getElementById('result-view').classList.add('hidden');
             document.getElementById('surah-selector').classList.remove('hidden');
             renderTrainSelector();
+            renderHome();
+            sessionState = null;
         };
 
         // ============ ARABIC TAB ============
@@ -697,7 +736,7 @@
             document.getElementById('aname-detail').classList.remove('hidden');
             document.getElementById('aname-detail').scrollIntoView({behavior:'smooth', block:'nearest'});
             
-            // Écoute automatique du nom en arabe
+            // Écoute automatique
             window.playArabicAudio(n.a);
         };
 
@@ -902,7 +941,7 @@
 
 <div id="tab-prophets" class="hidden px-4 pb-nav">
     <div id="prophets-list-view">
-        <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1><p class="text-stone-400 text-sm mt-1">Les 25 histoires</p></header>
+        <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1><p class="text-stone-400 text-sm mt-1">Leurs 25 histoires</p></header>
         <div class="grid grid-cols-2 gap-3" id="prophets-grid"></div>
     </div>
     <div id="prophet-detail" class="hidden pb-4">
