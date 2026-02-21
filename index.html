@@ -117,56 +117,44 @@
         #prophet-detail { animation: fadeUp 0.3s ease; }
     </style>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCBZ96lSFIWzPsHklwk3ZU8kfWudfp8oVQ",
-            authDomain: "samcy-1136c.firebaseapp.com",
-            projectId: "samcy-1136c",
-            storageBucket: "samcy-1136c.firebasestorage.app",
-            messagingSenderId: "337821844780",
-            appId: "1:337821844780:web:fb15b7fba7b1298d5a5889"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const APP_ID = 'samia-deen-app-v1';
-        const USER_ID = 'samia';
-
-        // ============ DATA ============
+    <script>
+        // ============ DATA — localStorage, 100% local, instantané ============
         let userData = {};
         let sessions = [];
         let scores = {};
         let personalDuas = [];
 
-        async function loadAll() {
+        const LS = 'samia-deen-v1';
+
+        function loadAll() {
             try {
-                const mainSnap = await getDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'main'));
-                if (mainSnap.exists()) {
-                    const d = mainSnap.data();
+                const raw = localStorage.getItem(LS);
+                if (raw) {
+                    const d = JSON.parse(raw);
                     sessions = d.sessions || [];
                     scores = d.scores || {};
+                    personalDuas = d.personalDuas || [];
                     userData = { streak: d.streak||0, lastSession: d.lastSession||null };
                 }
-                const duasSnap = await getDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'duas'));
-                if (duasSnap.exists()) personalDuas = duasSnap.data().list || [];
-            } catch(e) { console.error('load error', e); }
+            } catch(e) {}
         }
 
-        async function saveMain() {
+        function saveMain() {
             try {
-                await setDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'main'), {
-                    sessions, scores, streak: userData.streak||0, lastSession: userData.lastSession||null
-                });
-            } catch(e) { console.error('save error', e); }
+                const existing = JSON.parse(localStorage.getItem(LS)||'{}');
+                localStorage.setItem(LS, JSON.stringify({
+                    ...existing, sessions, scores,
+                    streak: userData.streak||0,
+                    lastSession: userData.lastSession||null
+                }));
+            } catch(e) {}
         }
 
-        async function saveDuas() {
+        function saveDuas() {
             try {
-                await setDoc(doc(db, 'artifacts', APP_ID, 'users', USER_ID, 'data', 'duas'), { list: personalDuas });
-            } catch(e) { console.error('save duas error', e); }
+                const existing = JSON.parse(localStorage.getItem(LS)||'{}');
+                localStorage.setItem(LS, JSON.stringify({ ...existing, personalDuas }));
+            } catch(e) {}
         }
 
         // ============ SURAHS DATA ============
@@ -480,7 +468,7 @@
             },400);
         };
 
-        async function finishSession() {
+        function finishSession() {
             clearInterval(timerInterval);
             const surah = SURAHS.find(s=>s.id===sessionState.surahId);
             const ratings = sessionState.ratings;
@@ -494,7 +482,7 @@
             if(userData.lastSession===yesterday) userData.streak=(userData.streak||0)+1;
             else if(userData.lastSession!==today) userData.streak=1;
             userData.lastSession=today;
-            await saveMain();
+            saveMain();
             const easyCount=ratings.filter(r=>r==='easy').length;
             const hardCount=ratings.filter(r=>r==='hard').length;
             const pct=ratings.length>0?Math.round((easyCount/ratings.length)*100):0;
@@ -625,39 +613,27 @@
             personalDuas.push({title, text, ts:Date.now()});
             document.getElementById('dua-title-inp').value='';
             document.getElementById('dua-text-inp').value='';
-            await saveDuas();
+            saveDuas();
             window.renderDuas();
             showToast('Dua sauvegardée 🤲');
         };
 
         window.deleteDua = async (i) => {
             personalDuas.splice(i,1);
-            await saveDuas();
+            saveDuas();
             window.renderDuas();
         };
 
         // ============ INIT ============
-        function showApp() {
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            renderHome();
-        }
-
-        async function initApp() {
+        function initApp() {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.getVoices();
                 window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
             }
-            // Timeout de sécurité : 4s max, puis l'app s'ouvre quoi qu'il arrive
-            const safetyTimer = setTimeout(() => showApp(), 4000);
-            try {
-                await Promise.race([
-                    loadAll(),
-                    new Promise(resolve => setTimeout(resolve, 3500))
-                ]);
-            } catch(e) { console.error(e); }
-            clearTimeout(safetyTimer);
-            showApp();
+            loadAll(); // localStorage = instantané, 0ms
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden');
+            renderHome();
         }
 
         window.onload = initApp;
