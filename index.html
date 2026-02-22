@@ -63,11 +63,20 @@
 
     <script>
        // ============ DATA — localStorage ============
-        let userData = {};
+       let userData = {};
         let sessions = [];
         let scores = {};
         let personalDuas = [];
         let savedProgress = {}; // NOUVEAU : Mémoire des versets
+        
+        // 👇 AJOUTE CES 5 LIGNES ICI ! 👇
+        let sessionState = null;
+        let elapsedTime = 0;
+        let timerInterval = null;
+        let allahSearchFilter = '';
+        let currentAudio = null;
+        // 👆 ======================= 👆
+
         const LS = 'samia-deen-v5';
 
         function loadAll() {
@@ -90,14 +99,14 @@
                     sessions, 
                     scores, 
                     personalDuas, 
-                    savedProgress, // On garde bien celui-là !
+                    savedProgress, 
                     streak: userData.streak||0, 
                     lastSession: userData.lastSession||null 
                 }));
             } catch(e) {}
         }
         // ============ NOUVEAU MOTEUR AUDIO ============
-        let currentAudio = null;
+        
 
         window.playArabicAudio = (text, isQuran = false, surahNum = null, ayahNum = null) => {
             if (currentAudio) {
@@ -324,31 +333,294 @@
 
         // ============ LES 25 PROPHÈTES ============
         const PROPHETS = [
-            { name: "Adam ﷺ", subtitle: "Le premier homme et prophète", emoji: "🌿", story: "Adam est le premier être humain et le premier prophète. Allah l'a créé de la terre, lui a insufflé Son souffle et lui a enseigné les noms de toutes choses.\n\nIl vivait au Paradis avec Ève (Hawwa), mais le Shaytân les a trompés. Allah leur a pardonné après leur repentir sincère, et les a envoyés sur terre comme Ses représentants.\n\n📿 Leçon : Allah pardonne toujours à celui qui se repent sincèrement." },
-            { name: "Idrîs ﷺ", subtitle: "Le premier à écrire et à coudre", emoji: "✍️", story: "Idrîs est le premier à avoir écrit avec une plume et à confectionner des vêtements cousus. Il était doté d'une grande sagesse.\n\nAllah dit de lui : \"Rappelle-toi Idrîs dans le Livre. Il était véridique, prophète.\"\n\n📿 Leçon : La connaissance, l'écriture et le savoir utile sont nobles aux yeux d'Allah." },
-            { name: "Nûh ﷺ", subtitle: "950 ans de patience, le Déluge", emoji: "🚢", story: "Nûh a prêché son peuple pendant 950 ans. Son peuple adorait des idoles et refusait de l'écouter.\n\nIl a construit l'Arche par ordre divin, et le Grand Déluge a tout submergé sauf ceux qui étaient à bord. Même son fils a refusé de monter.\n\n📿 Leçon : La guidance appartient à Allah seul." },
-            { name: "Hûd ﷺ", subtitle: "Envoyé au peuple de 'Âd", emoji: "🌬️", story: "Hûd fut envoyé au puissant peuple de 'Âd, des géants qui s'enorgueillissaient de leur force physique.\n\nIls refusèrent le message avec arrogance. Ils furent détruits par un vent mugissant et furieux qui dura 7 nuits et 8 jours.\n\n📿 Leçon : L'arrogance mène à la chute. La force physique ne protège de rien face à Dieu." },
-            { name: "Sâlih ﷺ", subtitle: "La chamelle miraculeuse", emoji: "🐪", story: "Sâlih fut envoyé aux Thamoud, un peuple qui taillait des palais dans les montagnes.\n\nIls demandèrent un miracle : une chamelle sortant d'un rocher. Allah l'accorda, mais ils la tuèrent par bravade. Ils furent frappés par un cri terrible.\n\n📿 Leçon : Tester les limites d'Allah est l'erreur la plus dangereuse." },
-            { name: "Ibrâhîm ﷺ", subtitle: "L'ami intime d'Allah", emoji: "🔥", story: "Ibrahim est le \"père des prophètes\". Il brisa les idoles de son peuple, fut jeté dans un feu ardent, mais Allah ordonna au feu d'être fraîcheur et paix.\n\nL'épreuve suprême : Allah lui ordonna de sacrifier son fils Ismaïl. Tous deux acceptèrent — Allah remplaça Ismaïl par un bélier.\n\n📿 Leçon : La soumission totale à Allah est illustrée par Ibrahim." },
-            { name: "Lût ﷺ", subtitle: "Neveu d'Ibrahim", emoji: "🏙️", story: "Lût fut envoyé aux habitants de Sodome, connus pour leurs crimes et leur dépravation extrême.\n\nIl les prêcha pendant des années mais ils refusèrent. Des anges vinrent détruire la ville. La femme de Lût regarda en arrière et fut châtiée.\n\n📿 Leçon : Demeurer dans un environnement de corruption sans résistance mène à la perte." },
-            { name: "Ismaïl ﷺ", subtitle: "La Ka'ba et Zamzam", emoji: "🏔️", story: "Fils d'Ibrahim et de Hajar. Bébé, laissé dans une vallée aride, sa mère chercha de l'eau. La source Zamzam jaillit sous ses pieds.\n\nIl aida son père à construire la Ka'ba et fonda la lignée des Arabes du Hedjaz.\n\n📿 Leçon : La confiance absolue en Allah fait jaillir des sources dans le désert." },
-            { name: "Ishâq ﷺ", subtitle: "Fils d'Ibrahim et Sarah", emoji: "⭐", story: "Isaac est né alors que ses parents étaient très âgés. De lui descend la lignée des prophètes d'Israël : Ya'qûb, Yûsuf, Mûsâ, Dâwûd, Sulaymân, Îsâ.\n\n📿 Leçon : La promesse d'Allah se réalise toujours, même quand elle semble impossible." },
-            { name: "Ya'qûb ﷺ", subtitle: "Père des 12 tribus", emoji: "🌾", story: "Ya'qûb (Jacob) est aussi nommé \"Israël\". Il perdit son fils préféré Yûsuf à cause de la jalousie de ses autres fils.\n\nIl pleura de chagrin jusqu'à perdre la vue, mais ne perdit jamais espoir en Allah. Sa vue lui fut rendue des décennies plus tard.\n\n📿 Leçon : Le modèle du croyant qui ne désespère jamais dans l'épreuve." },
-            { name: "Yûsuf ﷺ", subtitle: "La plus belle des histoires", emoji: "💫", story: "Ses frères jaloux le jetèrent dans un puits. Vendu comme esclave en Égypte, emprisonné injustement, il garda une foi inébranlable.\n\nGrâce à son don d'interpréter les rêves, il devint ministre. Il pardonna à ses frères quand ils vinrent mendier du grain.\n\n📿 Leçon : Patience et confiance en Allah transforment les pires épreuves en élévation." },
-            { name: "Shu'ayb ﷺ", subtitle: "L'orateur des prophètes", emoji: "⚖️", story: "Envoyé à Madyan, un peuple qui escroquait sur les poids et les mesures.\n\nIl les appela à l'honnêteté commerciale. Face à leur refus persistant, ils furent détruits.\n\n📿 Leçon : L'honnêteté dans le commerce est une obligation spirituelle majeure." },
-            { name: "Mûsâ ﷺ", subtitle: "À qui Allah a parlé directement", emoji: "⚡", story: "Sauvé des eaux bébé, élevé chez Pharaon. Plus tard, Allah lui parla sur le mont Sinaï et l'envoya libérer les Hébreux.\n\nIl affronta Pharaon, fendit la mer Rouge. Pharaon se noya.\n\n📿 Leçon : Face aux tyrans de toute époque, Allah soutient toujours Ses élus." },
-            { name: "Hârûn ﷺ", subtitle: "Le frère de Mûsâ", emoji: "🗣️", story: "Hârûn est le frère aîné de Mûsâ, demandé par Mûsâ lui-même pour l'aider dans sa mission car il était plus éloquent.\n\nIl affronta Pharaon à ses côtés.\n\n📿 Leçon : Chercher de l'aide et s'entourer de gens de bien est une sagesse, pas une faiblesse." },
-            { name: "Dhul-Kifl ﷺ", subtitle: "Le prophète garant", emoji: "🛡️", story: "Un prophète qui prit l'engagement de prier la nuit, jeûner le jour et ne jamais se mettre en colère.\n\nIblis tenta de l'éprouver et de le mettre en colère, mais il resta parfaitement patient.\n\n📿 Leçon : Tenir ses promesses et maîtriser sa colère sont des vertus prophétiques." },
-            { name: "Ayyûb ﷺ", subtitle: "L'incarnation de la patience", emoji: "🌱", story: "Riche et en bonne santé, Ayyûb perdit tout : ses biens, ses enfants et sa santé. Seule sa femme resta avec lui.\n\nIl endura pendant des années sans se plaindre avant d'implorer la miséricorde d'Allah. Allah lui rendit le double de ce qu'il avait perdu.\n\n📿 Leçon : Allah ne teste que ceux qu'Il aime." },
-            { name: "Yûnus ﷺ", subtitle: "L'homme de la baleine", emoji: "🐋", story: "Découragé par son peuple, il partit en bateau. Jeté à la mer, une baleine l'avala.\n\nDans les ténèbres, il fit la fameuse invocation de la repentance. Allah le sauva et le ramena vers son peuple qui avait finalement cru.\n\n📿 Leçon : Même dans nos pires moments, la dua sincère nous sauve." },
-            { name: "Ilyâs ﷺ", subtitle: "Défenseur du Tawhid", emoji: "🌊", story: "Il fut envoyé aux enfants d'Israël pour combattre le culte de l'idole Ba'l.\n\nFace à leur obstination, il maintint le message de l'Unicité coûte que coûte.\n\n📿 Leçon : Combattre les fausses idoles de notre temps (argent, ego) est essentiel." },
-            { name: "Al-Yasa' ﷺ", subtitle: "Le successeur d'Ilyâs", emoji: "🌿", story: "Disciple puis successeur d'Ilyâs dans la prophétie. Il continua discrètement mais fidèlement la mission de son maître.\n\n📿 Leçon : La continuité discrète et la loyauté sont extrêmement précieuses." },
-            { name: "Dâwûd ﷺ", subtitle: "Roi et prophète", emoji: "🎵", story: "Jeune berger, il tua le géant Goliath. Devenu roi, il jeûnait un jour sur deux et priait la nuit.\n\nIl reçut les Psaumes. Sa voix était si belle que la nature participait à ses louanges.\n\n📿 Leçon : On peut allier pouvoir terrestre et profonde humilité spirituelle." },
-            { name: "Sulaymân ﷺ", subtitle: "Maître des djinns et des animaux", emoji: "👑", story: "Fils de Dâwûd, il comprenait le langage des animaux et commandait aux djinns. Il bâtit un royaume sans pareil.\n\nIl mourut appuyé sur sa canne sans que les djinns ne s'en aperçoivent, prouvant qu'ils ne connaissent pas l'invisible.\n\n📿 Leçon : Toute gloire terrestre n'est qu'un test de gratitude envers Allah." },
-            { name: "Zakariyyâ ﷺ", subtitle: "La prière exaucée dans la vieillesse", emoji: "🌸", story: "Très âgé et marié à une femme stérile, il pria Allah en secret pour avoir un héritier pieux après avoir vu les miracles de Maryam.\n\nAllah l'exauça et lui donna Yahyâ.\n\n📿 Leçon : La miséricorde d'Allah n'a pas de limites biologiques ou physiques." },
-            { name: "Yahyâ ﷺ", subtitle: "La sagesse dès l'enfance", emoji: "🕊️", story: "Fils de Zakariyyâ, Jean-Baptiste reçut la sagesse dès son jeune âge. Il était doux, pur et dévoué.\n\nIl mourut martyr pour avoir dit la vérité face à un tyran.\n\n📿 Leçon : Dire la vérité au pouvoir est une grande preuve de foi." },
-            { name: "Îsâ ﷺ", subtitle: "Le Messie, fils de Maryam", emoji: "✨", story: "Né miraculeusement sans père. Il parlait au berceau, guérissait les lépreux et ressuscitait les morts par la permission d'Allah.\n\nAllah l'a élevé au ciel pour le sauver. Il reviendra à la fin des temps.\n\n📿 Leçon : Issa est un grand Messager de paix et de pureté." },
-            { name: "Muhammad ﷺ", subtitle: "Le sceau des prophètes", emoji: "🌙", story: "Le dernier des prophètes. Devenu orphelin très jeune, connu pour son honnêteté. À 40 ans, il reçut la révélation du Coran.\n\nEn 23 ans, il transforma une société tribale divisée en la plus grande civilisation de l'histoire, unie par la foi.\n\n📿 Leçon : Le meilleur des exemples pour toute l'humanité jusqu'à la fin des temps." }
+            {
+                name: "Nabi & Rassoul", subtitle: "Quelle est la différence ?", emoji: "📚",
+                intro: "Dans le Coran, Allah utilise deux termes distincts pour désigner Ses envoyés : Nabi (Prophète) et Rassoul (Messager). Bien qu'ils soient tous choisis par Dieu, leur mission diffère.",
+                chapters: [
+                    { t: "Le Prophète (Nabi)", c: "Le mot 'Nabi' vient de 'Naba' qui signifie 'la nouvelle'. Un Nabi reçoit la révélation divine pour confirmer, raviver et appliquer la loi (Shari'a) d'un Messager venu avant lui. Il ne vient pas avec un nouveau Livre ni de nouvelles règles. Son rôle est de réformer une communauté croyante qui s'est égarée ou a oublié les préceptes. (Ex: Yahya, Zakariyya)." },
+                    { t: "Le Messager (Rassoul)", c: "Le mot 'Rassoul' signifie 'celui qui est envoyé'. Un Rassoul est un Prophète à qui Allah confie une NOUVELLE loi et souvent un NOUVEAU Livre (comme la Torah, l'Évangile ou le Coran). Il est généralement envoyé à un peuple mécréant pour instaurer de nouvelles bases. Règle d'or : Tout Messager est obligatoirement un Prophète, mais tout Prophète n'est pas un Messager." },
+                    { t: "Les Ouloul 'Azm", c: "Parmi tous ces nobles envoyés, cinq se distinguent. On les appelle les 'Ouloul 'Azm' (Les Doués de Résolution) en raison des épreuves immenses qu'ils ont endurées et de leur patience exceptionnelle. Ce sont : Nûh, Ibrâhîm, Mûsâ, 'Îsâ et Muhammad ﷺ." }
+                ],
+                lessons: ["Allah n'a jamais laissé un peuple sans guide.", "La mission prophétique est un fardeau lourd qui exige une pureté absolue.", "Chaque époque a eu la législation (Shari'a) adaptée à son peuple, jusqu'au message final universel."],
+                verses: "Al-Hajj (52), Al-Ahzab (7)"
+            },
+            {
+                name: "Adam ﷺ", subtitle: "L'Aube de l'Humanité", emoji: "🌿",
+                intro: "L'histoire d'Adam est celle de la naissance de la conscience humaine et du premier combat entre la lumière de la connaissance et l'obscurité de l'orgueil.",
+                chapters: [
+                    { t: "La poussière des mondes", c: "Allah annonça aux Anges : 'Je vais établir sur terre un représentant (Calife)'. Il ordonna de rassembler des poignées de chaque terre de la planète : de la terre rouge, noire, blanche, jaune, fertile et aride. C'est pour cela que les humains ont aujourd'hui des couleurs et des tempéraments si divers. Allah façonna Adam de Ses Mains et laissa son corps d'argile sans vie pendant quarante ans. Iblis, déjà jaloux, tournait autour de cette forme vide, jurant de le détruire s'il en recevait le pouvoir." },
+                    { t: "Le souffle et le savoir", c: "Quand Allah insuffla Son Esprit en Adam, la vie commença par sa tête. Dès qu'il respira, Adam éternua et dit immédiatement : 'Al-Hamdulillah'. Allah lui répondit : 'Ton Seigneur te fait Miséricorde'. Allah lui enseigna ensuite le nom de TOUTE chose. Devant cette preuve de sagesse, Allah ordonna aux Anges de se prosterner par respect. Tous obéirent, sauf Iblis. Son orgueil explosa : 'Je suis meilleur que lui ! Tu m'as créé de feu et Tu l'as créé d'argile !'. Ce fut le premier péché de l'univers." },
+                    { t: "Le murmure et la chute", c: "Adam et Hawwa (Ève) vivaient au Paradis. Une seule limite existait : un arbre précis. Iblis utilisa le murmure (Waswas). Il leur jura par Allah qu'il était sincère : 'Votre Seigneur ne vous interdit cet arbre que pour vous empêcher de devenir des êtres éternels'. Ils goûtèrent au fruit et leur parure céleste disparut, les laissant conscients de leur vulnérabilité." },
+                    { t: "Le Repentir Sacré", c: "Contrairement à Iblis qui blâma Allah, Adam prit la responsabilité de sa faute. Il pleura et dit : 'Seigneur, nous avons fait du tort à nos âmes. Si Tu ne nous pardonnes pas, nous serons perdus'. Allah accepta son repentir et l'envoya sur terre avec une mission : faire de ce monde un lieu d'adoration." }
+                ],
+                lessons: ["L'orgueil est la racine de la chute.", "Le repentir efface le péché.", "Le diable n'attaque pas de face, il se déguise en bon conseiller."],
+                verses: "Al-Baqara (30-39), Al-A'raf (11-25)"
+            },
+            {
+                name: "Idrîs ﷺ", subtitle: "Le Savant Élevé", emoji: "✍️",
+                intro: "Connu dans d'anciennes traditions sous le nom d'Hénoch, Idrîs fut le premier Prophète après Adam et son fils Seth. Il était l'incarnation de la sagesse.",
+                chapters: [
+                    { t: "La plume et le fil", c: "Idrîs fut un précurseur de la civilisation. Il fut le premier homme de l'histoire à écrire avec un calame (une plume). De plus, alors que les hommes se vêtaient de peaux de bêtes, Idrîs fut le premier à tisser et à coudre des vêtements. À chaque fois qu'il passait l'aiguille dans le tissu, il prononçait le nom d'Allah (SubhanAllah)." },
+                    { t: "L'élévation céleste", c: "Il passait ses journées à jeûner, ses nuits à prier, et invitait les hommes à la justice et à fuir la corruption qui commençait à s'installer. Pour le récompenser de son dévouement exceptionnel, Allah dit de lui dans le Coran : 'Et Nous l'élevâmes à un haut rang'. Le Prophète Muhammad ﷺ l'a rencontré au quatrième ciel lors du Voyage Nocturne (Al-Isra)." }
+                ],
+                lessons: ["Le savoir (science, écriture) est une forme d'adoration.", "Le travail manuel noble est béni quand il est fait avec le souvenir de Dieu.", "La piété élève le rang de la personne auprès de son Créateur."],
+                verses: "Maryam (56-57), Al-Anbiya (85)"
+            },
+            {
+                name: "Nûh ﷺ", subtitle: "Le Prophète de la Patience", emoji: "🚢",
+                intro: "Pendant des siècles, un homme seul se dressa contre un monde qui avait oublié son Créateur pour adorer des statues de pierre.",
+                chapters: [
+                    { t: "950 ans d'appel", c: "Nûh prêcha pendant 950 ans. Imagine cette patience : il les appela jour et nuit, en secret et en public. Mais les gens se bouchaient les oreilles et s'enveloppaient dans leurs manteaux pour ne pas l'entendre. Seule une poignée de pauvres crut en lui, tandis que les nobles le méprisaient." },
+                    { t: "Le navire du désert", c: "Quand Allah révéla que plus personne ne croirait, Il ordonna à Nûh de construire une Arche immense. Nûh construisit ce navire gigantesque en plein désert. Les chefs de son peuple passaient devant lui en riant : 'O Nûh ! Te voilà devenu charpentier ?'. Nûh répondait calmement : 'Si vous vous moquez de nous aujourd'hui, nous nous moquerons de vous bientôt'." },
+                    { t: "Le Déluge", c: "Le signe arriva : l'eau se mit à jaillir des fours des maisons. Le ciel s'ouvrit. Nûh fit monter un couple de chaque animal et les croyants. Son propre fils resta sur une colline. Nûh l'appela avec douleur : 'O mon fils, monte avec nous !'. Le fils refusa, pensant que la montagne le sauverait. Une vague immense l'emporta." },
+                    { t: "Le Second Père", c: "L'Arche vogua sur des vagues comme des montagnes, puis se posa sur le mont Joudi. Tous les humains d'aujourd'hui sont les descendants des passagers de cette Arche, faisant de Nûh le 'Second Père de l'humanité'." }
+                ],
+                lessons: ["La persévérance est une force divine.", "La foi est un lien plus sacré que le sang de la famille.", "L'Arche de Dieu sauve toujours ceux qui s'y réfugient."],
+                verses: "Sourate Nûh, Hud (25-49)"
+            },
+            {
+                name: "Hûd ﷺ", subtitle: "Envoyé aux Géants d'Âd", emoji: "🌬️",
+                intro: "Après Nûh, le peuple de 'Âd hérita de la terre. Ils étaient des géants bâtisseurs, dotés d'une force surhumaine, mais rongés par l'arrogance.",
+                chapters: [
+                    { t: "Les cités de colonnes", c: "Les 'Âd vivaient dans la somptueuse ville d'Iram. Ils taillaient la roche et bâtissaient d'immenses palais. Aveuglés par leur force physique, ils disaient : 'Qui est plus redoutable que nous en force ?'. Hûd, l'un des leurs, tenta de les rappeler à l'ordre : 'Ne craignez-vous pas Allah qui vous a donné ces troupeaux, ces enfants et ces jardins ?'." },
+                    { t: "Le refus aveugle", c: "Au lieu d'écouter, ils accusèrent Hûd d'être fou, possédé par l'un de leurs faux dieux. Hûd, seul face à ces colosses, ne trembla pas. Il les défia : 'Concertez-vous avec vos idoles et ne me donnez aucun répit ! Je place ma confiance en Allah'." },
+                    { t: "Le vent glacial", c: "Une terrible sécheresse s'abattit sur eux. Un jour, ils virent un nuage sombre s'approcher et se réjouirent : 'Voici un nuage qui nous apporte la pluie !'. Hûd répondit : 'Non, c'est ce que vous cherchiez à hâter : un vent contenant un châtiment douloureux'. Ce vent rugissant souffla 7 nuits et 8 jours, les soulevant comme des troncs de palmiers déracinés. Seul Hûd et les croyants furent sauvés." }
+                ],
+                lessons: ["La force physique et technologique ne protège de rien face à Dieu.", "L'ingratitude détruit les plus grandes civilisations.", "Le vrai courage est de dire la vérité face à une majorité hostile."],
+                verses: "Al-A'raf (65-72), Hud (50-60)"
+            },
+            {
+                name: "Sâlih ﷺ", subtitle: "Le Miracle de la Chamelle", emoji: "🐪",
+                intro: "Les Thamoud succédèrent aux 'Âd. Eux aussi bâtissaient des merveilles architecturales dans les montagnes de roche, mais leurs cœurs s'étaient pétrifiés.",
+                chapters: [
+                    { t: "Le défi de la roche", c: "Sâlih appelait son peuple à cesser d'adorer des pierres. Les élites, arrogantes, voulurent le piéger. Ils lui dirent : 'Si tu es vraiment Prophète, fais sortir de ce rocher massif une chamelle géante, enceinte, avec des caractéristiques précises !'. Sâlih pria Allah, et sous leurs yeux stupéfaits, le rocher se fendit pour laisser sortir la chamelle miraculeuse." },
+                    { t: "L'épreuve de l'eau", c: "Sâlih avertit son peuple : 'Voici la chamelle d'Allah, c'est un signe. Laissez-la manger sur la terre et ne lui faites aucun mal. Un jour l'eau du puits sera pour elle, et l'autre jour pour vous'. Pendant un temps, la chamelle donnait assez de lait pour nourrir toute la ville les jours où elle buvait toute l'eau." },
+                    { t: "Le complot macabre", c: "Ne supportant plus ce rappel divin vivant, neuf hommes corrompus complotèrent. Ils tuèrent sauvagement la chamelle et défièrent Sâlih : 'Fais venir ton châtiment si tu es véridique !'. Sâlih, attristé, leur annonça : 'Profitez de vos demeures pendant trois jours, puis ce sera la fin'." },
+                    { t: "Le Cri foudroyant", c: "Le troisième jour à l'aube, un Cri céleste (Sayha) terrifiant, couplé à un tremblement de terre, s'abattit sur la cité. Ils furent retrouvés sans vie dans leurs magnifiques maisons taillées dans la roche, foudroyés sur place. Rien de leur architecture ne put les protéger." }
+                ],
+                lessons: ["Les miracles ne suffisent pas à ceux qui ont le cœur fermé.", "Détruire ce qui est sacré mène à une ruine rapide.", "La richesse matérielle ne garantit aucune sécurité spirituelle."],
+                verses: "Hud (61-68), Al-Hijr (80-84)"
+            },
+            {
+                name: "Ibrâhîm ﷺ", subtitle: "L'Ami Intime (Al-Khalil)", emoji: "🔥",
+                intro: "Ibrahim est le père de la foi pure. Son histoire est celle d'un jeune homme qui a utilisé sa raison pour trouver Dieu, défiant un empire entier.",
+                chapters: [
+                    { t: "Le Briseur d'Idoles", c: "Son père Azar sculptait des idoles. Ibrahim ne comprenait pas comment on pouvait adorer des pierres immobiles. Un jour de fête, il entra dans le temple, brisa toutes les statues avec une hache, et accrocha l'outil au cou de la plus grande. Quand on l'accusa, il dit : 'Demandez donc à la grande idole de parler !'. Le peuple fut frappé de honte, mais leur orgueil décida de sa mort." },
+                    { t: "Le Miracle du Feu", c: "Le roi Namrud fit construire un brasier si immense qu'on dut utiliser une catapulte pour y jeter Ibrahim. Dans les airs, l'Ange Jibril lui proposa son aide. Ibrahim répondit avec un Tawakkul absolu : 'Allah me suffit, et quel excellent Protecteur !'. Allah ordonna alors : 'O feu, sois pour Ibrahim fraîcheur et paix'. Il sortit intact des flammes." },
+                    { t: "Le Sacrifice Suprême", c: "Bien plus tard, Allah le testa en lui demandant en rêve de sacrifier Ismaïl, le fils qu'il avait tant attendu. Ismaïl accepta avec une soumission totale : 'Fais ce qui t'est ordonné mon père'. Au moment d'agir, Allah, ayant vu leur sincérité absolue, remplaça l'enfant par un bélier blanc. C'est l'origine de la fête de l'Eid al-Adha." },
+                    { t: "La Maison Sacrée", c: "Ibrahim et Ismaïl élevèrent ensemble les fondations de la Ka'ba à La Mecque, pierre par pierre. En travaillant, ils pleuraient en invoquant : 'Seigneur, accepte cette œuvre de nous'. Ibrahim monta ensuite sur une pierre (Maqam Ibrahim) pour appeler l'humanité entière au pèlerinage, un appel qui résonne encore." }
+                ],
+                lessons: ["La raison claire mène toujours au Tawhid (Unicité).", "La confiance absolue en Dieu transforme le feu en fraîcheur.", "L'amour pour Allah doit primer sur tout autre amour."],
+                verses: "Sourate Ibrahim, Al-Anbiya (51-71)"
+            },
+            {
+                name: "Lût ﷺ", subtitle: "Le Prophète de l'Exil", emoji: "🏙️",
+                intro: "Neveu d'Ibrahim, Lût quitta son pays avec son oncle pour s'installer près de la mer Morte, dans la cité dépravée de Sodome.",
+                chapters: [
+                    { t: "L'inversion des valeurs", c: "Sodome était une ville où le vice était devenu la norme. Ils agressaient les voyageurs et pratiquaient l'homosexualité publiquement, un acte inédit dans l'histoire humaine. Lût tenta de les raisonner pendant des années, mais ils se moquaient de sa pureté : 'Expulsez la famille de Lût de votre cité, ce sont des gens qui veulent rester purs !'." },
+                    { t: "L'arrivée des Anges", c: "Allah envoya des Anges sous l'apparence de jeunes hommes d'une grande beauté. Ils furent hébergés par Lût, qui s'inquiéta pour leur sécurité. Très vite, la foule encercla la maison de Lût pour abuser de ses invités. C'est sa propre femme, qui ne partageait pas sa foi, qui avait prévenu le peuple." },
+                    { t: "La destruction nocturne", c: "Lût, désespéré, dit : 'Ah si j'avais de la force contre vous !'. Les Anges le rassurèrent : 'Nous sommes les envoyés de ton Seigneur. Ils ne t'atteindront pas. Pars avec ta famille à la fin de la nuit et que personne ne se retourne'. Au lever du soleil, l'Ange Jibril souleva la ville entière avec le bout de son aile, la retourna, et une pluie de pierres d'argile s'abattit sur eux. La femme de Lût s'était retournée et subit le même sort." }
+                ],
+                lessons: ["La majorité n'a pas toujours raison : un peuple entier peut normaliser le mal.", "La foi est une affaire personnelle : même la femme d'un Prophète n'est pas sauvée sans foi.", "La pureté dérange ceux qui aiment la corruption."],
+                verses: "Hud (77-83), Al-Hijr (57-77)"
+            },
+            {
+                name: "Ismâ'îl ﷺ", subtitle: "L'Enfant du Désert", emoji: "💧",
+                intro: "Fils aîné d'Ibrahim et de Hajar, il est le grand-père des Arabes du Hedjaz et l'ancêtre direct du Prophète Muhammad ﷺ.",
+                chapters: [
+                    { t: "La solitude dans la vallée", c: "Bébé, il fut laissé par son père avec sa mère Hajar dans une vallée aride et sans vie (l'emplacement de La Mecque), par ordre divin. Hajar, assoiffée, courut sept fois entre les monts Safa et Marwa pour chercher de l'aide. L'Ange Jibril apparut et frappa la terre : la source d'eau bénite Zamzam jaillit sous les pieds du bébé, attirant par la suite des tribus bédouines." },
+                    { t: "La soumission au couteau", c: "Devenu un adolescent courageux, il fut confronté au test ultime quand son père lui révéla son rêve prophétique. Sa réponse prouve sa noblesse d'âme : 'O mon père, fais ce qui t'est ordonné, tu me trouveras, in cha Allah, du nombre des endurants'. Sa patience fut récompensée par le sauvetage divin." },
+                    { t: "Le bâtisseur", c: "Il aida son père à construire la Ka'ba, transportant les lourdes pierres sous le soleil du désert. Il devint ensuite le Prophète des tribus arabes locales, reconnu pour sa loyauté et le respect infaillible de ses promesses." }
+                ],
+                lessons: ["Le désert fleurit toujours pour ceux qui ont confiance en Dieu.", "L'obéissance aux parents dans le bien est une voie vers le Paradis.", "Une promesse tenue est une qualité prophétique majeure."],
+                verses: "Maryam (54-55), As-Saffat (101-107)"
+            },
+            {
+                name: "Ishâq ﷺ", subtitle: "Le Fils de la Promesse", emoji: "✨",
+                intro: "Deuxième fils d'Ibrahim, né de sa première épouse Sarah. Il est l'ancêtre d'une immense lignée de Prophètes (les Enfants d'Israël).",
+                chapters: [
+                    { t: "Le rire de Sarah", c: "Des anges (les mêmes qui allaient détruire Sodome) passèrent chez Ibrahim. Ils annoncèrent à Ibrahim et Sarah, tous deux très âgés, la naissance d'un fils doté d'un grand savoir. Sarah, étonnée, frappa son visage et s'exclama : 'Une vieille femme stérile ?'. Les anges répondirent : 'T'étonnes-tu de l'ordre d'Allah ?'." },
+                    { t: "L'héritage prophétique", c: "Ishaq grandit dans la pureté de la foi de son père. De son sang naîtra Ya'qub (Israël), et de lui naîtront les douze tribus, d'où surgiront des Prophètes immenses comme Yusuf, Musa, Dawud et 'Isa. Il fut un dirigeant juste et sage, propageant le Tawhid au pays de Canaan (Palestine)." }
+                ],
+                lessons: ["Rien n'est impossible à Allah, même quand la biologie dit le contraire.", "Un foyer empli de foi engendre des générations bénies."],
+                verses: "Hud (71-73), As-Saffat (112-113)"
+            },
+            {
+                name: "Ya'qûb ﷺ", subtitle: "Le symbole de l'Espérance", emoji: "🌾",
+                intro: "Fils d'Ishaq, Ya'qub (aussi appelé Israël) est le père de douze fils. Son histoire est marquée par le plus profond chagrin qu'un cœur de père puisse porter.",
+                chapters: [
+                    { t: "Le loup imaginaire", c: "Ya'qub aimait profondément son fils Yusuf, qui montrait les signes de la prophétie. Ses autres fils, rongés par une jalousie maladive, décidèrent de le jeter dans un puits. Ils revinrent en pleurs le soir, montrant une chemise tachée de faux sang, accusant un loup. Ya'qub, devinant le mensonge, ne hurla pas à la vengeance, mais dit : 'Patience magnifique ! C'est Allah qu'il faut appeler au secours contre ce que vous racontez'." },
+                    { t: "Les larmes et la cécité", c: "Les années, puis les décennies passèrent. La douleur de l'absence de Yusuf ne quitta jamais Ya'qub. Il pleura tant que ses yeux blanchirent et qu'il devint aveugle. Quand ses fils lui reprochaient de toujours penser à Yusuf, il répondait : 'Je ne me plains de mon angoisse et de mon chagrin qu'à Allah'." },
+                    { t: "Le parfum du retour", c: "Des années plus tard, ses fils revinrent d'Égypte avec la chemise de Yusuf, devenu ministre. Avant même qu'ils n'arrivent en Palestine, Ya'qub, par miracle, sentit l'odeur de son fils : 'Je sens le parfum de Yusuf, si vous ne me traitiez pas de vieux fou'. Quand on posa la chemise sur son visage, il recouvra la vue. Sa patience fut enfin couronnée de lumière." }
+                ],
+                lessons: ["Le Sabr Jamil (patience magnifique) est une patience sans plainte aux humains.", "Le désespoir n'existe pas dans le cœur du croyant.", "L'amour d'un parent est une force incommensurable."],
+                verses: "Sourate Yusuf (entière)"
+            },
+            {
+                name: "Yûsuf ﷺ", subtitle: "Du Puits au Trône", emoji: "💫",
+                intro: "C'est l'histoire que le Coran nomme 'le meilleur des récits'. L'ascension d'un jeune garçon esclave devenu le maître de l'Égypte.",
+                chapters: [
+                    { t: "Le rêve et la trahison", c: "Enfant, Yusuf vit 11 étoiles, le soleil et la lune se prosterner devant lui. Ya'qub lui conseilla le silence. Mais ses demi-frères le jetèrent dans un puits sombre et l'abandonnèrent. Récupéré par des caravaniers, l'enfant libre fut vendu au marché des esclaves en Égypte pour quelques pièces misérables. Il fut acheté par l'Al-Aziz (le ministre)." },
+                    { t: "L'épreuve de la beauté", c: "Yusuf devint un jeune homme d'une beauté époustouflante (il possédait la moitié de la beauté de l'humanité). La femme de son maître, Zuleikha, s'éprit de lui. Elle ferma les portes et voulut le forcer au péché. Yusuf, protégé par sa foi, refusa fermement et s'enfuit. Accusé à tort pour étouffer le scandale, il pria : 'Seigneur, la prison m'est préférable à ce à quoi elles m'invitent'. Il y passa de longues années." },
+                    { t: "L'interprète du Roi", c: "En prison, il interprétait les rêves grâce à son don divin. Un jour, le Pharaon rêva de 7 vaches grasses mangées par 7 vaches maigres. Personne ne sut l'expliquer, sauf Yusuf : 7 années d'abondance suivies de 7 années de famine. Libéré et innocenté, il fut nommé Ministre des Finances d'Égypte. Sa sagesse sauva le pays et les nations alentour." },
+                    { t: "Le pardon magistral", c: "Frappés par la famine, ses propres frères vinrent mendier du grain. Après les avoir testés pour voir s'ils avaient changé, il leur révéla son identité. Terrifiés, ils attendaient la mort. Mais Yusuf leur dit : 'Pas de récrimination contre vous aujourd'hui. Qu'Allah vous pardonne !'. Il fit venir ses parents en Égypte, réalisant ainsi le rêve de son enfance." }
+                ],
+                lessons: ["Le mal fait par les hommes peut être transformé en succès par Dieu.", "Préserver sa pureté vaut toutes les prisons du monde.", "Le pardon est la vengeance des rois et des prophètes."],
+                verses: "Sourate Yusuf (entière)"
+            },
+            {
+                name: "Ayyûb ﷺ", subtitle: "Le Symbole de la Patience", emoji: "🌱",
+                intro: "L'histoire de Job (Ayyûb) est la preuve que la maladie et la pauvreté ne sont pas une punition, mais parfois un test pour les plus aimés d'Allah.",
+                chapters: [
+                    { t: "La perte de tout", c: "Ayyûb était immensément riche, possédait de vastes terres, un grand troupeau et une belle descendance. Allah décida de l'éprouver pour montrer la pureté de son cœur. En très peu de temps, il perdit ses troupeaux, ses terres furent détruites, et ses enfants périrent dans l'effondrement de leur maison. Il dit simplement : 'Allah a donné, Allah a repris'." },
+                    { t: "La maladie repoussante", c: "L'épreuve s'aggrava : son corps fut frappé par une maladie terrible. Sa peau devint repoussante, ses amis l'abandonnèrent, et il fut contraint de vivre en périphérie de la ville. Seule sa femme fidèle, Rahma, resta à ses côtés, allant jusqu'à vendre ses tresses de cheveux pour lui acheter à manger. Cela dura 7 (ou 18) longues années." },
+                    { t: "La guérison divine", c: "Malgré la douleur, Ayyûb refusait de se plaindre. Un jour, poussé par la détresse de voir sa femme souffrir, il fit une invocation humble : 'Le mal m'a touché, et Tu es le plus miséricordieux des miséricordieux'. Allah lui ordonna : 'Frappe la terre de ton pied'. Une source d'eau fraîche jaillit. Il s'y lava et but : sa santé, sa beauté et sa jeunesse revinrent." },
+                    { t: "La récompense", c: "En récompense de sa patience hors norme, Allah lui rendit le double de ses richesses et lui redonna des enfants. Il est devenu jusqu'à la fin des temps l'exemple ultime de celui qui n'a jamais douté de la bonté de son Créateur dans les ténèbres de la maladie." }
+                ],
+                lessons: ["La santé et la richesse sont des prêts, seule la foi nous appartient.", "Une épouse fidèle est le plus grand trésor de ce monde.", "La plainte à Dieu n'est pas un manque de patience, c'est une prière."],
+                verses: "Al-Anbiya (83-84), Sad (41-44)"
+            },
+            {
+                name: "Shu'ayb ﷺ", subtitle: "L'Orateur des Prophètes", emoji: "⚖️",
+                intro: "Envoyé à Madyan, Shu'ayb dut affronter un peuple qui avait fait de la triche commerciale et de l'extorsion un mode de vie.",
+                chapters: [
+                    { t: "L'éthique du marché", c: "Les gens de Madyan étaient de riches commerçants placés sur une route marchande stratégique. Ils avaient une pratique odieuse : utiliser de faux poids pour vendre moins, et exiger plus quand ils achetaient. Shu'ayb, doué d'une éloquence remarquable, leur disait : 'Donnez la juste mesure et le bon poids, ne lésez pas les gens dans leurs biens'." },
+                    { t: "La moquerie des riches", c: "Les élites arrogantes se moquaient de lui en liant la religion à l'économie : 'O Shu'ayb, est-ce que ta prière te commande de nous faire abandonner ce qu'adoraient nos ancêtres, ou de ne plus faire de nos biens ce que nous voulons ?'. Ils le menacèrent de lapidation s'il n'appartenait pas à une famille puissante." },
+                    { t: "Le nuage ténébreux", c: "Shu'ayb répondit : 'Je ne veux que la réforme autant que je le puis'. Refusant de s'amender, ils subirent une chaleur insoutenable pendant des jours. Un grand nuage apparut au loin. Croyant y trouver de la fraîcheur, ils s'y précipitèrent tous. C'était en fait un nuage chargé de feu et suivi d'un cri foudroyant qui les détruisit instantanément." }
+                ],
+                lessons: ["L'économie et la justice sociale sont indissociables de la religion.", "Voler les gens avec le sourire (arnaque) est pire que de voler par la force.", "L'éloquence doit être utilisée pour défendre le droit."],
+                verses: "Al-A'raf (85-93), Hud (84-95)"
+            },
+            {
+                name: "Mûsâ ﷺ", subtitle: "Kalimullah (Celui qui a parlé à Dieu)", emoji: "🌊",
+                intro: "Moussa est le Prophète le plus mentionné dans le Coran. Son histoire est une épopée politique et spirituelle contre le tyran Pharaon.",
+                chapters: [
+                    { t: "Le Palais de l'Ennemi", c: "Pharaon massacrait les garçons hébreux. La mère de Moussa, inspirée par Dieu, plaça son bébé dans un coffre sur le Nil. C'est Assia, la femme de Pharaon, qui le trouva et l'adopta. Moussa grandit en prince d'Égypte. Adulte, après avoir tué accidentellement un garde égyptien qui brutalisait un Hébreu, il dut fuir pour sauver sa vie et arriva à Madyan, où il devint berger pendant 10 ans." },
+                    { t: "Le Feu du Sinaï", c: "Sur le chemin du retour, voyant un feu de loin dans la nuit froide, il s'en approcha. Une voix s'éleva du buisson ardent : 'Je suis Allah, le Seigneur de l'Univers'. Allah lui donna deux miracles (son bâton devenant un serpent géant et sa main devenant lumineuse) et lui ordonna d'aller affronter Pharaon. Moussa, timide et bègue, demanda que son frère Harun l'accompagne." },
+                    { t: "Le Duel des Magiciens", c: "Pharaon convoqua les meilleurs magiciens d'Égypte pour humilier Moussa. Ils jetèrent des cordes qui, par illusion, semblaient serpenter. Moussa jeta son bâton qui avala toutes leurs illusions. Comprenant que ce n'était pas de la magie mais un miracle divin, les magiciens se prosternèrent sur le champ, prêts à subir la torture de Pharaon plutôt que de renier la vérité." },
+                    { t: "La Mer Fendue", c: "Guidant les Hébreux hors d'Égypte, Moussa fut piégé : la mer Rouge devant, l'armée de Pharaon derrière. Le peuple paniqua, mais Moussa garda une foi de fer : 'Mon Seigneur est avec moi, Il me guidera'. Il frappa l'eau de son bâton. La mer se dressa en deux murailles géantes. Les Hébreux passèrent. Quand Pharaon s'y engagea avec ses chars, les flots s'effondrèrent, noyant la tyrannie de l'Égypte." }
+                ],
+                lessons: ["Allah peut te protéger même chez ton pire ennemi.", "Aucun tyran n'échappe à la justice divine.", "Dans les pires impasses, la foi ouvre des océans."],
+                verses: "Al-A'raf, Ta-Ha, Al-Qasas"
+            },
+            {
+                name: "Hârûn ﷺ", subtitle: "L'Éloquence en Soutien", emoji: "🗣️",
+                intro: "Frère aîné de Moussa, Harun fut nommé Prophète à la demande expresse de son frère pour l'épauler dans sa lourde mission.",
+                chapters: [
+                    { t: "Le renfort demandé", c: "Moussa pria : 'Seigneur, mon frère Harun est plus éloquent que moi. Envoie-le donc avec moi comme soutien pour me confirmer'. Allah accepta. Harun fut un vizir spirituel pour Moussa, l'accompagnant dans les moments les plus dangereux face à Pharaon, partageant le poids du message." },
+                    { t: "L'épreuve du Veau d'Or", c: "Pendant que Moussa s'isola 40 jours sur le mont Sinaï pour recevoir la Torah, il laissa Harun en charge du peuple. Un homme nommé As-Samiri fabriqua un veau d'or et persuada les Hébreux de l'adorer. Harun tenta de s'y opposer fermement : 'O mon peuple, vous êtes seulement éprouvés par ce veau !'. Mais ils faillirent le tuer. Harun choisit de ne pas diviser le peuple par une guerre civile en attendant le retour de Moussa." }
+                ],
+                lessons: ["On a tous besoin d'un frère (ou ami) solide dans les grandes missions.", "Il faut parfois choisir le moindre des deux maux (éviter l'effusion de sang)."],
+                verses: "Ta-Ha (29-36), Al-A'raf (142-150)"
+            },
+            {
+                name: "Dhul-Kifl ﷺ", subtitle: "L'Homme de l'Engagement", emoji: "🛡️",
+                intro: "Un Prophète dont on sait peu de choses, sinon qu'il était d'une discipline spirituelle et d'une rigueur absolue face à lui-même.",
+                chapters: [
+                    { t: "Le Serment", c: "La tradition raconte qu'un roi vieillissant cherchait un successeur. Il imposa trois conditions : jeûner tous les jours, prier toutes les nuits, et ne jamais se mettre en colère pour rendre la justice. Un seul homme se leva et accepta cet engagement (Kifl). C'est ainsi qu'il gagna son nom 'Dhul-Kifl' (Celui de l'engagement)." },
+                    { t: "L'échec du Diable", c: "Iblis tenta par tous les moyens de le faire craquer. Il venait le déranger sous l'apparence d'un vieillard aux heures où Dhul-Kifl devait dormir pour se reposer. Il le provoquait, mentait, ralentissait les procès. Mais Dhul-Kifl garda un calme parfait, tenant sa promesse de ne jamais s'énerver jusqu'à la fin de ses jours." }
+                ],
+                lessons: ["La maîtrise de la colère est une preuve de force spirituelle.", "Tenir ses promesses est sacré, même quand c'est difficile."],
+                verses: "Al-Anbiya (85), Sad (48)"
+            },
+            {
+                name: "Dâwûd ﷺ", subtitle: "Le Roi Chantre", emoji: "🎵",
+                intro: "Jeune berger devenu le plus puissant roi d'Israël, Dawud (David) alliait la force du guerrier à la douceur du poète.",
+                chapters: [
+                    { t: "La Fronde et le Géant", c: "L'armée du roi Talut (Saül) affrontait les Philistins menés par l'immense guerrier Goliath (Jalut). Dawud, jeune et chétif, s'avança sans armure. Il plaça une pierre dans sa fronde, invoqua Allah, et abattit le géant d'un coup en plein front, libérant ainsi son peuple." },
+                    { t: "Le Fer et les Montagnes", c: "Allah lui donna la royauté et la prophétie. Il lui assouplit le fer entre ses mains sans utiliser de feu, lui permettant d'inventer des cottes de mailles légères. Dawud reçut aussi le Zabur (les Psaumes). Quand il chantait les louanges de Dieu, sa voix était si belle que les oiseaux s'arrêtaient en vol et les montagnes faisaient écho à son chant." },
+                    { t: "La Rigueur de l'Adoration", c: "Malgré son pouvoir absolu, Dawud refusait de manger de l'argent public ; il vivait de la vente de ses cottes de mailles. Le Prophète Muhammad ﷺ a dit : 'Le jeûne le plus aimé d'Allah est celui de Dawud, il jeûnait un jour sur deux. Et la prière la plus aimée est celle de Dawud, il dormait la moitié de la nuit, priait le tiers et dormait le sixième'." }
+                ],
+                lessons: ["Le pouvoir n'excuse pas le manque de piété.", "La bravoure vient de la foi, pas de la taille de l'épée.", "Manger du fruit de son travail est très noble."],
+                verses: "Al-Baqara (251), Sad (17-26)"
+            },
+            {
+                name: "Sulaymân ﷺ", subtitle: "Le Maître de l'Invisible", emoji: "👑",
+                intro: "Fils de Dawud, il demanda à Allah un royaume qu'aucun autre humain n'aurait après lui. Son règne fut un âge d'or absolu.",
+                chapters: [
+                    { t: "Le Roi des vents et des djinns", c: "Allah lui soumit le vent, qu'il utilisait pour voyager d'un bout à l'autre du monde en un mois. Il comprenait le langage des oiseaux et des fourmis. Les djinns travaillaient pour lui, plongeant au fond des mers pour chercher des perles et bâtissant des sanctuaires immenses (le Temple de Jérusalem)." },
+                    { t: "La Reine de Saba", c: "Une huppe l'informa qu'un royaume riche (Saba, au Yémen) était gouverné par une reine adorant le soleil. Sulayman lui envoya une lettre l'invitant à se soumettre à Allah. Pour lui prouver la puissance de la foi, il fit téléporter son lourd trône dans son propre palais en un clin d'œil. Émerveillée par cette science et cette puissance, la reine Bilqis se convertit à l'Islam." },
+                    { t: "La mort debout", c: "Sulayman sentit la mort approcher alors qu'il surveillait les djinns bâtisseurs. S'il mourait, les djinns fuiraient le travail. Il s'appuya sur sa canne de bois et mourut ainsi. Son corps resta debout pendant une année entière ! Les djinns continuaient de travailler, terrifiés. Ce n'est que lorsqu'un ver rongea la canne que son corps tomba, prouvant aux djinns qu'ils ne connaissaient pas l'invisible." }
+                ],
+                lessons: ["Toute puissance sur Terre n'est qu'un test de gratitude.", "L'intelligence et la diplomatie valent mieux que la guerre (cas de la Reine).", "Personne ne connaît l'invisible, même pas les djinns."],
+                verses: "An-Naml (15-44), Sad (30-40)"
+            },
+            {
+                name: "Ilyâs ﷺ", subtitle: "Face à l'Idole Baal", emoji: "🏹",
+                intro: "Élie (Ilyâs) fut envoyé aux Enfants d'Israël à une époque où ils avaient délaissé Dieu pour adorer une immense idole phénicienne du nom de Baal.",
+                chapters: [
+                    { t: "Le Courage Solitaire", c: "Le roi d'Israël, influencé par sa femme païenne, forçait le peuple à adorer Baal. Ilyas se dressa seul et leur dit : 'N'allez-vous pas craindre Allah ? Invoquez-vous Baal et délaissez-vous le Meilleur des créateurs ?'. Ils le traitèrent de menteur et voulurent le tuer. Ilyas dut fuir et se cacher dans des grottes." },
+                    { t: "La Sécheresse", c: "Pour réveiller les cœurs, une terrible sécheresse s'abattit sur la région pendant trois ans. Ilyas prouva que Baal, prétendu 'dieu de la pluie', était impuissant. Après que le peuple eut souffert, certains revinrent à la raison, mais la majorité resta aveugle." }
+                ],
+                lessons: ["La vérité reste vraie même si on est le seul à y croire.", "L'égarement de la société commence souvent par ses dirigeants."],
+                verses: "As-Saffat (123-132), Al-An'am (85)"
+            },
+            {
+                name: "Al-Yasa' ﷺ", subtitle: "Le digne Héritier", emoji: "🌿",
+                intro: "Disciple fidèle, Élisée (Al-Yasa') prit la relève d'Ilyas pour continuer à guider un peuple souvent rebelle.",
+                chapters: [
+                    { t: "Le successeur pacifique", c: "Il accompagna Ilyas dans sa mission et apprit de sa sagesse. Lorsque Ilyas le quitta, Al-Yasa' prit le fardeau de la Prophétie. La tradition raconte qu'il opéra de nombreux miracles, guérissant des lépreux et purifiant l'eau empoisonnée, essayant de ramener Israël au monothéisme par la douceur." }
+                ],
+                lessons: ["Un grand maître prépare toujours un bon élève pour la suite.", "Le message divin ne meurt jamais, il est transmis de cœur en cœur."],
+                verses: "Al-An'am (86), Sad (48)"
+            },
+            {
+                name: "Yûnus ﷺ", subtitle: "L'Homme dans la Baleine", emoji: "🐋",
+                intro: "Jonas (Yunus) est le seul Prophète dont le peuple a cru au châtiment avant qu'il ne s'abatte, le sauvant ainsi de la destruction.",
+                chapters: [
+                    { t: "La colère et la fuite", c: "Envoyé à la ville corrompue de Ninive (Irak), Yunus les prêcha sans relâche. Épuisé par leur rejet, il s'énerva, leur promit un châtiment dans trois jours, et quitta la ville sans attendre l'ordre d'Allah. Il embarqua sur un navire surchargé. Une tempête effroyable menaça de couler le bateau. Les marins tirèrent au sort pour jeter quelqu'un par-dessus bord : le sort tomba trois fois sur Yunus." },
+                    { t: "Le ventre des ténèbres", c: "Jeté à la mer furieuse, une immense baleine l'avala d'un trait, sans lui briser les os. Yunus se retrouva dans les triples ténèbres : la nuit, le fond de la mer, et l'estomac de la bête. Prenant conscience de sa fuite, il s'effondra en prière : 'La ilaha illa Anta, Subhanaka, inni kuntu minaz-zalimin' (Il n'y a de Dieu que Toi, Gloire à Toi, j'étais du nombre des injustes)." },
+                    { t: "Le pardon pour 100 000 âmes", c: "Allah entendit cette prière pure. La baleine le rejeta malade mais vivant sur une plage. Pendant ce temps, voyant le ciel noircir, le peuple de Ninive avait pris peur, pleuré et s'était repenti sincèrement. Quand Yunus, guéri, retourna vers eux, il trouva plus de 100 000 personnes croyantes qui l'attendaient les bras ouverts." }
+                ],
+                lessons: ["Ne fuis jamais tes responsabilités sans l'ordre de Dieu.", "Le Tasbih (glorification) dans l'épreuve est la clé de la délivrance.", "Il n'est jamais trop tard pour un peuple pour se repentir."],
+                verses: "As-Saffat (139-148), Al-Anbiya (87-88)"
+            },
+            {
+                name: "Zakariyyâ ﷺ", subtitle: "La Prière de la Vieillesse", emoji: "🌸",
+                intro: "Gardien du temple de Jérusalem, Zakariyyâ fut témoin des miracles de la jeune Marie, ce qui raviva son plus grand rêve : avoir un enfant.",
+                chapters: [
+                    { t: "Le miracle des fruits", c: "Il était en charge de l'éducation de Maryam (la mère de 'Isa). À chaque fois qu'il entrait dans sa chambre (le Mihrab), il trouvait près d'elle des fruits d'été en plein hiver, et des fruits d'hiver en plein été. Quand il demandait d'où cela venait, elle répondait : 'Cela vient d'Allah, Il donne sans compter à qui Il veut'." },
+                    { t: "L'invocation secrète", c: "Voyant cela, Zakariyyâ, dont les cheveux étaient blancs et les os fragiles, et dont la femme était stérile, comprit que les lois de la nature ne limitaient pas Dieu. Dans la nuit, il murmura une prière bouleversante : 'Seigneur, mes os se sont affaiblis... Ne me laisse pas seul, donne-moi un héritier qui portera la religion'. Les Anges vinrent lui annoncer la naissance d'un garçon nommé Yahyâ." },
+                    { t: "Le signe du silence", c: "Ébahi, il demanda un signe. Allah lui dit : 'Ton signe sera que tu ne pourras pas parler aux gens pendant trois jours, autrement que par gestes'. Effectivement, sa langue fut nouée, mais il pouvait encore louer Dieu. Il mourut martyr plus tard, assassiné par les soldats du roi Hérode pour avoir défendu la vérité." }
+                ],
+                lessons: ["L'âge et la médecine n'ont pas le dernier mot devant Allah.", "L'invocation sincère faite en secret a une force inouïe."],
+                verses: "Maryam (2-15), Al-Imran (37-41)"
+            },
+            {
+                name: "Yahyâ ﷺ", subtitle: "La Sagesse Précoce", emoji: "🕊️",
+                intro: "Jean-Baptiste (Yahyâ) était un Prophète ascète, doux et pur, à qui Allah donna la sagesse dès sa plus tendre enfance.",
+                chapters: [
+                    { t: "L'enfant différent", c: "Dès son jeune âge, Yahyâ n'aimait pas jouer. Quand les enfants l'appelaient au divertissement, il répondait : 'Nous n'avons pas été créés pour jouer'. Il était extrêmement compatissant envers les animaux et ses parents. Il se nourrissait souvent de feuilles et d'eau, pleurant abondamment par crainte et amour de Dieu." },
+                    { t: "Le Prix de la Vérité", c: "Devenu grand, il enseignait la religion avec fermeté. Le roi despote de l'époque voulait épouser sa propre nièce, ce qui était interdit par la loi divine. Yahyâ s'y opposa publiquement, refusant de tordre la religion pour faire plaisir au tyran. La jeune femme exigea la tête de Yahyâ en cadeau de noces. Le roi fit décapiter le pur Prophète, qui rejoignit Allah en martyr accompli." }
+                ],
+                lessons: ["La maturité spirituelle ne dépend pas de l'âge.", "La vérité ne se marchande pas, même face à la mort."],
+                verses: "Maryam (12-15), Al-Anbiya (90)"
+            },
+            {
+                name: "Îsâ ﷺ", subtitle: "L'Esprit d'Allah et le Messie", emoji: "✨",
+                intro: "Jésus ('Îsâ) fils de Marie est l'un des plus grands Messagers. Sa naissance est un miracle absolu, et ses actes défient l'entendement humain.",
+                chapters: [
+                    { t: "La naissance sous le palmier", c: "L'Ange Jibril apparut à Maryam, vierge, pour lui annoncer un enfant créé par le mot 'Sois'. Enceinte, terrifiée par le jugement des gens, elle s'isola dans le désert. Lors des douleurs de l'accouchement, elle s'adossa à un palmier mort. Allah fit couler un ruisseau à ses pieds et fit tomber des dattes fraîches pour la réconforter." },
+                    { t: "Le bébé orateur", c: "Quand elle revint en ville avec l'enfant, la foule l'accabla d'insultes. Comme ordonné, Maryam ne dit rien et pointa son doigt vers le bébé au berceau. La foule rit : 'Comment parler à un nouveau-né ?'. Mais 'Isa parla : 'Je suis le serviteur d'Allah. Il m'a donné le Livre, m'a désigné Prophète et m'a recommandé la prière et la bonté envers ma mère !'." },
+                    { t: "Les miracles éclatants", c: "En grandissant, il reçut l'Évangile (Injil). Pour prouver son message, Allah lui permit de faire des miracles époustouflants : il guérissait les aveugles-nés et les lépreux. Plus encore, il disait à un cadavre 'Lève-toi par la permission d'Allah', et le mort ressuscitait. Il modelait un oiseau en argile, soufflait dessus, et l'oiseau s'envolait vivant." },
+                    { t: "L'Ascension", c: "Détesté par les rabbins corrompus qu'il critiquait, un complot fut monté pour le crucifier. Mais Allah déjoua leur plan : ils arrêtèrent un autre homme à qui Allah donna les traits de 'Isa (probablement le traître Judas). 'Isa, lui, fut élevé vivant physiquement et spirituellement au Ciel. L'Islam enseigne qu'il redescendra à la fin des temps pour vaincre le Faux Messie (Dajjal) et restaurer la justice." }
+                ],
+                lessons: ["Allah crée comme Il veut : d'un père et d'une mère, sans père ('Isa), ou sans les deux (Adam).", "Le détachement des richesses (Zuhd) est la marque de 'Isa.", "La mort ne peut toucher ceux que Dieu décide d'élever."],
+                verses: "Al-Imran (45-59), Maryam (16-36), Al-Ma'idah (110-118)"
+            },
+            {
+                name: "Muhammad ﷺ", subtitle: "Le Sceau des Prophètes", emoji: "🌙",
+                intro: "Celui par qui tout s'achève. Orphelin, berger, marchand, il est devenu le réceptacle de l'ultime Révélation d'Allah pour toute l'humanité.",
+                chapters: [
+                    { t: "L'orphelin Al-Amin", c: "Né à La Mecque, son père mourut avant sa naissance et sa mère quand il avait 6 ans. Il grandit dans la pauvreté mais était célèbre pour son honnêteté absolue, ce qui lui valut le surnom d'Al-Amin (Le Digne de confiance). À 25 ans, il épousa Khadija, une noble commerçante qui avait été touchée par sa droiture." },
+                    { t: "L'Étreinte de la Grotte", c: "À 40 ans, dégoûté par les idoles de La Mecque, il se retirait souvent dans la grotte de Hira pour méditer. Un jour de Ramadan, l'Ange Jibril apparut dans toute sa majesté et l'étreignit fortement en lui ordonnant : 'Lis ! (Iqra)'. Muhammad, illettré, répondit 'Je ne sais pas lire'. Les premiers versets du Coran descendirent, ouvrant 23 ans de Révélation." },
+                    { t: "L'Hégire et l'État Médinois", c: "Pendant 13 ans, lui et ses compagnons furent torturés, boycottés et assassinés à La Mecque car ils prêchaient l'Unicité (Tawhid). Allah leur ordonna d'émigrer à Médine (L'Hégire en 622). Là, il fonda la première société islamique, basée sur une fraternité inédite entre tribus ennemies et sur des lois justes protégeant les faibles, les femmes et les orphelins." },
+                    { t: "L'Ouverture des Cœurs", c: "Après des batailles défensives difficiles (Badr, Uhud, Khandaq), il retourna à La Mecque avec 10 000 hommes. Il conquit la ville sans verser une goutte de sang. Ses ennemis terrifiés, qui l'avaient torturé, attendaient la mort. Mais il dit : 'Partez, vous êtes libres !'. Il brisa les 360 idoles de la Ka'ba, rendant la Maison à la pureté d'Ibrahim." },
+                    { t: "L'Adieu", c: "Il accomplit son Pèlerinage d'Adieu, livrant un discours magistral sur les droits de l'homme, déclarant qu'un Blanc n'est pas supérieur à un Noir si ce n'est par la piété. Il mourut à 63 ans, la tête reposant sur les genoux de sa femme Aisha. Il n'a laissé ni or ni palais, seulement un Livre et une Voie (Sunna) qui éclairent aujourd'hui deux milliards d'âmes." }
+                ],
+                lessons: ["Le meilleur caractère (Husn al-Khuluq) est le plus grand miracle.", "Le pardon brise la haine mieux que la vengeance.", "Le message de l'Islam est universel et éternel."],
+                verses: "Al-Ahzab (40), Al-Fath (28-29), At-Tawba (128)"
+            }
         ];
 
         // ============ 99 NOMS D'ALLAH ============
@@ -455,51 +727,172 @@
             {n:"As-Sabûr",a:"الصبور",t:"Le Patient",d:"Il ne Se précipite pas dans la punition. Sa patience est un espace pour ton repentir."}
         ];
 
-        // ============ L'ALPHABET ARABE ============
-        const ARABIC_LETTERS = [
-            {l:"ا",n:"Alif",s:"â / a",ex:"أَلَم (Alam)"},{l:"ب",n:"Bâ",s:"b",ex:"بَيت (Maison)"},{l:"ت",n:"Tâ",s:"t",ex:"تَوبة (Repentir)"},{l:"ث",n:"Thâ",s:"th",ex:"ثَواب (Récompense)"},{l:"ج",n:"Jîm",s:"dj",ex:"جَنَّة (Paradis)"},{l:"ح",n:"Hâ",s:"h aspiré",ex:"حَمد (Louange)"},{l:"خ",n:"Khâ",s:"kh",ex:"خَير (Bien)"},{l:"د",n:"Dâl",s:"d",ex:"دُعاء (Dua)"},{l:"ذ",n:"Dhâl",s:"dh",ex:"ذِكر (Dhikr)"},{l:"ر",n:"Râ",s:"r roulé",ex:"رَحمة (Miséricorde)"},{l:"ز",n:"Zây",s:"z",ex:"زَكاة (Zakât)"},{l:"س",n:"Sîn",s:"s",ex:"سَلام (Paix)"},{l:"ش",n:"Shîn",s:"ch",ex:"شُكر (Gratitude)"},{l:"ص",n:"Sâd",s:"s emphatique",ex:"صَبر (Patience)"},{l:"ض",n:"Dâd",s:"d emphatique",ex:"ضَوء (Lumière)"},{l:"ط",n:"Tâ emp.",s:"t emphatique",ex:"طَهارة (Pureté)"},{l:"ع",n:"'Ayn",s:"' guttural",ex:"عِلم (Savoir)"},{l:"غ",n:"Ghayn",s:"gh",ex:"غَفُور (Pardonneur)"},{l:"ف",n:"Fâ",s:"f",ex:"فَجر (Fajr)"},{l:"ق",n:"Qâf",s:"q guttural",ex:"قُرآن (Coran)"},{l:"ك",n:"Kâf",s:"k",ex:"كِتاب (Livre)"},{l:"ل",n:"Lâm",s:"l",ex:"لَيل (Nuit)"},{l:"م",n:"Mîm",s:"m",ex:"مَسجد (Mosquée)"},{l:"ن",n:"Nûn",s:"n",ex:"نُور (Lumière)"},{l:"ه",n:"Hâ",s:"h doux",ex:"هِداية (Guidance)"},{l:"و",n:"Wâw",s:"w / û",ex:"وُضوء (Wudu)"},{l:"ي",n:"Yâ",s:"y / î",ex:"يَقين (Certitude)"}
+        // ============ L'INVISIBLE (AL-GHAYB) ============
+        // ============ L'INVISIBLE (AL-GHAYB) ============
+        const GHAYB = [
+        {
+                name: "Les Anges", subtitle: "Mala'ika : L'Armée de Lumière", emoji: "🪽",
+                intro: "Créés de lumière pure avant même l'humanité, les Anges n'ont ni libre arbitre, ni désirs, ni péchés. Leur existence entière est vouée à l'obéissance totale au Créateur. Voici les plus célèbres et leurs missions :",
+                chapters: [
+                    { t: "Jibril (Gabriel)", c: "Le plus grand des Anges, l'Esprit Fidèle (Ar-Ruh Al-Amin). Il possède 600 ailes. C'est le messager d'Allah : sa mission est de transmettre la Révélation aux Prophètes. C'est lui qui a descendu le Coran dans le cœur de Muhammad ﷺ." },
+                    { t: "Mika'il et Israfil", c: "Mika'il (Michaël) est l'Ange chargé de diriger la pluie, les vents et de distribuer la subsistance (Rizq) à toutes les créatures terrestres. Israfil, quant à lui, est l'Ange gigantesque qui tient la Trompe (le Cor) dans sa bouche, attendant l'ordre divin de souffler pour déclencher la fin du monde." },
+                    { t: "Malak al-Mawt (L'Ange de la Mort)", c: "Souvent appelé Azraël dans certaines traditions. Sa mission est de retirer les âmes des corps à l'instant précis fixé par le destin. Pour le croyant, il vient avec douceur, accompagné d'Anges de miséricorde. Pour le mécréant, il vient avec une apparence terrifiante." },
+                    { t: "Sur tes épaules : Raqib & Atid", c: "Ce sont les 'Kiraman Katibin' (les Nobles Scribes). Raqib est sur ton épaule droite : il note tes bonnes actions instantanément et les multiplie par 10. Atid est sur ton épaule gauche : il note les péchés, mais il patiente 6 heures avant d'écrire, te laissant le temps de demander pardon. C'est à eux que tu passes la paix (Salam) en tournant la tête à droite puis à gauche à la fin de chaque prière !" },
+                    { t: "Munkar & Nakir", c: "Ce sont les redoutables Anges de la tombe. Ils sont décrits comme bleu-noir avec des yeux perçants. Leur mission est de réveiller le défunt dans le Barzakh (la tombe) et de lui faire passer l'interrogatoire sur son Seigneur, sa religion et son Prophète." },
+                    { t: "Ridwan & Malik (Les Gardiens)", c: "Ridwan est l'Ange bienveillant chargé de garder les portes du Paradis et d'accueillir les croyants avec le sourire et la paix. À l'inverse, Malik est le gardien en chef de l'Enfer. Le Prophète ﷺ l'a vu lors de son voyage nocturne : c'est un Ange qui ne sourit jamais." }
+                ],
+                lessons: ["Tu n'es jamais seul, des êtres de lumière t'accompagnent partout.", "La prière se termine toujours en saluant tes deux protecteurs.", "Savoir que tes actes sont notés aide à s'éloigner du péché caché."],
+                verses: "Al-Baqara (98), Al-Infitar (10-12), At-Tahrim (6)"
+            },
+            {
+                name: "Mort & Tombe", subtitle: "Le Barzakh : La salle d'attente", emoji: "🪦",
+                intro: "La mort n'est pas une fin, c'est une porte. Elle marque l'entrée dans le Barzakh (la barrière), un monde intermédiaire où l'âme patiente jusqu'au Jour de la Résurrection.",
+                chapters: [
+                    { t: "L'Ascension de l'âme", c: "Au moment de la mort, les voiles se lèvent. L'âme du croyant, enveloppée d'un parfum céleste, est portée par les Anges à travers les sept cieux. Chaque porte s'ouvre jusqu'à Allah, qui ordonne : 'Inscrivez le livre de Mon serviteur dans les Hauts Degrés (Illiyin) et ramenez-le à la terre'." },
+                    { t: "L'Interrogatoire", c: "Une fois le corps enterré, deux Anges noirs et bleus (Munkar et Nakir) font asseoir le défunt. Ils posent trois questions : 'Qui est ton Seigneur ? Quelle est ta religion ? Qui est ce Prophète ?'. Ce n'est pas la mémoire qui répond, c'est la foi du cœur." },
+                    { t: "La fenêtre de l'Éternité", c: "Si les réponses sont bonnes, la tombe s'élargit à perte de vue et s'illumine. Une fenêtre s'ouvre sur le Paradis, apportant sa brise et son parfum. Le croyant dira : 'Seigneur, hâte l'Heure !'. Pour l'hypocrite, la tombe se resserre jusqu'à lui briser les côtes, et une fenêtre s'ouvre sur les flammes de l'Enfer." }
+                ],
+                lessons: ["Ce que tu aimes le plus sur terre sera ta réponse dans la tombe.", "La mort est le premier repos du croyant sincère.", "La tombe est soit un jardin du Paradis, soit une fosse de l'Enfer."],
+                verses: "Al-Mu'minun (99-100), Ibrahim (27)"
+            },
+            {
+                name: "Les Signes de la Fin", subtitle: "Achrat as-Sa'a", emoji: "⏳",
+                intro: "L'Heure est un secret absolu. Cependant, Allah nous a donné des signes (mineurs et majeurs) pour avertir l'humanité de l'approche du Jugement.",
+                chapters: [
+                    { t: "Les Signes Mineurs", c: "La majorité s'est déjà réalisée : le temps qui passe à une vitesse folle, les bergers nus et pauvres qui rivalisent dans la construction de gratte-ciels, la disparition de la confiance (l'honnêteté), et l'ignorance religieuse qui se banalise." },
+                    { t: "Le Faux Messie (Ad-Dajjal)", c: "La plus grande épreuve de l'histoire. Cet homme borgne parcourra la terre entière en 40 jours (sauf La Mecque et Médine). Il fera pleuvoir, redonnera vie à la terre et se fera passer pour Dieu. Seuls les croyants verront le mot 'Kafir' (Mécréant) écrit entre ses yeux." },
+                    { t: "Le Retour de 'Isa", c: "Le Prophète Jésus ('Isa) redescendra physiquement du ciel à Damas. Il tuera le Dajjal, brisera les fausses croyances et unira l'humanité sous l'Islam dans une période de paix et de prospérité absolue." },
+                    { t: "Le Soleil à l'Ouest", c: "C'est le signe qui ferme la porte du repentir. Le soleil se lèvera là où il se couche. Ensuite viendra une Bête parlante, puis un vent doux qui emportera l'âme de tous les croyants. L'Heure ne se lèvera que sur les pires humains restants." }
+                ],
+                lessons: ["La réalisation des signes prouve la véracité du Prophète ﷺ.", "Il faut se préparer avant le lever du soleil à l'Ouest.", "Apprendre la sourate Al-Kahf protège du Dajjal."],
+                verses: "Muhammad (18), Al-Anbiya (96-97)"
+            },
+            {
+                name: "Le Jour du Jugement", subtitle: "Le grand rassemblement", emoji: "⚖️",
+                intro: "Un jour qui durera 50 000 ans. Un jour de justice absolue où chaque atome de bien et de mal sera pesé sur une Balance infaillible.",
+                chapters: [
+                    { t: "Le Souffle de la Terreur", c: "L'Ange Israfil soufflera dans la Trompe. Le premier souffle foudroiera toutes les créatures. Le second souffle les ressuscitera. L'humanité sortira des tombes comme des sauterelles éparpillées." },
+                    { t: "Le Soleil et la Sueur", c: "Les milliards d'humains seront rassemblés nus, pieds nus et non circoncis. Le soleil sera rabaissé à un mille au-dessus des têtes. Les gens transpireront selon l'étendue de leurs péchés : certains jusqu'aux chevilles, d'autres jusqu'à la bouche." },
+                    { t: "L'Ombre du Trône", c: "Dans cette fournaise, sept catégories de personnes seront abritées sous l'Ombre du Trône d'Allah. Parmi elles : un jeune qui a grandi dans l'adoration, deux personnes qui s'aiment en Dieu, ou quelqu'un qui a pleuré de crainte d'Allah en cachette." },
+                    { t: "La Balance (Al-Mizan)", c: "Les actes seront pesés sur une Balance bien réelle, dont les plateaux pourraient contenir les cieux et la terre. La chose la plus lourde sur cette Balance sera l'attestation de foi 'La ilaha illallah', suivie du bon comportement (Husn al-Khuluq)." }
+                ],
+                lessons: ["Rien n'est oublié, pas même le poids d'une fourmi.", "Aimer en Dieu est un passeport pour l'Ombre du Trône.", "Le bon comportement peut te sauver ce Jour-là."],
+                verses: "Al-Zalzalah (7-8), Al-Qari'ah"
+            },
+            {
+                name: "Le Chemin et l'Enfer", subtitle: "As-Sirat et Jahannam", emoji: "🔥",
+                intro: "Une fois les actes pesés, le voyage vers l'Éternité commence. Mais pour atteindre le Paradis, il faut d'abord traverser le pont suspendu au-dessus des flammes.",
+                chapters: [
+                    { t: "Le Pont (As-Sirat)", c: "Le Sirat est jeté au-dessus de l'Enfer. Il est plongé dans les ténèbres absolues, plus fin qu'un cheveu et plus tranchant qu'une épée. Seule la lumière de tes propres bonnes actions t'éclairera. Certains le traverseront à la vitesse de l'éclair, d'autres comme un cheval au galop, d'autres en rampant avec difficulté. Et d'autres, happés par des crochets de feu, y chuteront." },
+                    { t: "Les 7 Portes de l'Enfer", c: "L'Enfer (Jahannam) est une créature dotée de rage. Il possède 7 portes, menant à 7 niveaux de profondeur (Jahannam, Laza, Al-Hutama, Sa'ir, Saqar, Jahim, et Hawiya). Plus on descend, plus le châtiment est terrible. Le niveau le plus bas est réservé aux hypocrites. Chaque porte accueillera une catégorie précise de pécheurs selon leurs fautes (les arrogants, les injustes, ceux qui négligeaient la prière)." },
+                    { t: "La purification temporelle", c: "Il y a une immense différence entre le mécréant et le musulman pécheur. Le croyant qui meurt sans s'être repenti de grands péchés pourra chuter dans l'Enfer, mais il n'y restera pas éternellement. Après avoir été purifié par le feu, il sera sauvé par l'intercession du Prophète ﷺ ou par la Miséricorde directe d'Allah, et lavé dans le Fleuve de la Vie avant d'entrer au Paradis." }
+                ],
+                lessons: ["Ton empressement à faire le bien sur terre détermine ta vitesse sur le Sirat.", "L'hypocrisie est pire que la mécréance ouverte.", "Garder la foi (Tawhid) est la seule garantie de ne pas rester éternellement en Enfer."],
+                verses: "Maryam (71-72), Al-Hijr (43-44)"
+            },
+            {
+                name: "Les Portes du Paradis", subtitle: "L'Arrivée à Al-Jannah", emoji: "🌌",
+                intro: "Après avoir franchi le Sirat, les croyants sont arrêtés sur un dernier petit pont (Al-Qantara) pour régler les dernières disputes entre eux. Puis, les portes de l'Éternité s'ouvrent.",
+                chapters: [
+                    { t: "Les 8 Portes du Paradis", c: "Le Paradis possède 8 portes majestueuses, si larges qu'un cavalier mettrait 40 ans à les traverser. Chaque porte appelle ceux qui ont excellé dans une adoration : 'Ar-Rayyan' (pour ceux qui jeûnent), 'As-Salat' (pour la prière), 'As-Sadaqa' (pour l'aumône), 'Al-Ayman' (pour ceux qui entrent sans jugement), etc. Les plus pieux (comme Abu Bakr) seront appelés par TOUTES les portes à la fois !" },
+                    { t: "L'accueil triomphal", c: "Quand les croyants arriveront, les Anges ouvriront les portes en disant : 'Salamun 'Alaykum ! (Paix sur vous). Vous avez été bons, entrez-y pour l'éternité !'. Il n'y aura plus de maladie, plus de tristesse, plus de jalousie, plus de vieillesse. Le cœur sera lavé de toute rancune." },
+                    { t: "Les Niveaux et Al-Firdaus", c: "Le Paradis comporte 100 niveaux. La distance entre deux niveaux est comme la distance entre la terre et le ciel. Le plus haut de tous est 'Al-Firdaus', dont le toit est le Trône d'Allah Lui-même. C'est de là que jaillissent les quatre fleuves du Paradis (eau pure, lait, vin non enivrant, et miel pur)." },
+                    { t: "La vision de Dieu", c: "Les palais de perles, les vêtements de soie et les rivières ne sont rien comparés à la récompense ultime. Un jour, une voix céleste appellera les habitants du Paradis. Les voiles de lumière se lèveront, et ils verront le Visage d'Allah. Le Prophète ﷺ a dit qu'aucune joie, aucun délice ne sera jamais supérieur au bonheur de regarder son Créateur." }
+                ],
+                lessons: ["Concentre-toi sur une bonne action pour espérer être appelé par sa Porte.", "Le Paradis ne s'achète pas avec les actes, mais avec la Miséricorde de Dieu.", "La vision d'Allah est le but ultime de l'âme humaine."],
+                verses: "Az-Zumar (73-74), Ar-Rahman, Al-Mutaffifin (18-28)"
+            }
         ];
 
-        // ============ STATE & UTILS ============
-        let sessionState = null;
-        let timerInterval = null;
-        let elapsedTime = 0;
-        let activeLetterIdx = 0;
-        let allahSearchFilter = '';
-
-        function showToast(msg) {
-            const t = document.createElement('div');
-            t.className = 'toast-anim fixed top-6 left-1/2 -translate-x-1/2 bg-white text-rose-600 px-6 py-3 rounded-2xl text-xs font-bold z-[999] shadow-xl border border-rose-200';
-            t.innerText = msg;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
+        // Fonctions pour gérer le nouvel onglet
+        function renderGhaybList() {
+            const grid = document.getElementById('ghayb-grid');
+            grid.innerHTML = GHAYB.map((g, i) => `
+                <button onclick="window.showGhaybDetail(${i})" class="card p-5 text-left active:scale-95 transition-all bg-gradient-to-br from-white to-stone-50">
+                    <span class="text-4xl block mb-3">${g.emoji}</span>
+                    <p class="font-black text-base text-stone-800">${g.name}</p>
+                    <p class="text-[10px] text-stone-500 mt-1 uppercase tracking-widest font-bold">${g.subtitle}</p>
+                </button>
+            `).join('');
+            document.getElementById('ghayb-list-view').classList.remove('hidden');
+            document.getElementById('ghayb-detail').classList.add('hidden');
         }
-        window.showToast = showToast;
 
-        const TABS = ['home','train','arabic','prophets','allah','foundations','duas'];
+        window.showGhaybDetail = (i) => {
+            const g = GHAYB[i];
+            if(!g) return;
+            document.getElementById('g-emoji').innerText = g.emoji;
+            document.getElementById('g-name').innerText = g.name;
+            document.getElementById('g-sub').innerText = g.subtitle;
+            
+            let content = `<div class="mb-8 p-6 bg-slate-50 rounded-2xl border-l-4 border-slate-300 italic text-slate-700 leading-relaxed text-lg shadow-sm">"${g.intro}"</div>`;
+            
+            g.chapters.forEach((ch, idx) => {
+                content += `
+                <div class="mb-10 fade-up" style="animation-delay: ${idx * 0.1}s">
+                    <h4 class="flex items-center gap-3 text-slate-500 font-black text-[10px] uppercase tracking-[0.2em] mb-4">
+                        <span class="flex-1 h-[1px] bg-slate-200"></span> ÉTAPE ${idx + 1} : ${ch.t} <span class="flex-1 h-[1px] bg-slate-200"></span>
+                    </h4>
+                    <p class="text-stone-600 text-base leading-relaxed text-justify font-normal">${ch.c}</p>
+                </div>`;
+            });
+
+            content += `
+            <div class="mt-12 p-6 bg-gradient-to-br from-slate-50 to-indigo-50 rounded-[30px] border border-slate-100 shadow-sm">
+                <h4 class="text-slate-600 font-black text-xs uppercase mb-4 flex items-center gap-2">💡 À retenir</h4>
+                <ul class="space-y-4">
+                    ${g.lessons.map(l => `<li class="text-xs text-stone-700 flex gap-3"><span class="w-1.5 h-1.5 mt-1 bg-slate-400 rounded-full flex-shrink-0"></span><span>${l}</span></li>`).join('')}
+                </ul>
+            </div>
+            <div class="mt-8 text-center pb-10">
+                <p class="text-[9px] text-stone-400 uppercase font-bold mb-2">Preuves Coraniques</p>
+                <p class="text-xs text-slate-400 font-medium">${g.verses}</p>
+            </div>`;
+
+            document.getElementById('g-story-container').innerHTML = content;
+            document.getElementById('ghayb-list-view').classList.add('hidden');
+            document.getElementById('ghayb-detail').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.backToGhaybList = () => {
+            document.getElementById('ghayb-detail').classList.add('hidden');
+            document.getElementById('ghayb-list-view').classList.remove('hidden');
+            window.scrollTo(0,0);
+        };
+
+        // ============ GESTION DES ONGLETS (LE CERVEAU) ============
         window.showTab = (tab) => {
+            const TABS = ['home','train','ghayb','prophets','allah','foundations','duas'];
+            
             TABS.forEach(t => {
                 document.getElementById('tab-'+t)?.classList.add('hidden');
                 document.getElementById('nav-'+t)?.classList.remove('active-nav');
             });
+            
             document.getElementById('tab-'+tab)?.classList.remove('hidden');
             document.getElementById('nav-'+tab)?.classList.add('active-nav');
             window.scrollTo(0,0);
             
-            if (tab === 'home') renderHome();
-            if (tab === 'arabic') renderArabicTab();
-            if (tab === 'prophets') renderProphets();
-            if (tab === 'allah') renderAllahNames();
-            if (tab === 'foundations') showFoundSection('histoire');
-            if (tab === 'duas') renderDuas();
+            if (tab === 'home' && typeof renderHome === 'function') renderHome();
+            if (tab === 'ghayb' && typeof renderGhaybList === 'function') renderGhaybList();
+            
+            if (tab === 'prophets') {
+                if (typeof renderProphets === 'function') renderProphets();
+                else if (typeof renderProphetsList === 'function') renderProphetsList();
+            }
+            
+            if (tab === 'allah' && typeof renderAllahNames === 'function') renderAllahNames();
+            if (tab === 'foundations' && typeof showFoundSection === 'function') showFoundSection('histoire');
+            if (tab === 'duas' && typeof renderDuas === 'function') window.renderDuas();
+            
             if (tab === 'train') { 
-                document.getElementById('surah-selector').classList.remove('hidden'); 
-                document.getElementById('session-view').classList.add('hidden'); 
-                document.getElementById('result-view').classList.add('hidden');
-                renderTrainSelector();
+                document.getElementById('surah-selector')?.classList.remove('hidden'); 
+                document.getElementById('session-view')?.classList.add('hidden'); 
+                document.getElementById('result-view')?.classList.add('hidden');
+                if (typeof renderTrainSelector === 'function') renderTrainSelector();
             }
         };
-
         // ============ HOME ============
         function renderHome() {
             const today = new Date().toISOString().split('T')[0];
@@ -687,60 +1080,67 @@
             renderHome();
             sessionState = null;
         };
-        // ============ ARABIC TAB ============
-        function renderArabicTab() {
-            const grid = document.getElementById('letters-grid');
-            if (grid && grid.children.length === 0) {
-                grid.innerHTML = ARABIC_LETTERS.map((l,i) => `<button class="letter-btn${i===0?' active-letter':''}" onclick="window.showLetter(${i})">
-                    <p class="amiri text-2xl text-rose-600">${l.l}</p>
-                    <p class="text-[10px] text-stone-500 mt-1 font-semibold">${l.n}</p>
-                </button>`).join('');
-                showLetter(0);
-            }
-        }
-
-        window.showLetter = (i) => {
-            activeLetterIdx = i;
-            const l = ARABIC_LETTERS[i];
-            document.getElementById('letter-display').innerText = l.l;
-            document.getElementById('letter-name').innerText = l.n;
-            document.getElementById('letter-sound').innerText = 'Son : '+l.s;
-            document.getElementById('letter-example').innerText = l.ex;
-            document.querySelectorAll('.letter-btn').forEach((b,j) => b.classList.toggle('active-letter', j===i));
-        };
-
-        window.speakLetter = () => {
-            window.playArabicAudio(ARABIC_LETTERS[activeLetterIdx].l);
-        };
-
+        
         // ============ PROPHETS TAB ============
         function renderProphets() {
             const list = document.getElementById('prophets-grid');
-            if (list.children.length === 0) {
-                list.innerHTML = PROPHETS.map((p,i) => `
-                    <button onclick="window.showProphet(${i})" class="card p-4 text-left active:scale-95 transition-all">
-                        <span class="text-2xl block mb-2">${p.emoji}</span>
-                        <p class="font-bold text-sm text-stone-800">${p.name}</p>
-                        <p class="text-[10px] text-stone-500 mt-0.5">${p.subtitle}</p>
-                    </button>
-                `).join('');
-            }
+            list.innerHTML = PROPHETS.map((p, i) => `
+                <button onclick="window.showProphet(${i})" class="card p-4 text-left active:scale-95 transition-all">
+                    <span class="text-3xl block mb-2">${p.emoji}</span>
+                    <p class="font-bold text-sm text-stone-800">${p.name}</p>
+                    <p class="text-[10px] text-stone-500 mt-0.5 uppercase tracking-tighter">${p.subtitle}</p>
+                </button>
+            `).join('');
         }
 
         window.showProphet = (i) => {
             const p = PROPHETS[i];
+            if(!p) return;
+            
             document.getElementById('prophet-emoji').innerText = p.emoji;
             document.getElementById('prophet-name-big').innerText = p.name;
             document.getElementById('prophet-sub').innerText = p.subtitle;
-            document.getElementById('prophet-story').innerText = p.story;
+            
+            // On prépare le long texte avec une mise en page "Livre"
+            let html = `
+                <div class="mb-8 p-5 bg-stone-50 rounded-2xl border-l-4 border-rose-300 italic text-stone-700 leading-relaxed text-base">
+                    "${p.intro}"
+                </div>
+            `;
+            
+            p.chapters.forEach((ch, idx) => {
+                html += `
+                <div class="mb-10">
+                    <h4 class="flex items-center gap-3 text-rose-500 font-black text-[10px] uppercase tracking-[0.2em] mb-4">
+                        <span class="w-6 h-[1px] bg-rose-200"></span> PARTIE ${idx + 1} : ${ch.t}
+                    </h4>
+                    <p class="text-stone-600 text-base leading-[1.8] text-justify font-normal">${ch.c}</p>
+                </div>`;
+            });
+
+            html += `
+            <div class="mt-12 p-6 bg-gradient-to-br from-rose-50 to-orange-50 rounded-[30px] border border-rose-100 shadow-sm">
+                <h4 class="text-rose-600 font-black text-xs uppercase mb-4 flex items-center gap-2">💡 Sagesses à retenir</h4>
+                <ul class="space-y-3">
+                    ${p.lessons.map(l => `<li class="text-sm text-stone-700 flex gap-3"><span class="w-1.5 h-1.5 mt-1.5 bg-rose-400 rounded-full flex-shrink-0"></span>${l}</li>`).join('')}
+                </ul>
+            </div>
+            <div class="mt-8 text-center pb-10">
+                <p class="text-[9px] text-stone-400 uppercase font-bold mb-2">Sources Coraniques</p>
+                <p class="text-xs text-rose-400 font-medium">${p.verses}</p>
+            </div>`;
+
+            document.getElementById('prophet-story').innerHTML = html;
             document.getElementById('prophets-list-view').classList.add('hidden');
             document.getElementById('prophet-detail').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
         window.backToProphets = () => {
             document.getElementById('prophet-detail').classList.add('hidden');
             document.getElementById('prophets-list-view').classList.remove('hidden');
+            window.scrollTo(0,0);
         };
-
         // ============ ALLAH NAMES TAB ============
         function renderAllahNames() {
             const container = document.getElementById('allah-names-list');
@@ -778,7 +1178,7 @@
 
         // ============ FOUNDATIONS TAB ============
         window.showFoundSection = (section) => {
-            ['pratique','foi','histoire','coeur','ramadan'].forEach(s => {
+            ['foi','histoire','sira','coeur','ramadan'].forEach(s => {
                 document.getElementById('fsection-' + s)?.classList.toggle('hidden', s !== section);
                 const btn = document.getElementById('fsec-' + s);
                 if (btn) {
@@ -790,7 +1190,6 @@
                 }
             });
         };
-
         // ============ DUAS TAB ============
         window.renderDuas = () => {
             document.getElementById('personal-duas-list').innerHTML = personalDuas.length > 0
@@ -946,51 +1345,47 @@
     </div>
 </div>
 
-<div id="tab-arabic" class="hidden px-4 pb-nav">
-    <header class="pt-12 pb-5">
-        <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Arabe 🔤</h1>
-        <p class="text-stone-400 text-sm mt-1">Lettres et voyelles</p>
-    </header>
-
-    <div class="card p-6 mb-4 text-center">
-        <p class="amiri text-7xl text-rose-500 mb-3" id="letter-display">ا</p>
-        <p class="playfair text-xl font-bold" style="color:#3D2B2B" id="letter-name">Alif</p>
-        <p class="text-sm text-stone-400 mt-1" id="letter-sound">Son : â / a</p>
-        <p class="text-xs text-stone-400 mt-1" id="letter-example">أَلَم (Alam)</p>
-        <button onclick="window.speakLetter()" class="mt-4 rose-btn px-6 py-2.5 text-sm inline-flex items-center gap-2 active:scale-95 transition-all">
-            <i data-lucide="volume-2" class="w-4 h-4"></i> Écouter
-        </button>
+<div id="tab-ghayb" class="hidden px-4 pt-12 pb-nav">
+    <div id="ghayb-list-view">
+        <header class="mb-8">
+            <h1 class="playfair text-3xl font-bold text-stone-800">L'Invisible</h1>
+            <p class="text-stone-400 text-xs mt-1 font-black uppercase tracking-widest">Le destin de l'âme 🌌</p>
+        </header>
+        <div class="grid grid-cols-1 gap-4" id="ghayb-grid"></div>
     </div>
-
-    <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Les 28 lettres</p>
-    <div class="grid grid-cols-4 gap-2 mb-6" id="letters-grid"></div>
-
-    <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3">Les voyelles (Harakat)</p>
-    <div class="grid grid-cols-2 gap-3">
-        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بَ</p><p class="font-bold text-sm mt-1">Fatha</p><p class="text-xs text-stone-400">son "a" court</p></div>
-        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بِ</p><p class="font-bold text-sm mt-1">Kasra</p><p class="text-xs text-stone-400">son "i" court</p></div>
-        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بُ</p><p class="font-bold text-sm mt-1">Damma</p><p class="text-xs text-stone-400">son "ou" court</p></div>
-        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بْ</p><p class="font-bold text-sm mt-1">Sukûn</p><p class="text-xs text-stone-400">pas de voyelle</p></div>
-        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بّ</p><p class="font-bold text-sm mt-1">Shadda</p><p class="text-xs text-stone-400">lettre doublée</p></div>
-        <div class="card p-4 text-center"><p class="amiri text-3xl text-purple-400">بً</p><p class="font-bold text-sm mt-1">Tanwîn</p><p class="text-xs text-stone-400">terminaison -an/-in/-un</p></div>
+    <div id="ghayb-detail" class="hidden">
+        <button onclick="window.backToGhaybList()" class="mb-6 text-slate-500 font-black text-[10px] uppercase tracking-widest flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-3 h-3"></i> Retour
+        </button>
+        <div class="mb-8 text-center">
+            <span id="g-emoji" class="text-6xl block mb-3"></span>
+            <h2 id="g-name" class="playfair text-4xl font-bold text-stone-800"></h2>
+            <p id="g-sub" class="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] mt-2"></p>
+        </div>
+        <div id="g-story-container"></div>
     </div>
 </div>
 
 <div id="tab-prophets" class="hidden px-4 pb-nav">
     <div id="prophets-list-view">
-        <header class="pt-12 pb-5"><h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1><p class="text-stone-400 text-sm mt-1">Leurs 25 histoires</p></header>
+        <header class="pt-12 pb-5">
+            <h1 class="playfair text-3xl font-bold" style="color:#3D2B2B">Prophètes ﷺ</h1>
+            <p class="text-stone-400 text-sm mt-1">1 Histoire par jour pour s'élever 🌸</p>
+        </header>
         <div class="grid grid-cols-2 gap-3" id="prophets-grid"></div>
     </div>
     <div id="prophet-detail" class="hidden pb-4">
-        <button onclick="window.backToProphets()" class="flex items-center gap-2 text-rose-500 font-bold text-sm pt-10 mb-5">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour
+        <button onclick="window.backToProphets()" class="flex items-center gap-2 text-rose-500 font-bold text-xs pt-10 mb-6 uppercase tracking-widest">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour à la liste
         </button>
-        <div class="card p-6 mb-4">
-            <p class="text-5xl mb-3" id="prophet-emoji"></p>
-            <h2 class="playfair text-2xl font-bold" style="color:#3D2B2B" id="prophet-name-big"></h2>
-            <p class="text-rose-400 text-sm font-medium mt-1" id="prophet-sub"></p>
+        
+        <div class="mb-8">
+            <p class="text-6xl mb-3" id="prophet-emoji"></p>
+            <h2 class="playfair text-4xl font-bold text-stone-800" id="prophet-name-big"></h2>
+            <p class="text-rose-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2" id="prophet-sub"></p>
         </div>
-        <div class="card p-6"><p class="text-stone-600 text-sm leading-relaxed whitespace-pre-wrap" id="prophet-story"></p></div>
+
+        <div id="prophet-story" class="fade-up text-stone-600"></div>
     </div>
 </div>
 
@@ -1020,37 +1415,173 @@
     </header>
 
     <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-4">
-        <button onclick="window.showFoundSection('histoire')" id="fsec-histoire" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-rose-400 text-white">L'Histoire & Héroïnes</button>
+        <button onclick="window.showFoundSection('histoire')" id="fsec-histoire" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-rose-400 text-white">Héroïnes</button>
+        <button onclick="window.showFoundSection('sira')" id="fsec-sira" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-white border text-stone-500">La Sira ﷺ</button>
         <button onclick="window.showFoundSection('coeur')" id="fsec-coeur" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-white border text-stone-500">Cœur & Foi</button>
         <button onclick="window.showFoundSection('ramadan')" id="fsec-ramadan" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-white border text-stone-500">Ramadan</button>
-        <button onclick="window.showFoundSection('pratique')" id="fsec-pratique" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-white border text-stone-500">Pratique</button>
+        
         <button onclick="window.showFoundSection('foi')" id="fsec-foi" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all bg-white border text-stone-500">Dogme</button>
     </div>
 
+    <div id="fsection-sira" class="hidden space-y-4">
+        <div class="card p-5 bg-sky-50 border-sky-200">
+            <h3 class="font-black text-sky-600 mb-2 flex items-center gap-2"><span class="text-xl">🌙</span> La Vie du Prophète ﷺ</h3>
+            <p class="text-sm text-stone-600 mb-4">La "Sira", c'est la biographie du dernier Messager. Un homme orphelin devenu le guide de milliards d'âmes. Voici les grandes étapes de sa vie.</p>
+            <div class="space-y-3">
+                
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">1. L'Orphelin (570 - 595) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Muhammad ﷺ naît à La Mecque en 570 (L'Année de l'Éléphant). Son père, 'Abdullah, meurt avant sa naissance. À l'âge de 6 ans, sa mère Amina meurt à son tour. C'est son grand-père, puis son oncle Abu Talib qui l'élèveront.</p>
+                        <p>Il devient berger, puis commerçant. Il ne sait ni lire ni écrire, mais il est tellement droit et fuyant les vices de son époque qu'on le surnomme <b>Al-Amin</b> (Le Digne de confiance). À 25 ans, il épouse Khadija, une noble veuve de 40 ans, impressionnée par son caractère.</p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">2. La Révélation (610) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">À l'approche de la quarantaine, dégoûté par les idoles, il s'isole souvent dans la grotte de Hira pour méditer. Une nuit de Ramadan, l'Ange Jibril (Gabriel) apparaît et l'étreint très fort en disant : <b>"Iqra !" (Lis !)</b>.</p>
+                        <p>Il répond "Je ne sais pas lire". L'Ange répète, et les 5 premiers versets de la sourate Al-'Alaq descendent. C'est le début d'une Révélation (le Coran) qui durera 23 ans : 13 ans à La Mecque, 10 ans à Médine.</p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">3. L'Épreuve de La Mecque (610 - 622) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Quand il commence à prêcher qu'il n'y a qu'Un Seul Dieu et que les esclaves valent autant que les maîtres, les chefs de La Mecque (les Quraysh) se retournent contre lui. Les premiers musulmans (souvent pauvres ou esclaves comme Bilal) sont torturés.</p>
+                        <p>Le Prophète ﷺ subit des insultes, on jette des ordures sur lui, on le boycotte pendant 3 ans au point où les musulmans devaient manger des feuilles d'arbres pour survivre. Malgré tout, il refuse d'abandonner : <i>"Même si vous placiez le soleil dans ma main droite et la lune dans ma gauche, je n'abandonnerais pas cette mission"</i>.</p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">4. L'Hégire & Médine (622) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Face aux tentatives d'assassinat, Allah autorise les musulmans à émigrer. Le Prophète ﷺ et son meilleur ami Abu Bakr quittent La Mecque en secret pour la ville de Yathrib, rebaptisée <b>Al-Madinah</b> (La Ville).</p>
+                        <p>C'est l'Hégire (qui marque le début du calendrier musulman). À Médine, le Prophète ﷺ devient un chef d'État. Il construit la première mosquée, rédige une constitution garantissant les droits des Juifs et des Musulmans, et instaure une fraternité sans précédent entre les tribus.</p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">5. Les Batailles Décisives <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Les Mecquois n'ont pas abandonné et viennent attaquer Médine. Le Prophète ﷺ doit défendre son peuple :</p>
+                        <ul class="list-disc pl-4 space-y-1 mb-2">
+                            <li><b>Badr :</b> 313 musulmans gagnent miraculeusement contre 1000 Mecquois.</li>
+                            <li><b>Uhud :</b> Une défaite cuisante pour les musulmans à cause de la désobéissance des archers, où le Prophète fut blessé au visage.</li>
+                            <li><b>Le Fossé (Khandaq) :</b> 10 000 ennemis assiègent Médine, mais les musulmans creusent une tranchée sur les conseils de Salman le Perse et repoussent l'attaque.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">6. L'Ouverture de La Mecque (630) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Après la violation d'un traité de paix par les Quraysh, le Prophète ﷺ revient à La Mecque avec une armée de 10 000 hommes. Il entre dans sa ville natale la tête baissée par humilité sur son chameau, récitant le Coran.</p>
+                        <p>Les Mecquois, ceux-là mêmes qui l'avaient torturé et chassé, s'attendent à un massacre. Le Prophète ﷺ leur demande : "Que pensez-vous que je vais faire de vous ?". Ils répondent : "Tu es un frère noble !". Il leur dit alors cette phrase immense : <b>"Partez, vous êtes libres."</b> Il brise les 360 idoles de la Ka'ba sans verser de sang.</p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">7. Le Pèlerinage d'Adieu & Le Décès (632) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">À 63 ans, il accomplit son seul Hajj. Devant 100 000 compagnons, il prononce un discours historique sur les droits de l'homme, les droits des femmes, et l'égalité parfaite entre blancs et noirs. Le verset descend : <i>"Aujourd'hui, J'ai parachevé pour vous votre religion"</i>.</p>
+                        <p>De retour à Médine, il tombe gravement malade. Il demande à prier chez Aisha (ra). Incapable de se lever, il demande à Abu Bakr de diriger la prière. Le lundi 12 Rabi' al-Awwal de l'an 11 (632 ap. J-C), il rend l'âme en regardant le plafond, ses derniers mots étant : <b>"Seigneur... avec les Compagnons Suprêmes"</b>.</p>
+                    </div>
+                </details>
+
+            </div>
+        </div>
+    </div>
+
     <div id="fsection-histoire" class="space-y-4">
+        
         <div class="card p-5 bg-rose-50 border-rose-200">
             <h3 class="font-black text-rose-600 mb-2 flex items-center gap-2"><span class="text-xl">🌸</span> Les Grandes Femmes de l'Islam</h3>
             <p class="text-sm text-stone-600 mb-4">L'Islam n'aurait pas pu exister sans le courage, l'intelligence et la foi inébranlable des femmes. Voici tes vrais modèles.</p>
             <div class="space-y-3">
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Khadija bint Khuwaylid (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La première épouse du Prophète ﷺ. Elle était une riche femme d'affaires mecquoise. Quand le Prophète ﷺ a reçu la première révélation, il était terrifié. C'est elle qui l'a rassuré, qui a cru en lui la première, et qui a financé l'Islam naissant. <b>Leçon : L'indépendance, le soutien émotionnel et l'intelligence.</b></div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Khadija bint Khuwaylid (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">La première épouse du Prophète ﷺ. C'était une femme d'affaires mecquoise puissante, indépendante et respectée. C'est elle qui, touchée par l'honnêteté absolue de Muhammad ﷺ, l'a demandé en mariage (elle avait 40 ans, lui 25).</p>
+                        <p class="mb-2">Quand il a reçu la première révélation dans la grotte de Hira, il est rentré terrifié en tremblant et en disant "Couvrez-moi !". Khadija ne l'a pas pris pour un fou. Elle l'a réconforté avec des mots qui sont entrés dans l'histoire : <i>"Par Allah, Dieu ne te déshonorera jamais, car tu unis les liens de parenté, tu aides les faibles et tu donnes à l'hospitalité."</i></p>
+                        <p>Elle a été la toute première personne au monde à embrasser l'Islam. Elle a dépensé toute sa fortune pour protéger les premiers musulmans. Sa mort a causé au Prophète ﷺ une telle peine que cette année fut nommée "L'Année de la Tristesse".</p>
+                        <p class="mt-2 text-rose-600"><b>💡 Leçon :</b> L'indépendance, la loyauté absolue et l'intelligence émotionnelle dans le couple.</p>
+                    </div>
                 </details>
+
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Aisha bint Abi Bakr (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">L'une des plus grandes savantes de l'histoire islamique. Elle a transmis plus de 2000 hadiths. Les plus grands compagnons (hommes) venaient lui demander des avis juridiques (fatwas). Elle maîtrisait la médecine, la poésie et la religion. <b>Leçon : La quête du savoir n'a pas de genre.</b></div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Aisha bint Abi Bakr (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">L'épouse bien-aimée du Prophète ﷺ après Khadija. C'est l'une des plus grandes savantes de toute l'histoire islamique. Douée d'une mémoire photographique, elle a mémorisé et transmis plus de 2200 hadiths (paroles et faits du Prophète).</p>
+                        <p class="mb-2">Après la mort du Prophète ﷺ, les plus grands et les plus âgés des compagnons hommes venaient frapper à sa porte pour lui demander des avis juridiques (fatwas) et des explications sur le Coran. Elle maîtrisait la religion, mais aussi la médecine et la poésie.</p>
+                        <p>Un jour, elle fut accusée de tromperie à tort par des calomniateurs. Au lieu de se justifier sans fin, elle a placé sa confiance en Dieu, et Allah a fait descendre des versets du Coran (Sourate An-Nur) spécialement pour laver son honneur depuis les sept cieux !</p>
+                        <p class="mt-2 text-rose-600"><b>💡 Leçon :</b> La quête du savoir n'a pas de genre, et Allah défend toujours les cœurs purs.</p>
+                    </div>
                 </details>
+
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Fatima az-Zahra (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La fille bien-aimée du Prophète ﷺ. Elle a subi la pauvreté, la faim et la persécution à La Mecque. Quand les païens ont jeté des ordures sur son père en prière, c'est elle, encore enfant, qui est allée les retirer en pleurant. Elle est la "reine des femmes du Paradis". <b>Leçon : La patience, la noblesse de caractère face à l'épreuve.</b></div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Fatima az-Zahra (ra) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">La fille benjamine du Prophète ﷺ et de Khadija. Elle a vécu les pires années de persécution. Quand les païens ont jeté des entrailles sanglantes de chameau sur le dos de son père pendant qu'il priait près de la Ka'ba, c'est elle, encore petite fille, qui a couru les enlever en pleurant.</p>
+                        <p class="mb-2">Elle prenait tellement soin de son père qu'on la surnommait <i>"Oum Abiha"</i> (la mère de son père). Elle a épousé Ali et a vécu dans une grande pauvreté, s'abîmant les mains à moudre le grain. Un jour, très fatiguée, elle a demandé une servante au Prophète ﷺ. Il a refusé et lui a appris à dire "SubhanAllah, Alhamdulillah, Allahu Akbar" 33 fois avant de dormir, lui disant que cette invocation était meilleure pour elle que tout le reste.</p>
+                        <p>Le Prophète ﷺ a dit : "Fatima est une partie de moi" et l'a désignée comme "la reine des femmes du Paradis".</p>
+                        <p class="mt-2 text-rose-600"><b>💡 Leçon :</b> La dignité dans la pauvreté et l'amour inconditionnel pour ses parents.</p>
+                    </div>
                 </details>
+
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Maryam (Vierge Marie) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La seule femme citée nommément dans le Coran, et toute une sourate porte son nom. Accusée à tort par sa communauté alors qu'elle venait d'enfanter Issa (Jésus) seule sous un palmier, elle a gardé le silence et a laissé Allah la défendre. <b>Leçon : La dévotion pure et la confiance absolue quand tout le monde est contre toi.</b></div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Maryam (Vierge Marie) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Elle est la seule femme citée par son prénom dans le Coran, et toute une sourate porte son nom (Sourate 19). Sa mère l'avait vouée au service de la religion dès le ventre. Élevée dans le temple, elle atteignit un tel niveau de prière que les Anges lui apportaient des fruits d'été en plein hiver.</p>
+                        <p class="mb-2">Quand l'Ange Jibril lui annonça qu'elle aurait un enfant (Jésus / 'Isa) par miracle de Dieu, sans qu'aucun homme ne l'ait touchée, elle fut terrifiée du jugement des gens. Lors de l'accouchement, isolée dans le désert, elle pleura de douleur et de honte sous un palmier mort. Allah fit couler une source d'eau à ses pieds et refleurir l'arbre pour la réconforter.</p>
+                        <p>À son retour en ville avec le bébé, face aux insultes de la foule qui l'accusait d'adultère, elle garda le silence sur ordre divin et pointa son fils du doigt. C'est le bébé qui a parlé depuis son berceau pour prouver la chasteté parfaite de sa mère.</p>
+                        <p class="mt-2 text-rose-600"><b>💡 Leçon :</b> Quand le monde t'accuse à tort, remets-en toi à Allah. Il sera ton meilleur avocat.</p>
+                    </div>
                 </details>
+
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Asiya bint Muzahim <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">La femme de Pharaon. Elle vivait dans le plus beau des palais avec l'homme le plus puissant (et tyran) de la terre. Pourtant, elle a secrètement cru en Allah par le message de Mûsâ (Moïse). Elle a préféré la torture et la mort à la mécréance dorée. <b>Leçon : Ne jamais vendre sa foi pour le confort de ce monde.</b></div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Asiya bint Muzahim <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">L'épouse du pire tyran de l'histoire humaine : Pharaon. Elle vivait dans l'or, les bijoux et le plus beau palais d'Égypte. C'est elle qui a trouvé le bébé Mûsâ (Moïse) dérivant sur le Nil et qui a convaincu son mari tyrannique de le garder, sauvant ainsi le futur Prophète.</p>
+                        <p class="mb-2">Des années plus tard, touchée par le message de Mûsâ, elle est devenue musulmane en secret. Quand Pharaon l'a découvert, son ego fut blessé à mort. Il l'a attachée à des pieux sous le soleil brûlant pour la torturer et la forcer à renier son Créateur.</p>
+                        <p>Au milieu de ses souffrances, elle n'a pas pleuré la perte de son confort royal, elle a regardé le ciel et a fait cette magnifique invocation coranique : <i>"Seigneur, construis-moi auprès de Toi une maison dans le Paradis, et sauve-moi de Pharaon et de son œuvre."</i> Allah a levé les voiles du ciel pour lui montrer sa future maison, et elle est morte en souriant.</p>
+                        <p class="mt-2 text-rose-600"><b>💡 Leçon :</b> Tout le luxe du monde ne vaut rien sans la foi. La vraie royauté est celle du cœur.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <div class="card p-5 bg-indigo-50 border-indigo-200">
+            <h3 class="font-black text-indigo-600 mb-2 flex items-center gap-2"><span class="text-xl">🌌</span> Le Voyage Nocturne (Isra & Mi'raj)</h3>
+            <p class="text-sm text-stone-600 mb-4">L'un des miracles les plus poétiques de l'Islam. C'est un cadeau de réconfort donné au Prophète ﷺ après une période de deuil immense.</p>
+            <div class="space-y-3">
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Le contexte : L'Année de la Tristesse <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        En l'an 619, le Prophète ﷺ perdit les deux personnes qui le protégeaient le plus : sa femme bien-aimée Khadija (son soutien émotionnel) et son oncle Abu Talib (son protecteur face aux ennemis). Totalement isolé, il marcha jusqu'à la ville de Ta'if pour demander du secours. Mais les habitants le chassèrent en lui jetant des pierres jusqu'à ce que ses chaussures soient pleines de sang. Épuisé et le cœur brisé, il pria Allah. En réponse à sa douleur, Allah décida de l'inviter physiquement auprès de Lui dans les Cieux pour le consoler.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Al-Isra (Le voyage de nuit) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        Une nuit, l'Ange Jibril (Gabriel) vint réveiller le Prophète ﷺ à La Mecque. Il lui présenta une monture céleste mystique appelée <b>Al-Buraq</b> (qui se déplace si vite qu'elle pose son sabot là où s'arrête son regard). Le Prophète ﷺ voyagea de La Mecque jusqu'à Jérusalem (la mosquée Al-Aqsa) en un instant. Là, un miracle immense l'attendait : Allah avait réuni les âmes de <b>tous les Prophètes</b> depuis Adam, et Muhammad ﷺ les dirigea tous lors d'une prière en groupe !
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Al-Mi'raj (L'Ascension aux Cieux) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        Depuis Jérusalem, l'ascension à travers les sept Cieux commença. À chaque porte du ciel, les Anges demandaient : "A-t-il été appelé ?". Puis ils ouvraient. À chaque niveau, il rencontrait d'anciens Prophètes qui le saluaient chaleureusement : <i>"Bienvenue au frère vertueux et au Prophète pieux !"</i>. Il vit Adam, puis Yahya (Jean-Baptiste) et 'Isa (Jésus), puis Yusuf (Joseph, à qui Allah avait donné la moitié de la beauté de l'humanité), puis Idris, Harun, Mûsâ (Moïse), et enfin au septième ciel, Ibrahim (Abraham), sereinement adossé au Temple Céleste.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">La limite ultime et le cadeau <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">Le voyage continua jusqu'au <b>Sidrat al-Muntaha</b> (le Jujubier de la limite ultime). C'est la frontière finale de l'univers, là où même l'immense Ange Jibril doit s'arrêter car sa lumière serait brûlée par la majesté divine. Le Prophète Muhammad ﷺ, lui, eut la permission de passer cette limite seul.</p>
+                        <p>Il parla directement avec Allah (sans voir Son visage). C'est là, dans cette intimité absolue, qu'Allah lui offrit le plus grand des cadeaux pour sa communauté : <b>Les 5 prières quotidiennes</b> (qui devaient être 50 au départ, mais qui furent réduites à 5 grâce aux conseils de Moïse lors de la descente). Ainsi, chaque fois que tu pries, tu te connectes directement au cadeau rapporté des plus hauts cieux !</p>
+                    </div>
                 </details>
             </div>
         </div>
@@ -1060,16 +1591,16 @@
             <p class="text-sm text-stone-600 mb-4">Connaître ton histoire, c'est savoir d'où tu viens.</p>
             <div class="space-y-3">
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">La période Mecquoise (Foi et Résilience) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">Pendant 13 ans, les musulmans ont été torturés, moqués et boycottés. Pas de combats, pas de lois complexes. Seulement une mission : forger le cœur sur le *Tawhid* (l'Unicité). Le Coran révélé à cette époque parle surtout du Paradis, de l'Enfer et des anciens prophètes pour rassurer.</div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">La période Mecquoise (Foi et Résilience) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">Pendant 13 ans, les musulmans ont été torturés, moqués et boycottés. Pas de combats, pas de lois complexes. Seulement une mission : forger le cœur sur le *Tawhid* (l'Unicité). Le Coran révélé à cette époque parle surtout du Paradis, de l'Enfer et des anciens prophètes pour rassurer.</div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">La période Médinoise (La Société) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">Après l'Hégire (migration) vers Médine en 622, l'Islam devient un État. Les règles de la prière, du jeûne, du commerce et du mariage sont révélées. Les *Ansars* (habitants de Médine) partagent littéralement la moitié de leurs richesses avec les *Muhajirun* (réfugiés de La Mecque). C'est la naissance de l'Oumma (communauté).</div>
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">La période Médinoise (La Société) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">Après l'Hégire (migration) vers Médine en 622, l'Islam devient un État. Les règles de la prière, du jeûne, du commerce et du mariage sont révélées. Les *Ansars* (habitants de Médine) partagent littéralement la moitié de leurs richesses avec les *Muhajirun* (réfugiés de La Mecque). C'est la naissance de l'Oumma (communauté).</div>
                 </details>
                 <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
-                    <summary class="font-bold text-stone-800 list-none flex justify-between">Les 4 Califes Bien Guidés <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary>
-                    <div class="mt-2 text-sm text-stone-600 leading-relaxed border-t pt-2">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Les 4 Califes Bien Guidés <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
                         Après la mort du Prophète ﷺ, quatre de ses plus proches amis ont dirigé la communauté :<br><br>
                         1. <b>Abou Bakr As-Siddiq</b> : Le Véridique, qui a maintenu l'unité de l'Islam à la mort du Prophète.<br>
                         2. <b>Omar Ibn Al-Khattab</b> : Le Juste, sous qui l'Islam s'est répandu de la Perse à l'Égypte.<br>
@@ -1080,7 +1611,6 @@
             </div>
         </div>
     </div>
-
     <div id="fsection-coeur" class="hidden space-y-4">
         <div class="card p-5 border-rose-300 shadow-sm">
             <h3 class="font-black text-rose-600 mb-2 flex items-center gap-2"><span class="text-xl">💔</span> Quand la foi baisse...</h3>
@@ -1136,22 +1666,73 @@
         </div>
     </div>
 
-    <div id="fsection-pratique" class="hidden space-y-3">
-        <details class="card overflow-hidden group" open><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">1</div><div class="flex-1"><p class="font-bold text-stone-800">La Shahada</p><p class="text-xs text-stone-400">L'Attestation de foi</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">"Ach-hadu an la ilaha illallah, wa ach-hadu anna Muhammadan rasulullah". C'est l'essence de l'Islam. Elle remet de l'ordre dans ton cœur : rien ne mérite d'être craint ni adoré à part Allah.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">2</div><div class="flex-1"><p class="font-bold text-stone-800">La Salât</p><p class="text-xs text-stone-400">Les 5 prières (Fajr, Dohr, Asr, Maghrib, Isha)</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">Le premier acte jugé. Ne la lâche jamais, même si tu fais des erreurs à côté. La prière t'empêchera de sombrer. C'est l'oxygène de ton âme.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">3</div><div class="flex-1"><p class="font-bold text-stone-800">La Zakât</p><p class="text-xs text-stone-400">L'aumône purificatrice</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">Obligatoire pour purifier tes biens (2,5% de l'épargne). Elle rappelle que tout ce que tu as vient d'Allah.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">4</div><div class="flex-1"><p class="font-bold text-stone-800">Le Sawm</p><p class="text-xs text-stone-400">Jeûner le Ramadan</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">L'école de la maîtrise de soi. Tu prouves à ton corps que ton âme est aux commandes.</div></details>
-        <details class="card overflow-hidden group"><summary class="p-5 flex gap-4 cursor-pointer outline-none"><div class="w-10 h-10 rounded-2xl flex items-center justify-center font-black text-white text-lg bg-rose-400">5</div><div class="flex-1"><p class="font-bold text-stone-800">Le Hajj</p><p class="text-xs text-stone-400">Le grand pèlerinage</p></div><i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform mt-2"></i></summary><div class="px-5 pb-5 border-t pt-4 text-sm text-stone-500 leading-relaxed">À faire au moins une fois si on en a les moyens physiques et financiers. Tous vêtus de blanc, égaux devant Dieu, comme le Jour du Jugement.</div></details>
-    </div>
+    
 
-    <div id="fsection-foi" class="hidden space-y-3">
-        <p class="text-xs font-black uppercase tracking-widest text-stone-400 mb-3 px-2">Les 6 Piliers de la Foi (Al-Iman)</p>
-        <div class="card p-4 flex gap-3 items-center"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-400 flex-shrink-0">1</div><div><p class="font-bold text-sm text-stone-800">En Allah</p><p class="text-xs text-stone-500">Unicité absolue.</p></div></div>
-        <div class="card p-4 flex gap-3 items-center"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-400 flex-shrink-0">2</div><div><p class="font-bold text-sm text-stone-800">Aux Anges</p><p class="text-xs text-stone-500">Créatures de lumière pures.</p></div></div>
-        <div class="card p-4 flex gap-3 items-center"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-400 flex-shrink-0">3</div><div><p class="font-bold text-sm text-stone-800">Aux Livres</p><p class="text-xs text-stone-500">Torah, Psaumes, Évangile, et le Coran préservé.</p></div></div>
-        <div class="card p-4 flex gap-3 items-center"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-400 flex-shrink-0">4</div><div><p class="font-bold text-sm text-stone-800">Aux Messagers</p><p class="text-xs text-stone-500">De Adam ﷺ à Muhammad ﷺ.</p></div></div>
-        <div class="card p-4 flex gap-3 items-center"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-400 flex-shrink-0">5</div><div><p class="font-bold text-sm text-stone-800">Au Jour Dernier</p><p class="text-xs text-stone-500">La justice et le jugement final.</p></div></div>
-        <div class="card p-4 flex gap-3 items-center"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-white bg-indigo-400 flex-shrink-0">6</div><div><p class="font-bold text-sm text-stone-800">Au Destin (Qadar)</p><p class="text-xs text-stone-500">Dieu sait, écrit, veut et crée tout ce qui arrive.</p></div></div>
+    <div id="fsection-foi" class="hidden space-y-4">
+        
+        <div class="card p-5 bg-indigo-50 border-indigo-200">
+            <h3 class="font-black text-indigo-600 mb-2 flex items-center gap-2"><span class="text-xl">☝️</span> Le Tawhid (L'Unicité)</h3>
+            <p class="text-sm text-stone-600 mb-4">C'est le cœur absolu de l'Islam. Sans le Tawhid, aucune action n'est acceptée. Il s'agit de rendre Allah Unique dans tous les domaines. Il se divise en 3 catégories complémentaires :</p>
+            <div class="space-y-3">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-100">
+                    <p class="font-bold text-indigo-600 text-sm">1. La Seigneurie (Ar-Rububiyyah)</p>
+                    <p class="text-xs text-stone-600 mt-1">C'est croire fermement qu'Allah est le Seul Créateur, le Seul Maître et le Seul qui gère l'univers. (À l'époque, même les polythéistes de La Mecque y croyaient).</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-100">
+                    <p class="font-bold text-indigo-600 text-sm">2. L'Adoration (Al-Uluhiyyah)</p>
+                    <p class="text-xs text-stone-600 mt-1">C'est la suite logique : puisqu'Il a tout créé, Lui Seul mérite d'être adoré. C'est le fait de vouer sa prière, ses invocations, sa peur et son espoir exclusivement à Allah, sans aucun intermédiaire.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-100">
+                    <p class="font-bold text-indigo-600 text-sm">3. Les Noms & Attributs (Al-Asma wa Sifat)</p>
+                    <p class="text-xs text-stone-600 mt-1">C'est croire en tous les Noms et Attributs qu'Allah s'est donnés dans le Coran, sans les modifier et surtout sans Le comparer à Ses créatures (Ex: Il voit et entend, mais d'une manière absolue qui ne ressemble pas à la nôtre).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-5 bg-amber-50 border-amber-200">
+            <h3 class="font-black text-amber-600 mb-2 flex items-center gap-2"><span class="text-xl">🔺</span> La Pyramide de la Religion</h3>
+            <p class="text-sm text-stone-600 mb-4">L'Ange Jibril (Gabriel) est venu un jour sous l'apparence d'un homme pour enseigner la religion aux compagnons. Il l'a décrite comme une pyramide à 3 étages :</p>
+            
+            <div class="space-y-4">
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Niveau 1 : Al-Islam (Les Actes physiques) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">C'est la base, la soumission visible. Ce sont les actes d'adoration que tu accomplis avec ton corps. Il repose sur les <b>5 piliers</b> :</p>
+                        <ol class="list-decimal pl-4 space-y-1 text-xs font-medium text-stone-500">
+                            <li><b class="text-stone-700">La Shahada :</b> L'attestation de foi (Il n'y a de Dieu qu'Allah...).</li>
+                            <li><b class="text-stone-700">La Salat :</b> Les 5 prières quotidiennes.</li>
+                            <li><b class="text-stone-700">La Zakat :</b> L'aumône obligatoire sur l'épargne.</li>
+                            <li><b class="text-stone-700">Le Sawm :</b> Le jeûne du mois de Ramadan.</li>
+                            <li><b class="text-stone-700">Le Hajj :</b> Le pèlerinage à La Mecque.</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-xl p-4 shadow-sm group cursor-pointer outline-none">
+                    <summary class="font-bold text-stone-800 list-none flex justify-between items-center">Niveau 2 : Al-Iman (La Foi intérieure) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-stone-600 leading-relaxed border-t pt-3">
+                        <p class="mb-2">On monte d'un étage. C'est la conviction profonde et inébranlable cachée dans ton cœur. Il repose sur <b>6 piliers</b> :</p>
+                        <ol class="list-decimal pl-4 space-y-1 text-xs font-medium text-stone-500">
+                            <li><b class="text-stone-700">En Allah :</b> Son existence et Son Tawhid.</li>
+                            <li><b class="text-stone-700">Aux Anges :</b> Les créatures de lumière qui obéissent à Ses ordres.</li>
+                            <li><b class="text-stone-700">Aux Livres :</b> La Torah, l'Évangile, les Psaumes et l'ultime préservé, le Coran.</li>
+                            <li><b class="text-stone-700">Aux Messagers :</b> De Adam à Muhammad ﷺ.</li>
+                            <li><b class="text-stone-700">Au Jour Dernier :</b> La résurrection, le jugement et l'éternité.</li>
+                            <li><b class="text-stone-700">Au Destin (Qadar) :</b> Que le bon comme le mauvais vient du décret d'Allah.</li>
+                        </ol>
+                    </div>
+                </details>
+
+                <details class="bg-gradient-to-br from-amber-100 to-amber-50 rounded-xl p-4 shadow-sm border border-amber-300 group cursor-pointer outline-none relative overflow-hidden">
+                    <summary class="font-black text-amber-700 list-none flex justify-between items-center z-10 relative">Niveau 3 : Al-Ihsan (L'Excellence) ✨ <i data-lucide="chevron-down" class="w-4 h-4 text-amber-500 group-open:rotate-180 transition-transform flex-shrink-0 ml-2"></i></summary>
+                    <div class="mt-3 text-sm text-amber-900 leading-relaxed border-t border-amber-200 pt-3 z-10 relative">
+                        <p class="mb-3">C'est le sommet absolu, l'excellence dans l'adoration et le comportement. Le Prophète ﷺ l'a défini ainsi :</p>
+                        <p class="italic font-bold text-center mb-3">"L'Ihsan, c'est d'adorer Allah comme si tu Le voyais. Car si toi tu ne Le vois pas, certes Lui te voit."</p>
+                        <p>À ce niveau, tu ne pries plus par simple obligation, tu pries par <b>amour et conscience totale</b> de la présence divine. Tu deviens aussi excellent avec les gens (tes parents, les pauvres), car tu sais qu'Allah t'observe agir avec Ses créatures.</p>
+                    </div>
+                </details>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1174,7 +1755,23 @@
         <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">✨ Dua Laylat al-Qadr <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, Tu es l'Indulgent, Tu aimes l'indulgence, sois indulgent envers moi."</p></div></details>
         <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">🌊 Dua de l'anxiété <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, je cherche refuge en Toi contre l'inquiétude et la tristesse."</p></div></details>
         <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">📚 Pour le savoir utile <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ انْفَعْنِي بِمَا عَلَّمْتَنِي وَعَلِّمْنِي مَا يَنْفَعُنِي</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, fais-moi profiter de ce que Tu m'as enseigné, et enseigne-moi ce qui m'est utile."</p></div></details>
-        <details class="card p-5 group"><summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between">🤍 Istikhâra (La consultation) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i></summary><div class="mt-3 border-t pt-3"><p class="amiri text-2xl text-rose-500 text-right">اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ</p><p class="text-sm text-stone-600 mt-2">"Ô Allah, je Te demande conseil par Ta science et je Te demande la capacité par Ta puissance..." (À réciter après 2 rak'as pour un choix important).</p></div></details>
+        <details class="card p-5 group">
+            <summary class="font-bold text-sm text-stone-800 outline-none cursor-pointer flex justify-between items-center">
+                🤍 Istikhâra (La consultation complète) <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform"></i>
+            </summary>
+            <div class="mt-3 border-t pt-3">
+                <p class="amiri text-xl text-rose-500 text-right leading-relaxed mb-4">
+                    اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ وَتَعْلَمُ وَلَا أَعْلَمُ وَأَنْتَ عَلَّامُ الْغُيُوبِ اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ <span class="text-rose-700 font-bold">(on nomme le choix ici)</span> خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ ثُمَّ أَرْضِنِي بِهِ
+                </p>
+                <p class="text-[10px] text-stone-400 uppercase font-black mb-2 tracking-widest">Traduction complète :</p>
+                <p class="text-xs text-stone-600 leading-relaxed italic">
+                    "Ô Allah, je Te demande conseil par Ta science et je Te demande la capacité par Ta puissance, et je Te demande de Ta grâce immense. Car Tu es capable et je ne le suis pas, Tu sais et je ne sais pas, et c'est Toi le Grand Connaisseur de l'invisible. Ô Allah, si Tu sais que cette affaire <span class="text-rose-500">(citer ton projet)</span> est un bien pour moi dans ma religion, ma vie présente et ma vie future, alors décrète-la moi, facilite-la moi, puis bénis-la pour moi. Et si Tu sais que cette affaire est un mal pour moi dans ma religion, ma vie présente et ma vie future, alors écarte-la de moi et écarte-moi d'elle, et décrète-moi le bien là où il se trouve, puis rends-moi satisfaite de cela."
+                </p>
+                <div class="mt-4 p-3 bg-stone-50 rounded-xl border-l-2 border-stone-200">
+                    <p class="text-[10px] text-stone-500 font-bold">💡 CONSEIL : À réciter après avoir fait 2 rak'as (unités de prière) en dehors des prières obligatoires.</p>
+                </div>
+            </div>
+        </details>
     </div>
 </div>
 
@@ -1186,8 +1783,9 @@
         <button id="nav-train" onclick="window.showTab('train')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
             <i data-lucide="mic" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Fluidité</span>
         </button>
-        <button id="nav-arabic" onclick="window.showTab('arabic')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
-            <i data-lucide="type" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Arabe</span>
+        
+        <button id="nav-ghayb" onclick="window.showTab('ghayb')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
+            <i data-lucide="eye-off" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Au-delà</span>
         </button>
         <button id="nav-prophets" onclick="window.showTab('prophets')" class="flex flex-col items-center gap-0.5 px-3 py-1.5 min-w-[52px]">
             <i data-lucide="stars" class="nav-icon w-5 h-5 text-stone-400"></i><span class="nav-label text-[9px] font-black text-stone-400 uppercase tracking-widest">Prophètes</span>
@@ -1203,7 +1801,7 @@
         </button>
     </div>
 </nav>
-
+</nav>
 </div>
 </body>
 </html>
